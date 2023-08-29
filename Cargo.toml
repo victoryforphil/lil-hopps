@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "lilviz",
+    "quads/basher",
+    "quads/hopper",
+    "wingman",
+    "flytecode"
+]
