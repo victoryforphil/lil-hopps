@@ -1,12 +1,15 @@
 use wingman::types::pose::Pose;
+use wingman::types::movement::Movement;
 
 /// NavigationHardware is a trait that defines the interface for hardware that can provide pose information.
 /// 
 /// # Functions
 /// 
 /// * get_pose - Returns the current pose of the hardware.
+/// * get_movement - Returns the current movement of the hardware.
 pub trait NavigationHardware{
     fn get_pose(&self) -> Result<Pose, String>;
+    fn get_movement(&self) -> Result<Movement, String>;
 }
 
 #[cfg(test)]
@@ -30,6 +33,10 @@ mod tests{
     impl NavigationHardware for MockNavigationHardware{
         fn get_pose(&self) -> Result<Pose, String>{
             Ok(self.pose.clone())
+        }
+
+        fn get_movement(&self) -> Result<Movement, String>{
+            Ok(Movement::zero())
         }
     }
 
