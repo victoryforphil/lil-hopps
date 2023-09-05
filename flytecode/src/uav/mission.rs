@@ -1,3 +1,5 @@
+
+#[derive(Clone)]
 pub enum UAVMission{
     Takeoff,
     Land,
