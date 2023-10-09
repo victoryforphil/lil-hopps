@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Movement{
     lin_accel: nalgebra::Vector3<f64>,
     ang_accel: nalgebra::Vector3<f64>,
