@@ -18,4 +18,9 @@ impl SimWorld{
         let floor_collider_handle = collider_set.insert(floor_collider);
         self.floor = floor_collider_handle;        
     }
+
+    pub fn tick(&mut self, rigid_body_set: &mut RigidBodySet, collider_set: &mut ColliderSet){
+        let floor_collider = collider_set.get_mut(self.floor).unwrap();
+        floor_collider.set_translation([0.0, 0.0, 0.0].into());
+    }
 }

@@ -8,7 +8,7 @@ pub struct UAVConfig{
 impl UAVConfig{
     pub fn new_250mm() -> UAVConfig{
         UAVConfig{
-            motor_force_n: 2000.0,
+            motor_force_n: 1000.0,
             arm_length_m: 125.0,
             weight_g: 500.0,
         }
@@ -22,7 +22,7 @@ mod tests{
     #[test]
     fn test_new_250mm(){
         let config = UAVConfig::new_250mm();
-        assert_eq!(config.motor_force_n, 2000.0);
+        assert_eq!(config.motor_force_n, 1000.0);
         assert_eq!(config.arm_length_m, 125.0);
         assert_eq!(config.weight_g, 500.0);
     }
