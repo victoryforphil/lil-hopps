@@ -12,9 +12,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-        run:
-          working-directory: ./service
     steps:
       - uses: actions/checkout@v3
       - uses: taiki-e/install-action@nextest
