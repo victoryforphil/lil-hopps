@@ -6,7 +6,7 @@ use rapier3d::prelude::{ColliderHandle, RigidBodyHandle, RigidBodyBuilder, Rigid
 use crate::{uav::{UAV, state::UAVState}, simulation::{context::SimulationContextHandle, state::SimulationState}, types::pose::Pose};
 
 use super::SimActor;
-
+#[derive(Debug, Clone)]
 pub struct UAVActorResult{
     pub uav_state: UAVState
 }

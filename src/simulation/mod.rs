@@ -8,6 +8,7 @@ use self::{actors::{world_actor::WorldActor, uav_actor::UAVActor, SimActor}, con
 pub mod context;
 pub mod state;
 pub mod actors;
+pub mod runner;
 pub struct Simulation{
     pub world: WorldActor,
     pub uav: UAVActor,
@@ -50,11 +51,13 @@ impl Simulation{
                 println!("Error initializing uav actor: {}", e);
             }
         }
+    
+        self.state.running = true;
     }
 
     pub fn step(&mut self, t: Instant, dt: Duration){
        
-       
+        self.state.running = true;
         self.context.physics_pipeline.step(
             &self.context.gravity,
             &self.context.intergration_parameters,
@@ -93,5 +96,9 @@ impl Simulation{
         }
 
         
+    }
+
+    pub fn stop(&mut self){
+        self.state.running = false;
     }
 }

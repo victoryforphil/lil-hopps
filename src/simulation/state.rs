@@ -1,10 +1,11 @@
 use crate::{uav::state::UAVState, types::pose::Pose};
 
 use super::actors::{uav_actor::UAVActorResult, world_actor::WorldActorResult};
-
+#[derive(Debug, Clone)]
 pub struct SimulationState{
     pub uav_state: UAVActorResult,
     pub world_state: WorldActorResult,
+    pub running: bool,
 }
 
 impl SimulationState{
@@ -12,6 +13,7 @@ impl SimulationState{
         SimulationState{
             uav_state: UAVActorResult::new(UAVState::new(Pose::zero())),
             world_state: WorldActorResult::new(),
+            running: false,
         }
     }
 }

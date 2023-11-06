@@ -5,7 +5,7 @@ use rapier3d::prelude::{ColliderHandle,ColliderBuilder};
 use crate::{simulation::{context::SimulationContextHandle, state::SimulationState}};
 
 use super::SimActor;
-
+#[derive(Debug, Clone)]
 pub struct WorldActorResult{
 
 }
