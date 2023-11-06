@@ -52,7 +52,7 @@ impl SimActor<WorldActorResult> for WorldActor{
 mod tests {
     use std::sync::{Mutex, Arc};
 
-    use crate::simulation::context::SimulationContext;
+    use crate::{simulation::{context::SimulationContext, actors::uav_actor::UAVActorResult}, uav::state::UAVState, types::pose::Pose};
 
     use super::*;
 
@@ -60,13 +60,12 @@ mod tests {
     fn test_world_actor() {
         let mut world_actor = WorldActor::new();
         let mut context = SimulationContext::new();
-        let mut context = Arc::new(Mutex::new(context));
-        let state = SimulationState{};
-        let result = world_actor.init(context.clone(), &state);
+        let state = SimulationState{ uav_state: UAVActorResult::new(UAVState::new(Pose::zero())), world_state: WorldActorResult {  } };
+        let result = world_actor.init(&mut context, &state);
         assert!(result.is_ok());
-        let result = world_actor.step(context.clone(), &state, Instant::now(), Duration::from_secs(1));
+        let result = world_actor.step(&mut context, &state, Instant::now(), Duration::from_secs(1));
         assert!(result.is_ok());
 
-        assert!(context.lock().unwrap().coliders.len() == 1);
+        assert!(context.coliders.len() == 1);
     }
 }
