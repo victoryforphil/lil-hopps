@@ -96,7 +96,7 @@ mod tests{
 
     #[test]
     fn test_new(){
-        let config = UAVConfig { motor_force_n: 1000.0, arm_length_m: 125.0, weight_g: 500.0 };
+        let config = UAVConfig { motor_force_n: 1000.0, arm_length_m: 125.0, weight_g: 500.0 ,rotation_lock: (false, false, false)};
         let motor = Motor::new(1, config);
         assert_eq!(motor.motor_force_n, 1000.0);
         assert_eq!(motor.motor_number, 1);
@@ -128,7 +128,7 @@ mod tests{
 
     #[test]
     fn test_get_force_vector(){
-        let config = UAVConfig { motor_force_n: 1000.0, arm_length_m: 125.0, weight_g: 500.0 };
+        let config = UAVConfig { motor_force_n: 1000.0, arm_length_m: 125.0, weight_g: 500.0, rotation_lock: (false, false, false) };
         let mut motor = Motor::new(1, config);
         motor.set_input_scalar(0.5);
         let force = motor.get_physics();
