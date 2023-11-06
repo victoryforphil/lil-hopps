@@ -36,8 +36,6 @@ impl UAV{
 
         for i in 0..4{
             self.motors[i].set_input_scalar(self.state.motors[i]);
-            let out = self.motors[i].get_physics();
-            println!("Motor {} force: {:?}", i, out);
         }
         Ok(())
     }

@@ -1,3 +1,4 @@
+use nalgebra::Point;
 use rapier3d::prelude::{ColliderHandle, RigidBodyHandle, RigidBodyBuilder, RigidBodySet, ColliderSet};
 
 use crate::uav::UAV;
@@ -24,12 +25,26 @@ impl SimUAV{
         
     }
 
+    pub fn tick(&mut self, rigid_body_set: &mut RigidBodySet, collider_set: &mut ColliderSet, dt: f32){
+        let rigid_body = rigid_body_set.get_mut(self.rigid_body).unwrap();
+        
+        self.apply_motor_force(rigid_body_set);
+    }
+
     fn apply_motor_force(&mut self, rigid_body_set: &mut RigidBodySet){
-        let mut force = [0.0; 3];
+      
         for i in 0..4{
 
+            let physcis = self.uav.motors[i].get_physics();
             
-            force[0] += self.uav.state.motors[i] * 100.0;
+            let force = physcis.force;
+            let torque = physcis.torque;
+            let position = physcis.offset;
+
+            let point = Point::from(position);
+
+            let rigid_body = rigid_body_set.get_mut(self.rigid_body).unwrap();
+            rigid_body.add_force_at_point(force, point, true);
         }
 
         //rigid_body_set.apply_force(self.rigid_body, &force, true);

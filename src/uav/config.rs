@@ -3,6 +3,7 @@ pub struct UAVConfig{
     pub motor_force_n: f32,
     pub arm_length_m: f32,
     pub weight_g: f32,
+    pub rotation_lock: (bool, bool, bool), // (x, y, z)
 }
 
 impl UAVConfig{
@@ -11,7 +12,20 @@ impl UAVConfig{
             motor_force_n: 1000.0,
             arm_length_m: 125.0,
             weight_g: 500.0,
+            rotation_lock: (false, false, false),
         }
+    }
+
+    pub fn lock_pitch(&mut self){
+        self.rotation_lock.0 = true;
+    }
+
+    pub fn lock_roll(&mut self){
+        self.rotation_lock.1 = true;
+    }
+
+    pub fn lock_yaw(&mut self){
+        self.rotation_lock.2 = true;
     }
 }
 

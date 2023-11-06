@@ -26,5 +26,6 @@ impl Simulation{
 
     pub fn step(&mut self, dt: f32){
         println!("Simulation step");
+        self.uav.tick(&mut self.rigidbody_set, &mut self.collider_set, dt);
     }
 }
