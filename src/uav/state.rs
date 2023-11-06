@@ -1,5 +1,5 @@
 use crate::types::{movement::Movement, pose::Pose};
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct UAVState{
     pub pose: Pose,
     pub movenment: Movement,

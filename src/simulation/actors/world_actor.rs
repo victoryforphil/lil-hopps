@@ -33,7 +33,7 @@ impl WorldActor{
 impl SimActor<WorldActorResult> for WorldActor{
 
     fn init(&mut self, context: SimulationContextHandle, _: &SimulationState) -> Result<WorldActorResult, String> {
-        let mut context = context.lock().unwrap();
+      
         let floor_collider = ColliderBuilder::cuboid(100.0, 100.0, 0.1).build();
         let floor_collider_handle: ColliderHandle = context.coliders.insert(floor_collider);
         self.floor = floor_collider_handle;     
@@ -41,7 +41,7 @@ impl SimActor<WorldActorResult> for WorldActor{
     }
 
     fn step(&mut self, context: SimulationContextHandle, _: &SimulationState, _:Instant, _:Duration) -> Result<WorldActorResult, String> {
-        let mut context = context.lock().unwrap();
+      
         let floor_collider = context.coliders.get_mut(self.floor).unwrap();
         floor_collider.set_translation([0.0, 0.0, 0.0].into());
         Ok(WorldActorResult::new())

@@ -42,8 +42,8 @@ impl SimulationContext {
 }
 
 // Save Arc Mutex type 
-pub type SimulationContextHandle = std::sync::Arc<std::sync::Mutex<SimulationContext>>;
-
+//pub type SimulationContextHandle = std::sync::Arc<std::sync::Mutex<SimulationContext>>;
+pub type SimulationContextHandle<'a> = &'a mut SimulationContext;
 #[cfg(test)]
 mod tests {
     use super::*;

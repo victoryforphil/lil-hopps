@@ -40,5 +40,29 @@ mod tests{
         assert_eq!(config.arm_length_m, 125.0);
         assert_eq!(config.weight_g, 500.0);
     }
+
+    #[test]
+    fn test_rotation_lock(){
+        let mut config = UAVConfig{
+            motor_force_n: 1000.0,
+            arm_length_m: 200.0,
+            weight_g: 400.0,
+            rotation_lock: (false, false, false),
+        };
+        config.lock_pitch();
+        assert_eq!(config.rotation_lock.0, true);
+        assert_eq!(config.rotation_lock.1, false);
+        assert_eq!(config.rotation_lock.2, false);
+
+        config.lock_roll();
+        assert_eq!(config.rotation_lock.0, true);
+        assert_eq!(config.rotation_lock.1, true);
+        assert_eq!(config.rotation_lock.2, false);
+
+        config.lock_yaw();
+        assert_eq!(config.rotation_lock.0, true);
+        assert_eq!(config.rotation_lock.1, true);
+        assert_eq!(config.rotation_lock.2, true);
+    }
 }
 
