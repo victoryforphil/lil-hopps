@@ -8,9 +8,7 @@ pub mod types;
 pub mod uav;
 pub mod simulation;
 
-// No Coverage
 
-#[cfg(no_coverage)]
 fn main() {
     CombinedLogger::init(
         vec![
@@ -24,3 +22,7 @@ fn main() {
 }
 
 
+#[test]
+fn test_main() {
+    main();
+}
