@@ -104,3 +104,16 @@ impl Simulation{
         self.state.running = false;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_simulation() {
+        let mut simulation = Simulation::new();
+        simulation.init();
+        simulation.step(0.0, 0.0);
+        simulation.stop();
+    }
+}

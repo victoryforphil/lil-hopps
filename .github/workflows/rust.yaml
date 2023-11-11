@@ -31,6 +31,14 @@ jobs:
         with:
             files: codecov.json
             fail_ci_if_error: true 
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: taiki-e/install-action@nextest
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: rustup update stable
       - name: Build docs
         run: cargo doc --verbose --all-features --workspace
       - name: Deploy docs
