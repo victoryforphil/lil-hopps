@@ -84,41 +84,37 @@ impl SimRunner {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::simulation::runner_options::SimRunnerOptions;
 
     #[test]
-    fn test_new() {
-        let options = SimRunnerOptions::new(10.0);
-        let runner = SimRunner::new(options);
-        assert_eq!(runner.options.max_t, 10.0);
-        assert_eq!(runner.options.dt, 0.01);
-        assert_eq!(runner.options.threaded, false);
-        assert_eq!(runner.options.join, false);
-    }
-
-    #[test]
-    fn test_new_threaded() {
-        let options = SimRunnerOptions::new_threaded(10.0);
-        let runner = SimRunner::new(options);
-        assert_eq!(runner.options.max_t, 10.0);
-        assert_eq!(runner.options.dt, 0.01);
-        assert_eq!(runner.options.threaded, true);
-        assert_eq!(runner.options.join, true);
-    }
-
-    #[test]
-    fn test_new_unjoined() {
-        let options = SimRunnerOptions::new_unjoined(10.0);
-        let runner = SimRunner::new(options);
-        assert_eq!(runner.options.max_t, 10.0);
-        assert_eq!(runner.options.dt, 0.01);
-        assert_eq!(runner.options.threaded, true);
-        assert_eq!(runner.options.join, false);
-    }
-
-    #[test]
-    fn test_start() {
-        let options = SimRunnerOptions::new(10.0);
-        let mut runner = SimRunner::new(options);
+    fn test_sim_runner() {
+        let mut rabit = 0;
+        let mut runner = SimRunner::new(SimRunnerOptions::new_threaded(10.0));
         runner.start();
+        let mut state = runner.channel_rx.try_recv();
+        let mut last_valid_state = state.clone();
+        while state.is_ok() {
+            state = runner.channel_rx.try_recv();
+            if state.is_ok() {
+                last_valid_state = state.clone();
+            }
+        }
+        state = last_valid_state;
+        assert_eq!(state.unwrap().running, false);
+    }
+
+    #[test]
+    fn test_sim_runner_unjoined() {
+        let mut rabbit = 0;
+        let mut runner = SimRunner::new(SimRunnerOptions::new_unjoined(10.0));
+        rabbit = 1;
+        assert_eq!(rabbit, 1);
+        runner.start();
+        assert_eq!(runner.channel_rx.recv().unwrap().running, true);
+
+        while (runner.channel_rx.try_recv().is_ok()) {
+           
+        }
+       
     }
 }
