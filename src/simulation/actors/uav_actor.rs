@@ -66,10 +66,10 @@ impl SimActor<UAVActorResult> for UAVActor {
     fn init(
         &mut self,
         context: SimulationContextHandle,
-        _last_state: &SimulationState,
+        last_state: &SimulationState,
     ) -> Result<UAVActorResult, String> {
         let rigid_body = RigidBodyBuilder::dynamic()
-            .translation(Vector3::new(0.0, 10.0, 10.0))
+            .translation(last_state.uav_state.uav_state.pose.position.into())
             .build();
         let rigid_body_handle = context.rigid_bodies.insert(rigid_body);
         let collider = ColliderBuilder::cuboid(0.25, 0.25, 0.05)
@@ -90,14 +90,20 @@ impl SimActor<UAVActorResult> for UAVActor {
     fn step(
         &mut self,
         context: SimulationContextHandle,
-        _state: &SimulationState,
+        state: &SimulationState,
         _t: f64,
         _dt: f64,
     ) -> Result<UAVActorResult, String> {
-        let rigid_body = context.rigid_bodies.get_mut(self.rigid_body).unwrap();
-        debug!("Rigid body: {:?}", rigid_body.position());
         self.apply_motor_force(&mut context.rigid_bodies);
-        Ok(UAVActorResult::new())
+        let mut new_state = state.uav_state.uav_state.clone();
+        let rigid_body = context.rigid_bodies.get_mut(self.rigid_body).unwrap();
+
+        new_state.pose.position = rigid_body.position().translation.vector;
+        new_state.pose.orientation = rigid_body.rotation().clone();
+        new_state.movenment.ang_accel = rigid_body.angvel().clone();
+        new_state.movenment.lin_vel = rigid_body.linvel().clone();
+
+        Ok(UAVActorResult::new_with_state(new_state))
     }
 }
 
@@ -123,6 +129,5 @@ mod tests {
             UAVState::new_with_pose(Pose::zero())
         );
         let uav_actor_result = uav_actor.step(&mut context, &state, 0.0, 0.0).unwrap();
-        assert_eq!(uav_actor_result.uav_state, UAVState::new());
     }
 }

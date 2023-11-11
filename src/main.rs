@@ -24,7 +24,14 @@ fn main() {
     ])
     .unwrap();
     let mut runner = SimRunner::new(SimRunnerOptions::new(3.0));
+
     runner.start();
+
+    let mut state = runner.channel_rx.try_recv();
+    while state.is_ok() {
+        debug!("State: {:?}", state);
+        state = runner.channel_rx.try_recv();
+    }
 }
 
 #[test]

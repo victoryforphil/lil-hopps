@@ -1,65 +1,61 @@
+use self::{
+    actors::{uav_actor::UAVActor, world_actor::WorldActor, SimActor},
+    context::SimulationContext,
+    state::SimulationState,
+};
 
-
-
-
-
-use self::{actors::{world_actor::WorldActor, uav_actor::UAVActor, SimActor}, context::{SimulationContext}, state::SimulationState};
-
-
-pub mod context;
-pub mod state;
 pub mod actors;
+pub mod context;
 pub mod runner;
 pub mod runner_options;
-pub struct Simulation{
+pub mod state;
+pub struct Simulation {
     pub world: WorldActor,
     pub uav: UAVActor,
     pub context: SimulationContext,
     pub state: SimulationState,
 }
 
-
-impl Simulation{
-    pub fn new() -> Self{
+impl Simulation {
+    pub fn new() -> Self {
         let _context = SimulationContext::new();
-        Simulation{
+        Simulation {
             world: WorldActor::new(),
             uav: UAVActor::new(),
             context: SimulationContext::new(),
             state: SimulationState::new(),
         }
-         
     }
 
-    pub fn init(&mut self){
-
+    pub fn init(&mut self) {
+        self.state.uav_state.uav_state.pose.position.z = 20.0;
         let world_res = self.world.init(&mut self.context, &self.state);
         let uav_res = self.uav.init(&mut self.context, &self.state);
 
-        match world_res{
+        match world_res {
             Ok(result) => {
                 self.state.world_state = result;
-            },
+            }
             Err(e) => {
                 println!("Error initializing world actor: {}", e);
             }
         }
 
-        match uav_res{
+        match uav_res {
             Ok(result) => {
                 self.state.uav_state = result;
-            },
+            }
             Err(e) => {
                 println!("Error initializing uav actor: {}", e);
             }
         }
-    
+
         self.state.running = true;
     }
 
-    pub fn step(&mut self, t: f64, dt: f64){
+    pub fn step(&mut self, t: f64, dt: f64) {
         self.context.intergration_parameters.dt = dt as f32;
-        self.state.running = true;  
+        self.state.running = true;
         self.context.physics_pipeline.step(
             &self.context.gravity,
             &self.context.intergration_parameters,
@@ -79,28 +75,26 @@ impl Simulation{
         let world_res = self.world.step(&mut self.context, &self.state, t, dt);
         let uav_res = self.uav.step(&mut self.context, &self.state, t, dt);
 
-        match world_res{
+        match world_res {
             Ok(result) => {
                 self.state.world_state = result;
-            },
+            }
             Err(e) => {
                 println!("Error stepping world actor: {}", e);
             }
         }
 
-        match uav_res{
+        match uav_res {
             Ok(result) => {
                 self.state.uav_state = result;
-            },
+            }
             Err(e) => {
                 println!("Error stepping uav actor: {}", e);
             }
         }
-
-        
     }
 
-    pub fn stop(&mut self){
+    pub fn stop(&mut self) {
         self.state.running = false;
     }
 }
