@@ -117,4 +117,19 @@ mod tests {
         }
        
     }
+
+    #[test]
+    fn test_sim_runner_unthreaded() {
+        let mut rabbit = 0;
+        let mut runner = SimRunner::new(SimRunnerOptions::new(10.0));
+        rabbit = 1;
+        assert_eq!(rabbit, 1);
+        runner.start();
+        assert_eq!(runner.channel_rx.recv().unwrap().running, true);
+
+        while (runner.channel_rx.try_recv().is_ok()) {
+           
+        }
+       
+    }
 }
