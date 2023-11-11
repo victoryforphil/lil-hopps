@@ -17,3 +17,15 @@ impl Visualization{
         println!("Visualization step");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_visualization(){
+        let mut vis = Visualization::new();
+        vis.init();
+        vis.render(0.01);
+    }
+}

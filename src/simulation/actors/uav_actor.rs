@@ -77,3 +77,22 @@ impl SimActor<UAVActorResult> for UAVActor{
         Ok(UAVActorResult::new(self.uav.state.clone()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    
+    use crate::{simulation::{context::SimulationContext, actors::uav_actor::UAVActorResult}, uav::state::UAVState, types::pose::Pose};
+
+    use super::*;
+
+    #[test]
+    fn test_uav_actor() {
+        let mut context = SimulationContext::new();
+        let mut uav_actor = UAVActor::new();
+        let mut state = SimulationState::new();
+        let uav_actor_result = uav_actor.init(&mut context, &state).unwrap();
+        assert_eq!(uav_actor_result.uav_state, UAVState::new(Pose::zero()));
+        let uav_actor_result = uav_actor.step(&mut context, &state, 0.0, 0.0).unwrap();
+        assert_eq!(uav_actor_result.uav_state, UAVState::new(Pose::zero()));
+    }
+}
