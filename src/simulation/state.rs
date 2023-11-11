@@ -24,7 +24,7 @@ mod tests{
 
     #[test]
     fn test_new(){
-        let _state = SimulationState::new();
-        
+        let state = SimulationState::new();
+        assert_eq!(state.running, false);
     }
 }

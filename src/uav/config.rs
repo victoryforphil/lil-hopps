@@ -39,6 +39,8 @@ mod tests{
         assert_eq!(config.motor_force_n, 1000.0);
         assert_eq!(config.arm_length_m, 125.0);
         assert_eq!(config.weight_g, 500.0);
+
+        println!("{:?}", config);
     }
 
     #[test]

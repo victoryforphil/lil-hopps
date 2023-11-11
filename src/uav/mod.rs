@@ -49,6 +49,18 @@ mod tests{
     fn test_new(){
         let uav = UAV::new();
         assert_eq!(uav.state, UAVState::new(Pose::zero()));
-        
+        assert_eq!(uav.motors.len(), 4);
+    }
+
+    #[test]
+    fn test_process(){
+        let mut uav = UAV::new();
+        uav.state.motors = [0.0, 0.5, 1.0, 1.5];
+        let result = uav.process(0.0, 0.0);
+        assert!(result.is_ok());
+        assert_eq!(uav.motors[0].current_value, 0.0);
+        assert_eq!(uav.motors[1].current_value, 0.5);
+        assert_eq!(uav.motors[2].current_value, 1.0);
+        assert_eq!(uav.motors[3].current_value, 1.5);
     }
 }
