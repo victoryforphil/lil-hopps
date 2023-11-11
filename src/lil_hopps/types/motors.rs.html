@@ -137,35 +137,43 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>nalgebra::Vector3;
 
 <span class="kw">use </span><span class="kw">crate</span>::uav::config::UAVConfig;
 
-
-
-<span class="kw">pub struct </span>Motor{
+<span class="kw">pub struct </span>Motor {
     <span class="kw">pub </span>motor_force_n: f32,
     <span class="kw">pub </span>motor_number: u8,
     <span class="kw">pub </span>motor_offset_b: Vector3&lt;f32&gt;,
     <span class="kw">pub </span>current_value: f32,
 }
 <span class="attr">#[derive(Debug, PartialEq, Clone)]
-</span><span class="kw">pub struct </span>MotorPhysics{
+</span><span class="kw">pub struct </span>MotorPhysics {
     <span class="kw">pub </span>force: Vector3&lt;f32&gt;,
     <span class="kw">pub </span>torque: Vector3&lt;f32&gt;,
     <span class="kw">pub </span>offset: Vector3&lt;f32&gt;,
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MotorPhysics{
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result{
-        <span class="macro">write!</span>(f, <span class="string">&quot;Force: {:?}, Torque: {:?}, Offset: {:?}&quot;</span>, <span class="self">self</span>.force, <span class="self">self</span>.torque, <span class="self">self</span>.offset)
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MotorPhysics {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(
+            f,
+            <span class="string">&quot;Force: {:?}, Torque: {:?}, Offset: {:?}&quot;</span>,
+            <span class="self">self</span>.force, <span class="self">self</span>.torque, <span class="self">self</span>.offset
+        )
     }
-    
 }
 
-<span class="kw">impl </span>Motor{
-    <span class="kw">pub fn </span>new(num:u8, config: UAVConfig) -&gt; Motor{
-        Motor{
+<span class="kw">impl </span>Motor {
+    <span class="kw">pub fn </span>new(num: u8, config: UAVConfig) -&gt; Motor {
+        Motor {
             motor_force_n: config.motor_force_n,
             motor_number: num,
             motor_offset_b: Motor::calculate_offset(config.arm_length_m, num),
@@ -175,49 +183,47 @@
 
     <span class="doccomment">/// Set the input value of the motor (0.0 - 1.0)
     /// This is the value that is used to calculate the force vector
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `input` - The input value of the motor (0.0 - 1.0)
-    </span><span class="kw">pub fn </span>set_input_scalar(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: f32){
+    </span><span class="kw">pub fn </span>set_input_scalar(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: f32) {
         <span class="self">self</span>.current_value = input;
     }
 
-    <span class="doccomment">/// Calculate the force vector of the motor in the body frame 
+    <span class="doccomment">/// Calculate the force vector of the motor in the body frame
     /// using the current value of the motor (0.0 - 1.0)
     /// (set using set_input_scalar() )
-    /// 
+    ///
     /// # Returns
-    /// 
-    </span><span class="kw">pub fn </span>get_physics(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MotorPhysics{
-       <span class="kw">let </span>force =  <span class="self">self</span>.current_value * <span class="self">self</span>.motor_force_n;
-       <span class="kw">let </span>force_vector = Vector3::new(<span class="number">0.0</span>, <span class="number">0.0</span>, -force);
-       <span class="kw">let </span>offset = <span class="self">self</span>.motor_offset_b;
-       <span class="kw">let </span>torque = Vector3::zeros(); <span class="comment">//TODO: Motor Torque https://github.com/victoryforphil/lil-hopps/issues/7
+    ///
+    </span><span class="kw">pub fn </span>get_physics(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MotorPhysics {
+        <span class="kw">let </span>force = <span class="self">self</span>.current_value * <span class="self">self</span>.motor_force_n;
+        <span class="kw">let </span>force_vector = Vector3::new(<span class="number">0.0</span>, <span class="number">0.0</span>, -force);
+        <span class="kw">let </span>offset = <span class="self">self</span>.motor_offset_b;
+        <span class="kw">let </span>torque = Vector3::zeros(); <span class="comment">//TODO: Motor Torque https://github.com/victoryforphil/lil-hopps/issues/7
 
-         </span>MotorPhysics{
-              force: force_vector,
-              torque: torque,
-              offset: offset,
-         }
+        </span>MotorPhysics {
+            force: force_vector,
+            torque: torque,
+            offset: offset,
+        }
     }
 
     <span class="doccomment">///
     /// Calculate the offset of the motor from the center of the UAV
     /// Use Following Motor Layer
-    ///        
     ///        1     
     ///        |     
     ///   4 -- + -- 2         
     ///        |     
-    ///       3     
-    /// 
-    /// 1 - Front 
+    ///        3     
+    /// 1 - Front
     /// 2 - Right
     /// 3 - Back
     /// 4 - Left
-    </span><span class="kw">pub fn </span>calculate_offset(arm_size: f32, motor_num:u8) -&gt; Vector3&lt;f32&gt;{
-        <span class="kw">match </span>motor_num{
+    </span><span class="kw">pub fn </span>calculate_offset(arm_size: f32, motor_num: u8) -&gt; Vector3&lt;f32&gt; {
+        <span class="kw">match </span>motor_num {
             <span class="number">1 </span>=&gt; Vector3::new(arm_size, <span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="number">2 </span>=&gt; Vector3::new(<span class="number">0.0</span>, -arm_size, <span class="number">0.0</span>),
             <span class="number">3 </span>=&gt; Vector3::new(-arm_size, <span class="number">0.0</span>, <span class="number">0.0</span>),
@@ -225,17 +231,20 @@
             <span class="kw">_ </span>=&gt; Vector3::new(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>),
         }
     }
-
-    
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests{
+</span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_new(){
-        <span class="kw">let </span>config = UAVConfig { motor_force_n: <span class="number">1000.0</span>, arm_length_m: <span class="number">125.0</span>, weight_g: <span class="number">500.0 </span>,rotation_lock: (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>)};
+    </span><span class="kw">fn </span>test_new() {
+        <span class="kw">let </span>config = UAVConfig {
+            motor_force_n: <span class="number">1000.0</span>,
+            arm_length_m: <span class="number">125.0</span>,
+            weight_g: <span class="number">500.0</span>,
+            rotation_lock: (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>),
+        };
         <span class="kw">let </span>motor = Motor::new(<span class="number">1</span>, config);
         <span class="macro">assert_eq!</span>(motor.motor_force_n, <span class="number">1000.0</span>);
         <span class="macro">assert_eq!</span>(motor.motor_number, <span class="number">1</span>);
@@ -243,7 +252,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_calculate_offset(){
+    </span><span class="kw">fn </span>test_calculate_offset() {
         <span class="kw">let </span>offset = Motor::calculate_offset(<span class="number">125.0</span>, <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(offset, Vector3::new(<span class="number">125.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>));
 
@@ -258,7 +267,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_set_input_scalar(){
+    </span><span class="kw">fn </span>test_set_input_scalar() {
         <span class="kw">let </span>config = UAVConfig::new_250mm();
         <span class="kw">let </span><span class="kw-2">mut </span>motor = Motor::new(<span class="number">1</span>, config);
         motor.set_input_scalar(<span class="number">0.5</span>);
@@ -266,8 +275,13 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_get_force_vector(){
-        <span class="kw">let </span>config = UAVConfig { motor_force_n: <span class="number">1000.0</span>, arm_length_m: <span class="number">125.0</span>, weight_g: <span class="number">500.0</span>, rotation_lock: (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) };
+    </span><span class="kw">fn </span>test_get_force_vector() {
+        <span class="kw">let </span>config = UAVConfig {
+            motor_force_n: <span class="number">1000.0</span>,
+            arm_length_m: <span class="number">125.0</span>,
+            weight_g: <span class="number">500.0</span>,
+            rotation_lock: (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>),
+        };
         <span class="kw">let </span><span class="kw-2">mut </span>motor = Motor::new(<span class="number">1</span>, config);
         motor.set_input_scalar(<span class="number">0.5</span>);
         <span class="kw">let </span>force = motor.get_physics();
@@ -275,4 +289,5 @@
         <span class="comment">//assert_eq!(force.torque, Vector3::new(0.0, 0.0, 62500.0)); TODO: Motor Torque https://github.com/victoryforphil/lil-hopps/issues/7
         </span><span class="macro">assert_eq!</span>(force.offset, Vector3::new(<span class="number">125.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>));
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

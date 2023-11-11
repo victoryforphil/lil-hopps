@@ -63,44 +63,42 @@
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::types::{pose::Pose, motors::Motor};
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::types::{motors::Motor, pose::Pose};
 
-<span class="kw">use </span><span class="self">self</span>::{software::UAVSoftware, state::UAVState, config::UAVConfig};
+<span class="kw">use </span><span class="self">self</span>::{config::UAVConfig, software::UAVSoftware, state::UAVState};
 
+<span class="kw">pub mod </span>config;
 <span class="kw">pub mod </span>software;
 <span class="kw">pub mod </span>state;
-<span class="kw">pub mod </span>config;
 
-<span class="kw">pub struct </span>UAV{
+<span class="kw">pub struct </span>UAV {
     <span class="kw">pub </span>state: UAVState,
     <span class="kw">pub </span>software: UAVSoftware,
     <span class="kw">pub </span>config: UAVConfig,
     <span class="kw">pub </span>motors: Vec&lt;Motor&gt;,
 }
 
-
-<span class="kw">impl </span>UAV{
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self</span>{
+<span class="kw">impl </span>UAV {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = UAVConfig::new_250mm();
         <span class="kw">let </span><span class="kw-2">mut </span>motors = Vec::new();
 
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4</span>{
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
             motors.push(Motor::new(i <span class="kw">as </span>u8, config));
         }
 
-        UAV{
-            state: UAVState::new(Pose::zero()),
+        UAV {
+            state: UAVState::new(),
             software: UAVSoftware::new(),
             config: config,
             motors: motors,
         }
     }
 
-    <span class="kw">pub fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t: f64, dt: f32) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt;{
+    <span class="kw">pub fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t: f64, dt: f32) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
         <span class="self">self</span>.state = <span class="self">self</span>.software.process(t, dt, <span class="kw-2">&amp;</span><span class="self">self</span>.state)<span class="question-mark">?</span>;
 
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4</span>{
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
             <span class="self">self</span>.motors[i].set_input_scalar(<span class="self">self</span>.state.motors[i]);
         }
         <span class="prelude-val">Ok</span>(())
@@ -108,18 +106,18 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests{
+</span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_new(){
+    </span><span class="kw">fn </span>test_new() {
         <span class="kw">let </span>uav = UAV::new();
-        <span class="macro">assert_eq!</span>(uav.state, UAVState::new(Pose::zero()));
+        <span class="macro">assert_eq!</span>(uav.state, UAVState::new());
         <span class="macro">assert_eq!</span>(uav.motors.len(), <span class="number">4</span>);
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_process(){
+    </span><span class="kw">fn </span>test_process() {
         <span class="kw">let </span><span class="kw-2">mut </span>uav = UAV::new();
         uav.state.motors = [<span class="number">0.0</span>, <span class="number">0.5</span>, <span class="number">1.0</span>, <span class="number">1.5</span>];
         <span class="kw">let </span>result = uav.process(<span class="number">0.0</span>, <span class="number">0.0</span>);
@@ -129,4 +127,5 @@
         <span class="macro">assert_eq!</span>(uav.motors[<span class="number">2</span>].current_value, <span class="number">1.0</span>);
         <span class="macro">assert_eq!</span>(uav.motors[<span class="number">3</span>].current_value, <span class="number">1.5</span>);
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>
