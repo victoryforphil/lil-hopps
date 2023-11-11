@@ -2,7 +2,7 @@ use std::{fs::File};
 
 use log::{LevelFilter, debug};
 use simplelog::{CombinedLogger, TermLogger, WriteLogger, Config, TerminalMode, ColorChoice};
-use simulation::{runner::SimRunner, runner_options::SimRunnerOptions};
+use simulation::{runner_options::SimRunnerOptions, runner::SimRunner};
 
 pub mod types;
 pub mod uav;
@@ -18,8 +18,4 @@ fn main() {
     let mut runner = SimRunner::new(SimRunnerOptions::new(3.0));
     runner.start();
 
-    while runner.channel_rx.recv().unwrap().running {
-        debug!("Main thread tick");
-        //thread::sleep(Duration::from_millis(500));
-    }
 }

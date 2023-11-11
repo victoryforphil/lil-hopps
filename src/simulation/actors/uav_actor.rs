@@ -2,7 +2,7 @@
 
 use log::debug;
 use nalgebra::{Point, Vector3};
-use rapier3d::prelude::{ColliderHandle, RigidBodyHandle, RigidBodyBuilder, RigidBodySet};
+use rapier3d::prelude::{ColliderHandle, RigidBodyHandle, RigidBodyBuilder, RigidBodySet, ColliderBuilder};
 
 use crate::{uav::{UAV, state::UAVState}, simulation::{context::SimulationContextHandle, state::SimulationState}};
 
@@ -60,7 +60,12 @@ impl SimActor<UAVActorResult> for UAVActor{
       
         let rigid_body = RigidBodyBuilder::dynamic().translation(Vector3::new(0.0, 10.0, 10.0)).build();
         let rigid_body_handle = context.rigid_bodies.insert(rigid_body);
+        let collider = ColliderBuilder::cuboid(0.25, 0.25, 0.05).density(2.0).build();
+    // When the collider is attached, the rigid-body's mass and angular
+        // inertia is automatically updated to take the collider into account.
+        let collider_hande = context.coliders.insert_with_parent(collider, rigid_body_handle, &mut context.rigid_bodies);
         self.rigid_body = rigid_body_handle;
+        self.colliders.push(collider_hande);
         Ok(UAVActorResult::new(self.uav.state.clone()))
     }
 
@@ -71,6 +76,4 @@ impl SimActor<UAVActorResult> for UAVActor{
         self.apply_motor_force(&mut context.rigid_bodies);
         Ok(UAVActorResult::new(self.uav.state.clone()))
     }
-
-
 }

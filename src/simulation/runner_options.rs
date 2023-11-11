@@ -12,13 +12,13 @@ impl SimRunnerOptions{
     /// 
     /// Defaults:
     /// - max_t: 10.0
-    /// - dt: 0.001
+    /// - dt: 0.01
     /// - threaded: true
     /// - join: true
     pub fn new_threaded(max_t:f64) -> Self{
         SimRunnerOptions{
             max_t: max_t,
-            dt: 0.001,
+            dt: 0.01,
             threaded: true,
             join: true,
         }
@@ -28,13 +28,13 @@ impl SimRunnerOptions{
     /// 
     /// Defaults:
     /// - max_t: 10.0
-    /// - dt: 0.001
+    /// - dt: 0.01
     /// - threaded: true
     /// - join: false
     pub fn new_unjoined(max_t:f64) -> Self{
         SimRunnerOptions{
             max_t: max_t,
-            dt: 0.001,
+            dt: 0.01,
             threaded: true,
             join: false,
         }
@@ -44,13 +44,13 @@ impl SimRunnerOptions{
     ///     
     /// Defaults:
     /// - max_t: 10.0
-    /// - dt: 0.001
+    /// - dt: 0.01
     /// - threaded: false
     /// - join: false
     pub fn new(max_t:f64) -> Self{
         SimRunnerOptions{
             max_t: max_t,
-            dt: 0.001,
+            dt: 0.01,
             threaded: false,
             join: false,
         }
@@ -67,7 +67,7 @@ mod tests{
     fn test_new_threaded(){
         let options = SimRunnerOptions::new_threaded(10.0);
         assert_eq!(options.max_t, 10.0);
-        assert_eq!(options.dt, 0.001);
+        assert_eq!(options.dt, 0.01);
         assert_eq!(options.threaded, true);
         assert_eq!(options.join, true);
     }
@@ -76,7 +76,7 @@ mod tests{
     fn test_new_unjoined(){
         let options = SimRunnerOptions::new_unjoined(10.0);
         assert_eq!(options.max_t, 10.0);
-        assert_eq!(options.dt, 0.001);
+        assert_eq!(options.dt, 0.01);
         assert_eq!(options.threaded, true);
         assert_eq!(options.join, false);
     }
@@ -85,7 +85,7 @@ mod tests{
     fn test_new(){
         let options = SimRunnerOptions::new(10.0);
         assert_eq!(options.max_t, 10.0);
-        assert_eq!(options.dt, 0.001);
+        assert_eq!(options.dt, 0.01);
         assert_eq!(options.threaded, false);
         assert_eq!(options.join, false);
     }

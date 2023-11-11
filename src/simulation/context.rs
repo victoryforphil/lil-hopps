@@ -25,7 +25,7 @@ impl SimulationContext {
         Self {
             rigid_bodies: RigidBodySet::new(),
             coliders: ColliderSet::new(),
-            gravity: Vector3::new(0.0, -9.81, -9.81),
+            gravity: Vector3::new(0.0, 0.0, -9.81),
             intergration_parameters: IntegrationParameters::default(),
             physics_pipeline: PhysicsPipeline::new(),
             island_manager: IslandManager::new(),
