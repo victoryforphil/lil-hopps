@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ConvexHullError"],"fn":["check_convex_hull","convex_hull","convex_polygons_intersection","convex_polygons_intersection_points","intersect_meshes","try_convex_hull"],"mod":["utils","vhacd","voxelization"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_EPSILON","DIM","SIMD_LAST_INDEX","SIMD_WIDTH","TWO_DIM"],"type":["AngDim","AngVector","AngularInertia","CrossMatrix","Dim","Isometry","Matrix","Orientation","Point","PrincipalAngularInertia","Real","Rotation","SdpMatrix","SimdBool","SimdReal","SpacialVector","SpatialDim","SpatialVector","Translation","UnitVector","Vector"]};
