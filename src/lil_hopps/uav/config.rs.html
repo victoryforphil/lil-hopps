@@ -66,6 +66,8 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
 </pre></div><pre class="rust"><code><span class="attr">#[derive(Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>UAVConfig{
     <span class="kw">pub </span>motor_force_n: f32,
@@ -107,6 +109,8 @@
         <span class="macro">assert_eq!</span>(config.motor_force_n, <span class="number">1000.0</span>);
         <span class="macro">assert_eq!</span>(config.arm_length_m, <span class="number">125.0</span>);
         <span class="macro">assert_eq!</span>(config.weight_g, <span class="number">500.0</span>);
+
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, config);
     }
 
     <span class="attr">#[test]
