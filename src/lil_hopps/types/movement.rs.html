@@ -69,17 +69,27 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
-</span><span class="kw">pub struct </span>Movement{
-    lin_accel: nalgebra::Vector3&lt;f64&gt;,
-    ang_accel: nalgebra::Vector3&lt;f64&gt;,
-    lin_vel: nalgebra::Vector3&lt;f64&gt;,
-    ang_vel: nalgebra::Vector3&lt;f64&gt;,
+</span><span class="kw">pub struct </span>Movement {
+    <span class="kw">pub </span>lin_accel: nalgebra::Vector3&lt;f32&gt;,
+    <span class="kw">pub </span>ang_accel: nalgebra::Vector3&lt;f32&gt;,
+    <span class="kw">pub </span>lin_vel: nalgebra::Vector3&lt;f32&gt;,
+    <span class="kw">pub </span>ang_vel: nalgebra::Vector3&lt;f32&gt;,
 }
 
-<span class="kw">impl </span>Movement{
-    <span class="kw">pub fn </span>new(lin_accel: nalgebra::Vector3&lt;f64&gt;, ang_accel: nalgebra::Vector3&lt;f64&gt;, lin_vel: nalgebra::Vector3&lt;f64&gt;, ang_vel: nalgebra::Vector3&lt;f64&gt;) -&gt; Movement{
-        Movement{
+<span class="kw">impl </span>Movement {
+    <span class="kw">pub fn </span>new(
+        lin_accel: nalgebra::Vector3&lt;f32&gt;,
+        ang_accel: nalgebra::Vector3&lt;f32&gt;,
+        lin_vel: nalgebra::Vector3&lt;f32&gt;,
+        ang_vel: nalgebra::Vector3&lt;f32&gt;,
+    ) -&gt; Movement {
+        Movement {
             lin_accel,
             ang_accel,
             lin_vel,
@@ -87,8 +97,8 @@
         }
     }
 
-    <span class="kw">pub fn </span>zero() -&gt; Movement{
-        Movement{
+    <span class="kw">pub fn </span>zero() -&gt; Movement {
+        Movement {
             lin_accel: nalgebra::Vector3::zeros(),
             ang_accel: nalgebra::Vector3::zeros(),
             lin_vel: nalgebra::Vector3::zeros(),
@@ -97,18 +107,18 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Movement{
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result{
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Movement {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;Linear Acceleration: [{:.4},{:.4},{:.4}], Angular Acceleration: [{:.4},{:.4},{:.4}], Linear Velocity: [{:.4},{:.4},{:.4}], Angular Velocity: [{:.4},{:.4},{:.4}]&quot;</span>, <span class="self">self</span>.lin_accel.x, <span class="self">self</span>.lin_accel.y, <span class="self">self</span>.lin_accel.z, <span class="self">self</span>.ang_accel.x, <span class="self">self</span>.ang_accel.y, <span class="self">self</span>.ang_accel.z, <span class="self">self</span>.lin_vel.x, <span class="self">self</span>.lin_vel.y, <span class="self">self</span>.lin_vel.z, <span class="self">self</span>.ang_vel.x, <span class="self">self</span>.ang_vel.y, <span class="self">self</span>.ang_vel.z)
     }
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests{
+</span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_movement_new(){
+    </span><span class="kw">fn </span>test_movement_new() {
         <span class="kw">let </span>lin_accel = nalgebra::Vector3::new(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>);
         <span class="kw">let </span>ang_accel = nalgebra::Vector3::new(<span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">6.0</span>);
         <span class="kw">let </span>lin_vel = nalgebra::Vector3::new(<span class="number">7.0</span>, <span class="number">8.0</span>, <span class="number">9.0</span>);
@@ -121,7 +131,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_movement_zero(){
+    </span><span class="kw">fn </span>test_movement_zero() {
         <span class="kw">let </span>movement = Movement::zero();
         <span class="macro">assert_eq!</span>(movement.lin_accel, nalgebra::Vector3::zeros());
         <span class="macro">assert_eq!</span>(movement.ang_accel, nalgebra::Vector3::zeros());
@@ -130,7 +140,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_movement_display(){
+    </span><span class="kw">fn </span>test_movement_display() {
         <span class="kw">let </span>lin_accel = nalgebra::Vector3::new(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>);
         <span class="kw">let </span>ang_accel = nalgebra::Vector3::new(<span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">6.0</span>);
         <span class="kw">let </span>lin_vel = nalgebra::Vector3::new(<span class="number">7.0</span>, <span class="number">8.0</span>, <span class="number">9.0</span>);
@@ -139,4 +149,5 @@
         <span class="kw">let </span>result = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, movement);
         <span class="macro">assert_eq!</span>(result, <span class="string">&quot;Linear Acceleration: [1.0000,2.0000,3.0000], Angular Acceleration: [4.0000,5.0000,6.0000], Linear Velocity: [7.0000,8.0000,9.0000], Angular Velocity: [10.0000,11.0000,12.0000]&quot;</span>);
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>
