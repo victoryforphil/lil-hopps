@@ -1,10 +1,11 @@
 use std::{
     sync::mpsc::{channel, Receiver, Sender},
     thread::{self, JoinHandle},
-    time::{Duration, Instant},
 };
 
-use super::{Simulation, SimulationState};
+
+
+use super::{Simulation, SimulationState, runner_options::SimRunnerOptions};
 
 /// Simulation runner that creates a thread and channel, starts a simulation,
 /// Calls simulation tick on a loop, and sends the simulation state to the
@@ -17,38 +18,65 @@ pub struct SimRunner {
     pub channel_tx: Sender<SimulationState>,
     pub channel_rx: Receiver<SimulationState>,
     pub thread: Option<JoinHandle<()>>,
+    pub options: SimRunnerOptions,
 }
 
+
 impl SimRunner {
-    pub fn new() -> Self {
+    pub fn new(options: SimRunnerOptions) -> Self {
         let (tx, rx) = channel();
         Self {
             channel_tx: tx,
             channel_rx: rx,
             thread: None,
+            options
         }
     }
 
     pub fn start(&mut self) {
         let tx = self.channel_tx.clone();
         let mut sim = Simulation::new();
-        let start_time = std::time::Instant::now();
-        let max_duration = Duration::from_secs(3);
+        let max_t = self.options.max_t;
+        let dt = self.options.dt;
+        let mut t= 0.0;
         sim.init();
-        let thread = thread::spawn(move || loop {
-            let dt: Duration = start_time.elapsed();
-            let t = Instant::now();
-            sim.step(t, dt);
-            tx.send(sim.state.clone()).unwrap();
-            thread::sleep(Duration::from_millis(10));
-            println!("SimRunner tick: {:?}", dt);
-            if dt > max_duration {
-                sim.stop();
+        if self.options.threaded{
+            let thread = thread::spawn(move || loop {
+                t += dt;
+                sim.step(t, dt);
                 tx.send(sim.state.clone()).unwrap();
-                break;
-            }
+                println!("SimRunner tick: t={:?}", t);
+                if t >= max_t {
+                    sim.stop();
+                    tx.send(sim.state.clone()).unwrap();
+                    break;
+                }
+    
+            });
+            self.thread = Some(thread);
 
-        });
-        self.thread = Some(thread);
+            if self.options.join{
+               match self.thread.take(){
+                   Some(thread) => {
+                       thread.join().unwrap();
+                   },
+                   None => {
+                       println!("SimRunner thread not found");
+                   }
+               }
+            }
+        }else{
+            loop {
+                t += dt;
+                sim.step(t, dt);
+                tx.send(sim.state.clone()).unwrap();
+                println!("SimRunner tick: t={:?}", t);
+                if t >= max_t {
+                    sim.stop();
+                    tx.send(sim.state.clone()).unwrap();
+                    break;
+                }
+            }
+        }
     }
 }

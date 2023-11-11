@@ -1,14 +1,16 @@
-use std::{time::{Instant, Duration}, sync::{Arc, Mutex}, borrow::BorrowMut};
 
-use rapier3d::prelude::{ColliderSet, RigidBody, RigidBodySet};
 
-use self::{actors::{world_actor::WorldActor, uav_actor::UAVActor, SimActor}, context::{SimulationContextHandle, SimulationContext}, state::SimulationState};
+
+
+
+use self::{actors::{world_actor::WorldActor, uav_actor::UAVActor, SimActor}, context::{SimulationContext}, state::SimulationState};
 
 
 pub mod context;
 pub mod state;
 pub mod actors;
 pub mod runner;
+pub mod runner_options;
 pub struct Simulation{
     pub world: WorldActor,
     pub uav: UAVActor,
@@ -19,7 +21,7 @@ pub struct Simulation{
 
 impl Simulation{
     pub fn new() -> Self{
-        let context = SimulationContext::new();
+        let _context = SimulationContext::new();
         Simulation{
             world: WorldActor::new(),
             uav: UAVActor::new(),
@@ -55,9 +57,9 @@ impl Simulation{
         self.state.running = true;
     }
 
-    pub fn step(&mut self, t: Instant, dt: Duration){
-       
-        self.state.running = true;
+    pub fn step(&mut self, t: f64, dt: f64){
+        
+        self.state.running = true;  
         self.context.physics_pipeline.step(
             &self.context.gravity,
             &self.context.intergration_parameters,

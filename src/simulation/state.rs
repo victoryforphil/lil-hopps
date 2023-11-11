@@ -24,7 +24,7 @@ mod tests{
 
     #[test]
     fn test_new(){
-        let state = SimulationState::new();
+        let _state = SimulationState::new();
         
     }
 }

@@ -1,4 +1,4 @@
-use crate::types::{pose::Pose, movement::Movement, motors::Motor};
+use crate::types::{pose::Pose, motors::Motor};
 
 use self::{software::UAVSoftware, state::UAVState, config::UAVConfig};
 

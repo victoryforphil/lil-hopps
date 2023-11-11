@@ -13,7 +13,7 @@ impl Visualization{
         println!("Visualization init");
     }
 
-    pub fn render(&mut self, dt: f32){
+    pub fn render(&mut self, _dt: f32){
         println!("Visualization step");
     }
 }

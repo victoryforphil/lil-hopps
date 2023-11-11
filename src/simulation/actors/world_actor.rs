@@ -1,4 +1,4 @@
-use std::time::{Instant, Duration};
+
 
 use rapier3d::prelude::{ColliderHandle,ColliderBuilder};
 
@@ -40,7 +40,7 @@ impl SimActor<WorldActorResult> for WorldActor{
         Ok(WorldActorResult::new())   
     }
 
-    fn step(&mut self, context: SimulationContextHandle, _: &SimulationState, _:Instant, _:Duration) -> Result<WorldActorResult, String> {
+    fn step(&mut self, context: SimulationContextHandle, _: &SimulationState, _:f64, _:f64) -> Result<WorldActorResult, String> {
       
         let floor_collider = context.coliders.get_mut(self.floor).unwrap();
         floor_collider.set_translation([0.0, 0.0, 0.0].into());
@@ -50,7 +50,7 @@ impl SimActor<WorldActorResult> for WorldActor{
 
 #[cfg(test)]
 mod tests {
-    use std::sync::{Mutex, Arc};
+    
 
     use crate::{simulation::{context::SimulationContext, actors::uav_actor::UAVActorResult}, uav::state::UAVState, types::pose::Pose};
 
@@ -60,10 +60,10 @@ mod tests {
     fn test_world_actor() {
         let mut world_actor = WorldActor::new();
         let mut context = SimulationContext::new();
-        let state = SimulationState{ uav_state: UAVActorResult::new(UAVState::new(Pose::zero())), world_state: WorldActorResult {  } };
+        let state = SimulationState{ uav_state: UAVActorResult::new(UAVState::new(Pose::zero())), world_state: WorldActorResult {  }, running : false };
         let result = world_actor.init(&mut context, &state);
         assert!(result.is_ok());
-        let result = world_actor.step(&mut context, &state, Instant::now(), Duration::from_secs(1));
+        let result = world_actor.step(&mut context, &state, 0.01, 0.01);
         assert!(result.is_ok());
 
         assert!(context.coliders.len() == 1);

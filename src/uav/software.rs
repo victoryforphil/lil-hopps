@@ -11,7 +11,7 @@ impl UAVSoftware{
         }
     }
 
-    pub fn process(&mut self, t: f64, dt: f32, in_state: &UAVState) -> Result<UAVState, String>{
+    pub fn process(&mut self, _t: f64, _dt: f32, in_state: &UAVState) -> Result<UAVState, String>{
         println!("UAVSoftware process");
         
         Ok(UAVState::new(in_state.pose))
