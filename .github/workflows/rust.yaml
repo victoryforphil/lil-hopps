@@ -30,4 +30,11 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
             files: codecov.json
-            fail_ci_if_error: true
+            fail_ci_if_error: true 
+      - name: Build docs
+        run: cargo doc --verbose --all-features --workspace
+      - name: Deploy docs
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./target/doc
