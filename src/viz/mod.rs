@@ -22,6 +22,15 @@ impl Visualization{
 mod tests {
     use super::*;
 
+    /// TEST: test_visualization
+    /// ----
+    /// Expectation(s):
+    /// - Visualization::new() returns a Visualization
+    /// - Visualization::init() returns ()
+    /// - Visualization::render() returns ()
+    /// 
+    /// Failure(s):
+    /// - Any runtime expections / panicks.
     #[test]
     fn test_visualization(){
         let mut vis = Visualization::new();

@@ -19,3 +19,23 @@ fn main() {
     runner.start();
 
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::simulation::runner_options::SimRunnerOptions;
+
+    /// TEST: test_sim_runner
+    /// ----
+    /// Expectations:
+    /// - It runs.
+    /// 
+    /// Failures:
+    /// - None
+    #[test]
+    fn test_sim_runner() {
+        let mut runner = SimRunner::new(SimRunnerOptions::new(3.0));
+        runner.start();
+    }
+}
