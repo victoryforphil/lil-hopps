@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Visualization"]};
+window.SIDEBAR_ITEMS = {"mod":["app","context","widgets"],"struct":["Visualization"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FilterResult","TextAttributeValue"],"struct":["DetachedNode","Node","NodeState","TextPosition","TextRange","Tree","TreeState","WeakTextRange"],"trait":["TreeChangeHandler"]};

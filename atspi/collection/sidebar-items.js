@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["MatchType","SortOrder","TreeTraversalType"],"struct":["CollectionProxy","CollectionProxyBlocking"],"type":["MatchArgs"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["types","uav","viz"]};
+window.SIDEBAR_ITEMS = {"mod":["simulation","types","uav","viz"]};
