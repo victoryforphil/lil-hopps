@@ -7,7 +7,7 @@ use simulation::{runner::SimRunner, runner_options::SimRunnerOptions};
 pub mod simulation;
 pub mod types;
 pub mod uav;
-
+pub mod viz;
 fn main() {
     CombinedLogger::init(vec![
         TermLogger::new(
