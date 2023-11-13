@@ -89,7 +89,7 @@ mod tests {
     #[test]
     fn test_sim_runner() {
         let _rabit = 0;
-        let mut runner = SimRunner::new(SimRunnerOptions::new_threaded(10.0));
+        let mut runner = SimRunner::new(SimRunnerOptions::new_threaded(2.0));
         runner.start();
         let mut state = runner.channel_rx.try_recv();
         let mut last_valid_state = state.clone();
@@ -106,7 +106,7 @@ mod tests {
     #[test]
     fn test_sim_runner_unjoined() {
         let mut rabbit = 0;
-        let mut runner = SimRunner::new(SimRunnerOptions::new_unjoined(10.0));
+        let mut runner = SimRunner::new(SimRunnerOptions::new_unjoined(2.0));
         rabbit = 1;
         assert_eq!(rabbit, 1);
         runner.start();
@@ -118,7 +118,7 @@ mod tests {
     #[test]
     fn test_sim_runner_unthreaded() {
         let mut rabbit = 0;
-        let mut runner = SimRunner::new(SimRunnerOptions::new(10.0));
+        let mut runner = SimRunner::new(SimRunnerOptions::new(2.0));
         rabbit = 1;
         assert_eq!(rabbit, 1);
         runner.start();
