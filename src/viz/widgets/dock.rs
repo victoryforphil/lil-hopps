@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use egui::{ahash::HashMap, util::IdTypeMap, Id, Ui};
 use egui_dock::{Style, TabViewer};
 
@@ -16,13 +18,13 @@ pub struct DockedWindow {
 }
 
 impl DockedWindow {
-    pub fn new(title: String) -> Self {
+    pub fn new(title: String, init_context: VizContext) -> Self {
         Self {
             title,
             style: None,
             current: "Logs".to_owned(),
-            windows: HashMap::new(),
-            context: VizContext::new(),
+            windows: HashMap::default(),
+            context: init_context,
         }
     }
 
@@ -41,7 +43,7 @@ impl TabViewer for DockedWindow {
     fn ui(&mut self, ui: &mut Ui, tab: &mut Self::Tab) {
         match self.windows.get_mut(tab.as_str()) {
             Some(widget) => {
-                widget.draw(ui, self.context);
+                widget.draw(ui, self.context.clone());
             }
             None => {
                 // set window to trasnparent

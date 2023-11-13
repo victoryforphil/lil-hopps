@@ -1,8 +1,12 @@
-use std::fs::File;
+use std::{
+    fs::File,
+    sync::{Arc, Mutex},
+};
 
 use log::{debug, LevelFilter};
 use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, WriteLogger};
 use simulation::{runner::SimRunner, runner_options::SimRunnerOptions};
+use viz::Visualization;
 
 pub mod simulation;
 pub mod types;
@@ -23,15 +27,14 @@ fn main() {
         ),
     ])
     .unwrap();
-    let mut runner = SimRunner::new(SimRunnerOptions::new(3.0));
+    let mut runner: SimRunner = SimRunner::new(SimRunnerOptions::new(3.0));
+    let runner_handle = Arc::new(Mutex::new(runner));
+    let mut viz = Visualization::new(runner_handle);
 
-    runner.start();
+    viz.init();
+    viz.start();
 
-    let mut state = runner.channel_rx.try_recv();
-    while state.is_ok() {
-        debug!("State: {:?}", state);
-        state = runner.channel_rx.try_recv();
-    }
+    loop {}
 }
 
 #[test]
