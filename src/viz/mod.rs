@@ -36,7 +36,7 @@ impl Visualization {
         println!("Visualization start");
         let context = self.contsturct_context().clone();
         eframe::run_native(
-            "Firefly Designer",
+            "Lil Sim",
             self.win_options.clone(),
             Box::new(|cc| Box::new(VisualizationApp::new(cc, context).init())),
         );

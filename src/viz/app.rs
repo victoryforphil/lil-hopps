@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use log::debug;
+
 use super::{context::VizContext, widgets::WidgetUI};
 
 pub struct VisualizationApp {
@@ -16,6 +18,8 @@ impl VisualizationApp {
     }
 
     pub fn init(mut self) -> VisualizationApp {
+        debug!("[VisualizationApp] init");
+        self.widget_ui.create();
         self
     }
 }
@@ -24,24 +28,11 @@ impl eframe::App for VisualizationApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.context.update_sim_state();
         egui::CentralPanel::default().show(ctx, |ui| {
-            if ui.button("Start").clicked() {
-                self.context.runner_handle.lock().unwrap().start();
-            }
+            /*
 
-            let sim_state = self.context.sim_state.clone();
+            */
 
-            if let Some(state) = sim_state {
-                let running = state.running;
-
-                // Print Green lable if running else red
-                if running {
-                    ui.colored_label(egui::Color32::GREEN, "Running");
-                } else {
-                    ui.colored_label(egui::Color32::RED, "Stopped");
-                }
-
-                ui.label(state.uav_state.uav_state.pose.to_string());
-            }
+            self.widget_ui.draw_inside(ctx, ui, &self.context);
         });
 
         ctx.request_repaint();

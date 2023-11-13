@@ -6,7 +6,7 @@ use egui_dock::{Style, TabViewer};
 use crate::viz::context::VizContext;
 
 pub trait DockableWidget {
-    fn draw(&mut self, ui: &mut Ui, state: VizContext);
+    fn draw(&mut self, ui: &mut Ui, context: VizContext);
 }
 
 pub struct DockedWindow {

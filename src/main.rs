@@ -33,8 +33,6 @@ fn main() {
 
     viz.init();
     viz.start();
-
-    loop {}
 }
 
 #[test]

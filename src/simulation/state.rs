@@ -6,6 +6,7 @@ pub struct SimulationState {
     pub uav_state: UAVActorResult,
     pub world_state: WorldActorResult,
     pub running: bool,
+    pub time: f64,
 }
 
 impl SimulationState {
@@ -14,6 +15,7 @@ impl SimulationState {
             uav_state: UAVActorResult::new(),
             world_state: WorldActorResult::new(),
             running: false,
+            time: 0.0,
         }
     }
 }
