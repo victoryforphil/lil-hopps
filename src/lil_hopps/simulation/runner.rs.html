@@ -218,7 +218,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_sim_runner() {
         <span class="kw">let </span>_rabit = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>runner = SimRunner::new(SimRunnerOptions::new_threaded(<span class="number">10.0</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>runner = SimRunner::new(SimRunnerOptions::new_threaded(<span class="number">2.0</span>));
         runner.start();
         <span class="kw">let </span><span class="kw-2">mut </span>state = runner.channel_rx.try_recv();
         <span class="kw">let </span><span class="kw-2">mut </span>last_valid_state = state.clone();
@@ -235,7 +235,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_sim_runner_unjoined() {
         <span class="kw">let </span><span class="kw-2">mut </span>rabbit = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>runner = SimRunner::new(SimRunnerOptions::new_unjoined(<span class="number">10.0</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>runner = SimRunner::new(SimRunnerOptions::new_unjoined(<span class="number">2.0</span>));
         rabbit = <span class="number">1</span>;
         <span class="macro">assert_eq!</span>(rabbit, <span class="number">1</span>);
         runner.start();
@@ -247,7 +247,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_sim_runner_unthreaded() {
         <span class="kw">let </span><span class="kw-2">mut </span>rabbit = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>runner = SimRunner::new(SimRunnerOptions::new(<span class="number">10.0</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>runner = SimRunner::new(SimRunnerOptions::new(<span class="number">2.0</span>));
         rabbit = <span class="number">1</span>;
         <span class="macro">assert_eq!</span>(rabbit, <span class="number">1</span>);
         runner.start();
