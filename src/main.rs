@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use log::{debug, LevelFilter};
+use log::{LevelFilter};
 use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, WriteLogger};
 use simulation::{runner::SimRunner, runner_options::SimRunnerOptions};
 use viz::Visualization;
@@ -27,7 +27,7 @@ fn main() {
         ),
     ])
     .unwrap();
-    let mut runner: SimRunner = SimRunner::new(SimRunnerOptions::new(3.0));
+    let runner: SimRunner = SimRunner::new(SimRunnerOptions::new(3.0));
     let runner_handle = Arc::new(Mutex::new(runner));
     let mut viz = Visualization::new(runner_handle);
 

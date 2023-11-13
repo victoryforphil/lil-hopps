@@ -1,9 +1,6 @@
 use eframe::NativeOptions;
 
-use crate::{
-    simulation::runner::{SimRunnerHandle},
-    viz::app::VisualizationApp,
-};
+use crate::{simulation::runner::SimRunnerHandle, viz::app::VisualizationApp};
 
 use self::context::VizContext;
 
@@ -51,7 +48,7 @@ impl Visualization {
 mod tests {
     use std::sync::{Arc, Mutex};
 
-    use crate::simulation::runner_options::SimRunnerOptions;
+    use crate::simulation::{runner::SimRunner, runner_options::SimRunnerOptions};
 
     use super::*;
 
