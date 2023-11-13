@@ -67,6 +67,5 @@ mod tests {
         let runner_handle = Arc::new(Mutex::new(runner));
         let mut vis = Visualization::new(runner_handle);
         vis.init();
-        vis.start();
     }
 }

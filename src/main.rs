@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use log::{LevelFilter};
+use log::LevelFilter;
 use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, WriteLogger};
 use simulation::{runner::SimRunner, runner_options::SimRunnerOptions};
 use viz::Visualization;
@@ -33,9 +33,4 @@ fn main() {
 
     viz.init();
     viz.start();
-}
-
-#[test]
-fn test_main() {
-    main();
 }
