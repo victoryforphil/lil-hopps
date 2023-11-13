@@ -1,6 +1,6 @@
-use std::sync::{Arc, Mutex};
 
-use egui::{ahash::HashMap, util::IdTypeMap, Id, Ui};
+
+use egui::{ahash::HashMap, Ui};
 use egui_dock::{Style, TabViewer};
 
 use crate::viz::context::VizContext;

@@ -1,5 +1,5 @@
-use log::debug;
-use nalgebra::{Point, Vector3};
+
+use nalgebra::{Point};
 use rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };

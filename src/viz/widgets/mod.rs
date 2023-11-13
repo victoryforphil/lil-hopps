@@ -1,5 +1,5 @@
 use egui::Ui;
-use egui_dock::{DockArea, DockState, Style, Tree};
+use egui_dock::{DockArea, DockState, Style};
 
 use self::{
     dock::{DockableWidget, DockedWindow},
@@ -19,7 +19,7 @@ pub struct WidgetUI {
 
 impl WidgetUI {
     pub fn new(viz_context: VizContext) -> Self {
-        let mut tree = DockState::new(vec![]);
+        let tree = DockState::new(vec![]);
 
         Self {
             dock_tree: tree,

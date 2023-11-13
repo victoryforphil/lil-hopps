@@ -61,6 +61,7 @@ mod tests {
             uav_state: UAVActorResult::new(),
             world_state: world_actor::WorldActorResult {},
             running: false,
+            time: 0.0,
         };
         let result = actor.init(&mut context, &state);
         assert!(result.is_ok());

@@ -1,7 +1,7 @@
 use eframe::NativeOptions;
 
 use crate::{
-    simulation::runner::{SimRunner, SimRunnerHandle},
+    simulation::runner::{SimRunnerHandle},
     viz::app::VisualizationApp,
 };
 
