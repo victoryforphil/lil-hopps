@@ -17,7 +17,7 @@ impl UAVSoftware {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{types::pose::Pose, uav::state::UAVState};
+    use crate::{uav::state::UAVState};
 
     #[test]
     fn test_uav_software() {

@@ -54,8 +54,6 @@ mod tests {
 
     use crate::{
         simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext},
-        types::pose::Pose,
-        uav::state::UAVState,
     };
 
     use super::*;

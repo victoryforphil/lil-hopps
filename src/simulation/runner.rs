@@ -88,7 +88,7 @@ mod tests {
 
     #[test]
     fn test_sim_runner() {
-        let mut rabit = 0;
+        let _rabit = 0;
         let mut runner = SimRunner::new(SimRunnerOptions::new_threaded(10.0));
         runner.start();
         let mut state = runner.channel_rx.try_recv();
@@ -112,7 +112,7 @@ mod tests {
         runner.start();
         assert_eq!(runner.channel_rx.recv().unwrap().running, true);
 
-        while (runner.channel_rx.try_recv().is_ok()) {}
+        while runner.channel_rx.try_recv().is_ok() {}
     }
 
     #[test]
@@ -124,6 +124,6 @@ mod tests {
         runner.start();
         assert_eq!(runner.channel_rx.recv().unwrap().running, true);
 
-        while (runner.channel_rx.try_recv().is_ok()) {}
+        while runner.channel_rx.try_recv().is_ok() {}
     }
 }

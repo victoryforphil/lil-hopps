@@ -111,7 +111,7 @@ impl SimActor<UAVActorResult> for UAVActor {
 mod tests {
 
     use crate::{
-        simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext},
+        simulation::{context::SimulationContext},
         types::pose::Pose,
         uav::state::UAVState,
     };
@@ -122,12 +122,12 @@ mod tests {
     fn test_uav_actor() {
         let mut context = SimulationContext::new();
         let mut uav_actor = UAVActor::new();
-        let mut state = SimulationState::new();
+        let state = SimulationState::new();
         let uav_actor_result = uav_actor.init(&mut context, &state).unwrap();
         assert_eq!(
             uav_actor_result.uav_state,
             UAVState::new_with_pose(Pose::zero())
         );
-        let uav_actor_result = uav_actor.step(&mut context, &state, 0.0, 0.0).unwrap();
+        let _uav_actor_result = uav_actor.step(&mut context, &state, 0.0, 0.0).unwrap();
     }
 }
