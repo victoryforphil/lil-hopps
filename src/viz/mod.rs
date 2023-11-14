@@ -18,9 +18,7 @@ impl Visualization {
             sim_runner: runner.clone(),
             win_options: NativeOptions {
                 initial_window_size: Some(egui::vec2(1280.0, 720.0)),
-                multisampling: 8,
                 renderer: eframe::Renderer::Glow,
-                depth_buffer: 24,
                 ..Default::default()
             },
         }

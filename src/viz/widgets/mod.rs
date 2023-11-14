@@ -11,6 +11,7 @@ use super::context::VizContext;
 pub mod dock;
 pub mod runner;
 pub mod uav_state;
+pub mod three_viz;
 pub struct WidgetUI {
     dock_tree: DockState<String>,
     last_drock_tree: String,
@@ -33,7 +34,10 @@ impl WidgetUI {
         self.add_dock_widget("Runner".to_string(), runner_widget);
 
         let uav_state_widget: Box<_> = Box::new(uav_state::UAVStateWidget::new());
-        self.add_dock_widget("UAV State".to_string(), uav_state_widget)
+        self.add_dock_widget("UAV State".to_string(), uav_state_widget);
+
+        let three_viz_widget: Box<_> = Box::new(three_viz::ThreeVizWidget::new());
+        self.add_dock_widget("3D Viz".to_string(), three_viz_widget);
     }
 
     fn add_dock_widget(&mut self, name: String, widget: Box<dyn DockableWidget>) {
