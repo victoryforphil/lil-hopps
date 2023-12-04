@@ -48,7 +48,7 @@ impl SimRunnerOptions {
     pub fn new(max_t: f64) -> Self {
         SimRunnerOptions {
             max_t: max_t,
-            dt: 0.001,
+            dt: 0.01,
             threaded: false,
             join: false,
         }

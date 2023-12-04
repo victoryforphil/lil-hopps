@@ -7,6 +7,7 @@ use self::context::VizContext;
 pub mod app;
 pub mod context;
 pub mod widgets;
+pub mod frame_input;
 pub struct Visualization {
     pub sim_runner: SimRunnerHandle,
     pub win_options: NativeOptions,
@@ -19,6 +20,10 @@ impl Visualization {
             win_options: NativeOptions {
                 initial_window_size: Some(egui::vec2(1280.0, 720.0)),
                 renderer: eframe::Renderer::Glow,
+                depth_buffer: 32,
+                stencil_buffer: 8,
+                multisampling: 4,
+                
                 ..Default::default()
             },
         }
