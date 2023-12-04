@@ -140,6 +140,10 @@ impl ThreeDApp {
         };
       
         let uav_rot = uav_pose.orientation.euler_angles();
+        let cam_up = self.camera.up().clone();
+        let cam_pos = self.camera.position().clone();
+        let taget = Vector3::new(uav_pose.position.x, uav_pose.position.y, uav_pose.position.z);
+        self.camera.set_view(cam_pos, taget, cam_up);
        
         self.uav_meshes.set_transformation(
             Mat4::from_translation(vec3(uav_pose.position.x, uav_pose.position.y, uav_pose.position.z))
