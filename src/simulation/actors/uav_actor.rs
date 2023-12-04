@@ -1,5 +1,5 @@
 
-use nalgebra::{Point};
+use nalgebra::{Point, Vector3};
 use rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };
@@ -70,10 +70,11 @@ impl SimActor<UAVActorResult> for UAVActor {
     ) -> Result<UAVActorResult, String> {
         let rigid_body = RigidBodyBuilder::dynamic()
             .translation(last_state.uav_state.uav_state.pose.position.into())
+            .rotation(Vector3::new(90.0, 0.25, 0.25))
             .build();
         let rigid_body_handle = context.rigid_bodies.insert(rigid_body);
-        let collider = ColliderBuilder::cuboid(0.25, 0.25, 0.05)
-            .density(2.0)
+        let collider = ColliderBuilder::cuboid(0.5, 0.5, 0.05)
+            .density(4.0)
             .build();
         // When the collider is attached, the rigid-body's mass and angular
         // inertia is automatically updated to take the collider into account.

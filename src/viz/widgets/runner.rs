@@ -21,7 +21,23 @@ impl DockableWidget for RunnerWidget {
         }
 
         let sim_state = context.sim_state.clone();
+        // UI for setting delta time
+        ui.horizontal(|ui| {
+            ui.label("dt: ");
+            let dt = ui 
+                .add(egui::DragValue::new(&mut runner.options.dt).speed(0.001));
+            
+            
+                
+        });
 
+        // ui for setting max t
+        ui.horizontal(|ui| {
+            ui.label("max_t: ");
+            let max_t = ui
+                .add(egui::DragValue::new(&mut runner.options.max_t).speed(0.1));
+            
+        });
         if let Some(state) = sim_state {
             let running = state.running;
 
@@ -34,6 +50,7 @@ impl DockableWidget for RunnerWidget {
 
             ui.label(state.time.to_string());
             ui.label("Max time: ".to_string() + &runner.options.max_t.to_string());
+            
         }
     }
 }

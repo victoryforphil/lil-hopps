@@ -25,6 +25,12 @@ impl DockableWidget for UAVStateWidget {
             ui.label("Y: ".to_string() + &uav_pose.position.y.to_string());
             ui.label("Z: ".to_string() + &uav_pose.position.z.to_string());
             ui.separator();
+
+            ui.label("UAV Orientation");
+            ui.label("X: ".to_string() + &uav_pose.orientation.euler_angles().0.to_string());
+            ui.label("Y: ".to_string() + &uav_pose.orientation.euler_angles().1.to_string());
+            ui.label("Z: ".to_string() + &uav_pose.orientation.euler_angles().2.to_string());
+            ui.separator();
             ui.label("UAV Motors");
             ui.label("M1: ".to_string() + &uav_motors[0].to_string());
             ui.label("M2: ".to_string() + &uav_motors[1].to_string());
