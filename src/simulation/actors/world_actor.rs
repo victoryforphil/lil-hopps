@@ -54,8 +54,6 @@ mod tests {
 
     use crate::{
         simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext},
-        types::pose::Pose,
-        uav::state::UAVState,
     };
 
     use super::*;
@@ -68,6 +66,7 @@ mod tests {
             uav_state: UAVActorResult::new(),
             world_state: WorldActorResult {},
             running: false,
+            time: 0.0,
         };
         let result = world_actor.init(&mut context, &state);
         assert!(result.is_ok());

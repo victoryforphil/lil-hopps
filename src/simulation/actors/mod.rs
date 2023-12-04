@@ -21,8 +21,6 @@ mod tests {
     use super::*;
     use crate::{
         simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext},
-        types::pose::Pose,
-        uav::state::UAVState,
     };
 
     struct TestActor {}
@@ -37,7 +35,7 @@ mod tests {
         fn init(
             &mut self,
             _: SimulationContextHandle,
-            state: &SimulationState,
+            _state: &SimulationState,
         ) -> Result<bool, String> {
             Ok(true)
         }
@@ -45,7 +43,7 @@ mod tests {
         fn step(
             &mut self,
             _: SimulationContextHandle,
-            state: &SimulationState,
+            _state: &SimulationState,
             _: f64,
             _: f64,
         ) -> Result<bool, String> {
@@ -61,6 +59,7 @@ mod tests {
             uav_state: UAVActorResult::new(),
             world_state: world_actor::WorldActorResult {},
             running: false,
+            time: 0.0,
         };
         let result = actor.init(&mut context, &state);
         assert!(result.is_ok());

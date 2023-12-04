@@ -54,6 +54,7 @@ impl Simulation {
     }
 
     pub fn step(&mut self, t: f64, dt: f64) {
+        self.state.time = t;
         self.context.intergration_parameters.dt = dt as f32;
         self.state.running = true;
         self.context.physics_pipeline.step(
