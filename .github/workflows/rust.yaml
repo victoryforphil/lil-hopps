@@ -19,7 +19,7 @@ jobs:
       - name: Install Rust
         run: rustup update stable
       - name: Install cargo-llvm-cov
-        run: cargo +stable install cargo-llvm-cov --locked
+        run: rustup component add llvm-tools-preview --toolchain nightly
       - name: Build
         run: cargo build --verbose  
       - name: Run tests
