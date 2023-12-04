@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["dock","runner","uav_state"],"struct":["WidgetUI"]};
+window.SIDEBAR_ITEMS = {"mod":["dock","runner","three_viz","uav_state"],"struct":["WidgetUI"]};

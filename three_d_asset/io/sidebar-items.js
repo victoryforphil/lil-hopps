@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["load","load_and_deserialize","load_and_deserialize_async","load_async","save","serialize_and_save"],"struct":["RawAssets"],"trait":["Deserialize","Serialize"]};

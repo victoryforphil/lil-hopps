@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Geometry","Indices","Positions"],"struct":["PointCloud","TriMesh"]};

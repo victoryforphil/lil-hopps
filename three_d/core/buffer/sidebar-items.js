@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ElementBuffer","InstanceBuffer","UniformBuffer","VertexBuffer"],"trait":["BufferDataType","ElementBufferDataType"]};

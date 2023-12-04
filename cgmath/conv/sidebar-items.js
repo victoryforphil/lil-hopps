@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["array2","array2x2","array3","array3x3","array4","array4x4"]};

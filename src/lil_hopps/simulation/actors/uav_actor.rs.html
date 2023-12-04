@@ -131,8 +131,9 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
 </pre></div><pre class="rust"><code>
-<span class="kw">use </span>nalgebra::{Point};
+<span class="kw">use </span>nalgebra::{Point, Vector3};
 <span class="kw">use </span>rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };
@@ -203,10 +204,11 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UAVActorResult, String&gt; {
         <span class="kw">let </span>rigid_body = RigidBodyBuilder::dynamic()
             .translation(last_state.uav_state.uav_state.pose.position.into())
+            .rotation(Vector3::new(<span class="number">90.0</span>, <span class="number">0.25</span>, <span class="number">0.25</span>))
             .build();
         <span class="kw">let </span>rigid_body_handle = context.rigid_bodies.insert(rigid_body);
-        <span class="kw">let </span>collider = ColliderBuilder::cuboid(<span class="number">0.25</span>, <span class="number">0.25</span>, <span class="number">0.05</span>)
-            .density(<span class="number">2.0</span>)
+        <span class="kw">let </span>collider = ColliderBuilder::cuboid(<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.05</span>)
+            .density(<span class="number">4.0</span>)
             .build();
         <span class="comment">// When the collider is attached, the rigid-body&#39;s mass and angular
         // inertia is automatically updated to take the collider into account.

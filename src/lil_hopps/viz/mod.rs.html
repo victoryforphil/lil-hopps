@@ -69,6 +69,9 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>eframe::NativeOptions;
 
 <span class="kw">use crate</span>::{simulation::runner::SimRunnerHandle, viz::app::VisualizationApp};
@@ -78,6 +81,7 @@
 <span class="kw">pub mod </span>app;
 <span class="kw">pub mod </span>context;
 <span class="kw">pub mod </span>widgets;
+<span class="kw">pub mod </span>frame_input;
 <span class="kw">pub struct </span>Visualization {
     <span class="kw">pub </span>sim_runner: SimRunnerHandle,
     <span class="kw">pub </span>win_options: NativeOptions,
@@ -89,9 +93,11 @@
             sim_runner: runner.clone(),
             win_options: NativeOptions {
                 initial_window_size: <span class="prelude-val">Some</span>(egui::vec2(<span class="number">1280.0</span>, <span class="number">720.0</span>)),
-                multisampling: <span class="number">8</span>,
                 renderer: eframe::Renderer::Glow,
-                depth_buffer: <span class="number">24</span>,
+                depth_buffer: <span class="number">32</span>,
+                stencil_buffer: <span class="number">8</span>,
+                multisampling: <span class="number">4</span>,
+                
                 ..Default::default()
             },
         }

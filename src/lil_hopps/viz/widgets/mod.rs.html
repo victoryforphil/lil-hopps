@@ -55,6 +55,10 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>egui::Ui;
 <span class="kw">use </span>egui_dock::{DockArea, DockState, Style};
 
@@ -68,6 +72,7 @@
 <span class="kw">pub mod </span>dock;
 <span class="kw">pub mod </span>runner;
 <span class="kw">pub mod </span>uav_state;
+<span class="kw">pub mod </span>three_viz;
 <span class="kw">pub struct </span>WidgetUI {
     dock_tree: DockState&lt;String&gt;,
     last_drock_tree: String,
@@ -90,7 +95,10 @@
         <span class="self">self</span>.add_dock_widget(<span class="string">&quot;Runner&quot;</span>.to_string(), runner_widget);
 
         <span class="kw">let </span>uav_state_widget: Box&lt;<span class="kw">_</span>&gt; = Box::new(uav_state::UAVStateWidget::new());
-        <span class="self">self</span>.add_dock_widget(<span class="string">&quot;UAV State&quot;</span>.to_string(), uav_state_widget)
+        <span class="self">self</span>.add_dock_widget(<span class="string">&quot;UAV State&quot;</span>.to_string(), uav_state_widget);
+
+        <span class="kw">let </span>three_viz_widget: Box&lt;<span class="kw">_</span>&gt; = Box::new(three_viz::ThreeVizWidget::new());
+        <span class="self">self</span>.add_dock_widget(<span class="string">&quot;3D Viz&quot;</span>.to_string(), three_viz_widget);
     }
 
     <span class="kw">fn </span>add_dock_widget(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: String, widget: Box&lt;<span class="kw">dyn </span>DockableWidget&gt;) {
