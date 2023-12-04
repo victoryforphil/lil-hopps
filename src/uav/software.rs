@@ -1,3 +1,7 @@
+use log::info;
+
+use crate::types::telemtry::{Telemtry, TelemtryType};
+
 use super::state::UAVState;
 
 pub struct UAVSoftware {}
@@ -8,9 +12,42 @@ impl UAVSoftware {
     }
 
     pub fn process(&mut self, _t: f64, _dt: f32, in_state: &UAVState) -> Result<UAVState, String> {
-        println!("UAVSoftware process");
+      
+        let pose_pos_x_tel = Telemtry{
+            name: "pose_pos_x".to_string(),
+            value: TelemtryType::Float(in_state.pose.position.x.into())
+        };
+        let pose_pos_y_tel = Telemtry{
+            name: "pose_pos_y".to_string(),
+            value: TelemtryType::Float(in_state.pose.position.y.into())
+        };
+        let pose_pos_z_tel = Telemtry{
+            name: "pose_pos_z".to_string(),
+            value: TelemtryType::Float(in_state.pose.position.z.into())
+        };
 
-        Ok(in_state.clone())
+        let pose_ori_x_tel = Telemtry{
+            name: "pose_ori_x_rad".to_string(),
+            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().0.into())
+        };
+        let pose_ori_y_tel = Telemtry{
+            name: "pose_ori_y_rad".to_string(),
+            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().1.into())
+        };
+        let pose_ori_z_tel = Telemtry{
+            name: "pose_ori_z_rad".to_string(),
+            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().2.into())
+        };
+
+        let mut state = in_state.clone();
+        state.telemtry.insert(pose_pos_x_tel.name.clone(), pose_pos_x_tel);
+        state.telemtry.insert(pose_pos_y_tel.name.clone(), pose_pos_y_tel);
+        state.telemtry.insert(pose_pos_z_tel.name.clone(), pose_pos_z_tel);
+        state.telemtry.insert(pose_ori_x_tel.name.clone(), pose_ori_x_tel);
+        state.telemtry.insert(pose_ori_y_tel.name.clone(), pose_ori_y_tel);
+        state.telemtry.insert(pose_ori_z_tel.name.clone(), pose_ori_z_tel);
+       
+        Ok(state)
     }
 }
 

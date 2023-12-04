@@ -1,9 +1,14 @@
-use crate::types::{movement::Movement, pose::Pose};
+
+
+use std::collections::HashMap;
+
+use crate::types::{movement::Movement, pose::Pose, telemtry::Telemtry};
 #[derive(Debug, PartialEq, Clone)]
 pub struct UAVState {
     pub pose: Pose,
     pub movenment: Movement,
     pub motors: [f32; 4],
+    pub telemtry: HashMap<String, Telemtry>
 }
 
 impl UAVState {
@@ -15,6 +20,7 @@ impl UAVState {
             pose: Pose::zero(),
             movenment: Movement::zero(),
             motors: [0.0; 4],
+            telemtry: HashMap::new()
         }
     }
 
@@ -26,6 +32,7 @@ impl UAVState {
             pose: init_pose,
             movenment: Movement::zero(),
             motors: [0.0; 4],
+            telemtry: HashMap::new()
         }
     }
 

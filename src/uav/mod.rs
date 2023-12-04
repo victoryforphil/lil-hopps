@@ -36,6 +36,7 @@ impl UAV {
         for i in 0..4 {
             self.motors[i].set_input_scalar(self.state.motors[i]);
         }
+        
         Ok(())
     }
 }

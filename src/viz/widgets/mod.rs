@@ -12,6 +12,7 @@ pub mod dock;
 pub mod runner;
 pub mod uav_state;
 pub mod three_viz;
+pub mod telem_graph;
 pub struct WidgetUI {
     dock_tree: DockState<String>,
     last_drock_tree: String,
@@ -38,24 +39,29 @@ impl WidgetUI {
 
         let three_viz_widget: Box<_> = Box::new(three_viz::ThreeVizWidget::new());
         self.add_dock_widget("3D Viz".to_string(), three_viz_widget);
+
+        let telem_graph_widget: Box<_> = Box::new(telem_graph::TelemetryGraphWidget::new());
+        self.add_dock_widget("Telemetry Graph".to_string(), telem_graph_widget);
     }
 
     fn add_dock_widget(&mut self, name: String, widget: Box<dyn DockableWidget>) {
         self.dock.register_window(name.clone(), widget);
-        self.dock_tree.push_to_first_leaf(name.clone());
+       
+        self.dock_tree.push_to_focused_leaf(name.clone());
+       
     }
 
     pub fn draw(&mut self, ctx: &egui::Context, context: &VizContext) {
         self.dock.update_state(context);
         DockArea::new(&mut self.dock_tree)
             .style(Style::from_egui(ctx.style().as_ref()))
-            .show(ctx, &mut self.dock);
+            .show(ctx as &egui_dock::egui::Context, &mut self.dock);
     }
 
     pub fn draw_inside(&mut self, ctx: &egui::Context, ui: &mut Ui, context: &VizContext) {
         self.dock.update_state(context);
         DockArea::new(&mut self.dock_tree)
             .style(Style::from_egui(ctx.style().as_ref()))
-            .show_inside(ui, &mut self.dock);
+            .show_inside(ui as &mut egui::Ui, &mut self.dock);
     }
 }

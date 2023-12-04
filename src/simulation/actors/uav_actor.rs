@@ -1,5 +1,5 @@
 
-use nalgebra::{Point, Vector3};
+use nalgebra::{Point};
 use rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };
@@ -70,11 +70,10 @@ impl SimActor<UAVActorResult> for UAVActor {
     ) -> Result<UAVActorResult, String> {
         let rigid_body = RigidBodyBuilder::dynamic()
             .translation(last_state.uav_state.uav_state.pose.position.into())
-            .rotation(Vector3::new(90.0, 0.25, 0.25))
             .build();
         let rigid_body_handle = context.rigid_bodies.insert(rigid_body);
-        let collider = ColliderBuilder::cuboid(0.5, 0.5, 0.05)
-            .density(4.0)
+        let collider = ColliderBuilder::cuboid(0.25, 0.25, 0.05)
+            .density(2.0)
             .build();
         // When the collider is attached, the rigid-body's mass and angular
         // inertia is automatically updated to take the collider into account.
@@ -92,17 +91,20 @@ impl SimActor<UAVActorResult> for UAVActor {
         &mut self,
         context: SimulationContextHandle,
         state: &SimulationState,
-        _t: f64,
-        _dt: f64,
+        t: f64,
+        dt: f64,
     ) -> Result<UAVActorResult, String> {
         self.apply_motor_force(&mut context.rigid_bodies);
-        let mut new_state = state.uav_state.uav_state.clone();
+        self.uav.process(t, dt as f32);
+        let mut new_state = self.uav.state.clone();
+       
         let rigid_body = context.rigid_bodies.get_mut(self.rigid_body).unwrap();
 
         new_state.pose.position = rigid_body.position().translation.vector;
         new_state.pose.orientation = rigid_body.rotation().clone();
         new_state.movenment.ang_accel = rigid_body.angvel().clone();
         new_state.movenment.lin_vel = rigid_body.linvel().clone();
+        self.uav.state = new_state.clone();
 
         Ok(UAVActorResult::new_with_state(new_state))
     }
