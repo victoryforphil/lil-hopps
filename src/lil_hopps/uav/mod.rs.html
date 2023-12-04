@@ -63,6 +63,7 @@
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::types::{motors::Motor};
 
 <span class="kw">use </span><span class="self">self</span>::{config::UAVConfig, software::UAVSoftware, state::UAVState};
@@ -101,6 +102,7 @@
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
             <span class="self">self</span>.motors[i].set_input_scalar(<span class="self">self</span>.state.motors[i]);
         }
+        
         <span class="prelude-val">Ok</span>(())
     }
 }

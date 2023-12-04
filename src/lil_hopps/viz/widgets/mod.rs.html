@@ -59,6 +59,12 @@
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>egui::Ui;
 <span class="kw">use </span>egui_dock::{DockArea, DockState, Style};
 
@@ -73,6 +79,7 @@
 <span class="kw">pub mod </span>runner;
 <span class="kw">pub mod </span>uav_state;
 <span class="kw">pub mod </span>three_viz;
+<span class="kw">pub mod </span>telem_graph;
 <span class="kw">pub struct </span>WidgetUI {
     dock_tree: DockState&lt;String&gt;,
     last_drock_tree: String,
@@ -99,25 +106,30 @@
 
         <span class="kw">let </span>three_viz_widget: Box&lt;<span class="kw">_</span>&gt; = Box::new(three_viz::ThreeVizWidget::new());
         <span class="self">self</span>.add_dock_widget(<span class="string">&quot;3D Viz&quot;</span>.to_string(), three_viz_widget);
+
+        <span class="kw">let </span>telem_graph_widget: Box&lt;<span class="kw">_</span>&gt; = Box::new(telem_graph::TelemetryGraphWidget::new());
+        <span class="self">self</span>.add_dock_widget(<span class="string">&quot;Telemetry Graph&quot;</span>.to_string(), telem_graph_widget);
     }
 
     <span class="kw">fn </span>add_dock_widget(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: String, widget: Box&lt;<span class="kw">dyn </span>DockableWidget&gt;) {
         <span class="self">self</span>.dock.register_window(name.clone(), widget);
-        <span class="self">self</span>.dock_tree.push_to_first_leaf(name.clone());
+       
+        <span class="self">self</span>.dock_tree.push_to_focused_leaf(name.clone());
+       
     }
 
     <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>egui::Context, context: <span class="kw-2">&amp;</span>VizContext) {
         <span class="self">self</span>.dock.update_state(context);
         DockArea::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.dock_tree)
             .style(Style::from_egui(ctx.style().as_ref()))
-            .show(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.dock);
+            .show(ctx <span class="kw">as </span><span class="kw-2">&amp;</span>egui_dock::egui::Context, <span class="kw-2">&amp;mut </span><span class="self">self</span>.dock);
     }
 
     <span class="kw">pub fn </span>draw_inside(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>egui::Context, ui: <span class="kw-2">&amp;mut </span>Ui, context: <span class="kw-2">&amp;</span>VizContext) {
         <span class="self">self</span>.dock.update_state(context);
         DockArea::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.dock_tree)
             .style(Style::from_egui(ctx.style().as_ref()))
-            .show_inside(ui, <span class="kw-2">&amp;mut </span><span class="self">self</span>.dock);
+            .show_inside(ui <span class="kw">as </span><span class="kw-2">&amp;mut </span>egui::Ui, <span class="kw-2">&amp;mut </span><span class="self">self</span>.dock);
     }
 }
 </code></pre></div></section></main></body></html>
