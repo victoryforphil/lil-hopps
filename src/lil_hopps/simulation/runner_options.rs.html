@@ -104,7 +104,7 @@
     </span><span class="kw">pub fn </span>new_threaded(max_t: f64) -&gt; <span class="self">Self </span>{
         SimRunnerOptions {
             max_t: max_t,
-            dt: <span class="number">0.001</span>,
+            dt: <span class="number">0.005</span>,
             threaded: <span class="bool-val">true</span>,
             join: <span class="bool-val">true</span>,
         }
@@ -120,7 +120,7 @@
     </span><span class="kw">pub fn </span>new_unjoined(max_t: f64) -&gt; <span class="self">Self </span>{
         SimRunnerOptions {
             max_t: max_t,
-            dt: <span class="number">0.001</span>,
+            dt: <span class="number">0.005</span>,
             threaded: <span class="bool-val">true</span>,
             join: <span class="bool-val">false</span>,
         }
@@ -136,7 +136,7 @@
     </span><span class="kw">pub fn </span>new(max_t: f64) -&gt; <span class="self">Self </span>{
         SimRunnerOptions {
             max_t: max_t,
-            dt: <span class="number">0.001</span>,
+            dt: <span class="number">0.005</span>,
             threaded: <span class="bool-val">false</span>,
             join: <span class="bool-val">false</span>,
         }
@@ -151,7 +151,7 @@
     </span><span class="kw">fn </span>test_new_threaded() {
         <span class="kw">let </span>options = SimRunnerOptions::new_threaded(<span class="number">10.0</span>);
         <span class="macro">assert_eq!</span>(options.max_t, <span class="number">10.0</span>);
-        <span class="macro">assert_eq!</span>(options.dt, <span class="number">0.001</span>);
+        <span class="macro">assert_eq!</span>(options.dt, <span class="number">0.005</span>);
         <span class="macro">assert_eq!</span>(options.threaded, <span class="bool-val">true</span>);
         <span class="macro">assert_eq!</span>(options.join, <span class="bool-val">true</span>);
     }
@@ -160,7 +160,7 @@
     </span><span class="kw">fn </span>test_new_unjoined() {
         <span class="kw">let </span>options = SimRunnerOptions::new_unjoined(<span class="number">10.0</span>);
         <span class="macro">assert_eq!</span>(options.max_t, <span class="number">10.0</span>);
-        <span class="macro">assert_eq!</span>(options.dt, <span class="number">0.001</span>);
+        <span class="macro">assert_eq!</span>(options.dt, <span class="number">0.005</span>);
         <span class="macro">assert_eq!</span>(options.threaded, <span class="bool-val">true</span>);
         <span class="macro">assert_eq!</span>(options.join, <span class="bool-val">false</span>);
     }
@@ -169,7 +169,7 @@
     </span><span class="kw">fn </span>test_new() {
         <span class="kw">let </span>options = SimRunnerOptions::new(<span class="number">10.0</span>);
         <span class="macro">assert_eq!</span>(options.max_t, <span class="number">10.0</span>);
-        <span class="macro">assert_eq!</span>(options.dt, <span class="number">0.001</span>);
+        <span class="macro">assert_eq!</span>(options.dt, <span class="number">0.005</span>);
         <span class="macro">assert_eq!</span>(options.threaded, <span class="bool-val">false</span>);
         <span class="macro">assert_eq!</span>(options.join, <span class="bool-val">false</span>);
     }

@@ -173,6 +173,10 @@
 <a href="#173" id="173">173</a>
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>eframe::{egui_glow, glow};
@@ -315,6 +319,10 @@
         };
       
         <span class="kw">let </span>uav_rot = uav_pose.orientation.euler_angles();
+        <span class="kw">let </span>cam_up = <span class="self">self</span>.camera.up().clone();
+        <span class="kw">let </span>cam_pos = <span class="self">self</span>.camera.position().clone();
+        <span class="kw">let </span>taget = Vector3::new(uav_pose.position.x, uav_pose.position.y, uav_pose.position.z);
+        <span class="self">self</span>.camera.set_view(cam_pos, taget, cam_up);
        
         <span class="self">self</span>.uav_meshes.set_transformation(
             Mat4::from_translation(vec3(uav_pose.position.x, uav_pose.position.y, uav_pose.position.z))
