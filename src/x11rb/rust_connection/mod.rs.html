@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/x11rb-0.10.1/src/rust_connection/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="x11rb" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../x11rb/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/x11rb-0.12.0/src/rust_connection/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="x11rb" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../x11rb/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -755,12 +755,110 @@
 <a href="#755" id="755">755</a>
 <a href="#756" id="756">756</a>
 <a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A pure-rust implementation of a connection to an X11 server.
 
 </span><span class="kw">use </span>std::convert::TryInto;
 <span class="kw">use </span>std::io::IoSlice;
 <span class="kw">use </span>std::mem::drop;
 <span class="kw">use </span>std::sync::{Condvar, Mutex, MutexGuard, TryLockError};
+<span class="kw">use </span>std::time::Instant;
 
 <span class="kw">use </span><span class="kw">crate</span>::connection::{
     compute_length_field, Connection, ReplyOrError, RequestConnection, RequestKind,
@@ -769,7 +867,7 @@
 <span class="kw">pub use </span><span class="kw">crate</span>::errors::{ConnectError, ConnectionError, ParseError, ReplyError, ReplyOrIdError};
 <span class="kw">use </span><span class="kw">crate</span>::extension_manager::ExtensionManager;
 <span class="kw">use </span><span class="kw">crate</span>::protocol::bigreq::{ConnectionExt <span class="kw">as _</span>, EnableReply};
-<span class="kw">use </span><span class="kw">crate</span>::protocol::xproto::{Setup, GET_INPUT_FOCUS_REQUEST};
+<span class="kw">use </span><span class="kw">crate</span>::protocol::xproto::{Setup, GET_INPUT_FOCUS_REQUEST, QUERY_EXTENSION_REQUEST};
 <span class="kw">use </span><span class="kw">crate</span>::utils::RawFdContainer;
 <span class="kw">use </span><span class="kw">crate</span>::x11_utils::{ExtensionInformation, TryParse, TryParseFd};
 <span class="kw">use </span>x11rb_protocol::connect::Connect;
@@ -876,14 +974,22 @@
         // works.
         </span><span class="kw">let </span><span class="kw-2">mut </span>error = <span class="prelude-val">None</span>;
         <span class="kw">for </span>addr <span class="kw">in </span>parsed_display.connect_instruction() {
-            <span class="kw">match </span>DefaultStream::connect(addr) {
+            <span class="kw">let </span>start = Instant::now();
+            <span class="kw">match </span>DefaultStream::connect(<span class="kw-2">&amp;</span>addr) {
                 <span class="prelude-val">Ok</span>(stream) =&gt; {
+                    <span class="macro">crate::trace!</span>(
+                        <span class="string">&quot;Connected to X11 server via {:?} in {:?}&quot;</span>,
+                        addr,
+                        start.elapsed()
+                    );
+
                     <span class="comment">// we found a stream, get auth information
                     </span><span class="kw">let </span>(family, address) = stream.peer_addr()<span class="question-mark">?</span>;
                     <span class="kw">let </span>(auth_name, auth_data) = get_auth(family, <span class="kw-2">&amp;</span>address, parsed_display.display)
                         <span class="comment">// Ignore all errors while determining auth; instead we just try without auth info.
                         </span>.unwrap_or(<span class="prelude-val">None</span>)
                         .unwrap_or_else(|| (Vec::new(), Vec::new()));
+                    <span class="macro">crate::trace!</span>(<span class="string">&quot;Picked authentication via auth mechanism {:?}&quot;</span>, auth_name);
 
                     <span class="comment">// finish connecting to server
                     </span><span class="kw">return </span><span class="prelude-val">Ok</span>((
@@ -894,6 +1000,7 @@
                     ));
                 }
                 <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="macro">crate::debug!</span>(<span class="string">&quot;Failed to connect to X11 server via {:?}: {:?}&quot;</span>, addr, e);
                     error = <span class="prelude-val">Some</span>(e);
                     <span class="kw">continue</span>;
                 }
@@ -939,6 +1046,10 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>nwritten = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>fds = <span class="macro">vec!</span>[];
 
+        <span class="macro">crate::trace!</span>(
+            <span class="string">&quot;Writing connection setup with {} bytes&quot;</span>,
+            setup_request.len()
+        );
         <span class="kw">while </span>nwritten != setup_request.len() {
             stream.poll(PollMode::Writable)<span class="question-mark">?</span>;
             <span class="comment">// poll returned successfully, so the stream is writable.
@@ -960,6 +1071,10 @@
         <span class="comment">// read in the setup
         </span><span class="kw">loop </span>{
             stream.poll(PollMode::Readable)<span class="question-mark">?</span>;
+            <span class="macro">crate::trace!</span>(
+                <span class="string">&quot;Reading connection setup with at least {} bytes remaining&quot;</span>,
+                connect.buffer().len()
+            );
             <span class="kw">let </span>adv = <span class="kw">match </span>stream.read(connect.buffer(), <span class="kw-2">&amp;mut </span>fds) {
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
@@ -973,6 +1088,7 @@
                 </span><span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e) <span class="kw">if </span>e.kind() == std::io::ErrorKind::WouldBlock =&gt; <span class="kw">continue</span>,
                 <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e.into()),
             };
+            <span class="macro">crate::trace!</span>(<span class="string">&quot;Read {} bytes&quot;</span>, adv);
 
             <span class="comment">// advance the internal buffer
             </span><span class="kw">if </span>connect.advance(adv) {
@@ -998,15 +1114,11 @@
     /// It is assumed that `setup` was just received from the server. Thus, the first reply to a
     /// request that is sent will have sequence number one.
     </span><span class="kw">pub fn </span>for_connected_stream(stream: S, setup: Setup) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ConnectError&gt; {
-        <span class="self">Self</span>::for_inner(stream, ProtoConnection::new(), setup)
-    }
-
-    <span class="kw">fn </span>for_inner(stream: S, inner: ProtoConnection, setup: Setup) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ConnectError&gt; {
         <span class="kw">let </span>id_allocator = IdAllocator::new(setup.resource_id_base, setup.resource_id_mask)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(RustConnection {
             inner: Mutex::new(ConnectionInner {
-                inner,
+                inner: ProtoConnection::new(),
                 write_buffer: WriteBuffer::new(),
             }),
             stream,
@@ -1029,23 +1141,34 @@
         fds: Vec&lt;RawFdContainer&gt;,
         kind: ReplyFdKind,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;SequenceNumber, ConnectionError&gt; {
+        <span class="kw">let </span>_guard = <span class="macro">crate::debug_span!</span>(<span class="string">&quot;send_request&quot;</span>).entered();
+
+        <span class="kw">let </span>request_info = RequestInfo {
+            extension_manager: <span class="kw-2">&amp;</span><span class="self">self</span>.extension_manager,
+            major_opcode: bufs[<span class="number">0</span>][<span class="number">0</span>],
+            minor_opcode: bufs[<span class="number">0</span>][<span class="number">1</span>],
+        };
+        <span class="macro">crate::debug!</span>(<span class="string">&quot;Sending {}&quot;</span>, request_info);
+
         <span class="kw">let </span><span class="kw-2">mut </span>storage = Default::default();
         <span class="kw">let </span>bufs = compute_length_field(<span class="self">self</span>, bufs, <span class="kw-2">&amp;mut </span>storage)<span class="question-mark">?</span>;
 
         <span class="comment">// Note: `inner` must be kept blocked until the request has been completely written
         // or buffered to avoid sending the data of different requests interleaved. For this
         // reason, `read_packet_and_enqueue` must always be called with `BlockingMode::NonBlocking`
-        // during a write, otherise `inner` would be temporarily released.
+        // during a write, otherwise `inner` would be temporarily released.
         </span><span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock().unwrap();
 
         <span class="kw">loop </span>{
-            <span class="kw">match </span>inner.inner.send_request(kind) {
+            <span class="kw">let </span>send_result = inner.inner.send_request(kind);
+            <span class="kw">match </span>send_result {
                 <span class="prelude-val">Some</span>(seqno) =&gt; {
                     <span class="comment">// Now actually send the buffers
                     </span><span class="kw">let </span>_inner = <span class="self">self</span>.write_all_vectored(inner, bufs, fds)<span class="question-mark">?</span>;
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(seqno);
                 }
                 <span class="prelude-val">None </span>=&gt; {
+                    <span class="macro">crate::trace!</span>(<span class="string">&quot;Syncing with the X11 server since there are too many outstanding void requests&quot;</span>);
                     inner = <span class="self">self</span>.send_sync(inner)<span class="question-mark">?</span>;
                 }
             }
@@ -1090,7 +1213,7 @@
         <span class="kw-2">mut </span>fds: Vec&lt;RawFdContainer&gt;,
     ) -&gt; std::io::Result&lt;MutexGuardInner&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>partial_buf: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[];
-        <span class="kw">while </span>!partial_buf.is_empty() || !bufs.is_empty() || !fds.is_empty() {
+        <span class="kw">while </span>!partial_buf.is_empty() || !bufs.is_empty() {
             <span class="self">self</span>.stream.poll(PollMode::ReadAndWritable)<span class="question-mark">?</span>;
             <span class="kw">let </span>write_result = <span class="kw">if </span>!partial_buf.is_empty() {
                 <span class="comment">// &quot;inner&quot; is held, passed into this function, so this should never be held
@@ -1134,6 +1257,7 @@
                     }
                 }
                 <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e) <span class="kw">if </span>e.kind() == std::io::ErrorKind::WouldBlock =&gt; {
+                    <span class="macro">crate::trace!</span>(<span class="string">&quot;Writing more data would block for now&quot;</span>);
                     <span class="comment">// Writing would block, try to read instead because the
                     // server might not accept new requests after its
                     // buffered replies have been read.
@@ -1141,6 +1265,12 @@
                 }
                 <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
             }
+        }
+        <span class="kw">if </span>!fds.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                <span class="string">&quot;Left over FDs after sending the request&quot;</span>,
+            ));
         }
         <span class="prelude-val">Ok</span>(inner)
     }
@@ -1152,10 +1282,12 @@
         <span class="comment">// n.b. notgull: inner guard is held
         </span><span class="kw">while </span>inner.write_buffer.needs_flush() {
             <span class="self">self</span>.stream.poll(PollMode::ReadAndWritable)<span class="question-mark">?</span>;
-            <span class="kw">match </span>inner.write_buffer.flush(<span class="kw-2">&amp;</span><span class="self">self</span>.stream) {
+            <span class="kw">let </span>flush_result = inner.write_buffer.flush(<span class="kw-2">&amp;</span><span class="self">self</span>.stream);
+            <span class="kw">match </span>flush_result {
                 <span class="comment">// Flush completed
                 </span><span class="prelude-val">Ok</span>(()) =&gt; <span class="kw">break</span>,
                 <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e) <span class="kw">if </span>e.kind() == std::io::ErrorKind::WouldBlock =&gt; {
+                    <span class="macro">crate::trace!</span>(<span class="string">&quot;Flushing more data would block for now&quot;</span>);
                     <span class="comment">// Writing would block, try to read instead because the
                     // server might not accept new requests after its
                     // buffered replies have been read.
@@ -1188,8 +1320,13 @@
             <span class="prelude-val">Err</span>(TryLockError::WouldBlock) =&gt; {
                 <span class="comment">// In non-blocking mode, we just return immediately
                 </span><span class="kw">match </span>mode {
-                    BlockingMode::NonBlocking =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(inner),
-                    BlockingMode::Blocking =&gt; {}
+                    BlockingMode::NonBlocking =&gt; {
+                        <span class="macro">crate::trace!</span>(<span class="string">&quot;read_packet_and_enqueue in NonBlocking mode doing nothing since reader is already locked&quot;</span>);
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(inner);
+                    }
+                    BlockingMode::Blocking =&gt; {
+                        <span class="macro">crate::trace!</span>(<span class="string">&quot;read_packet_and_enqueue in Blocking mode waiting for pre-existing reader&quot;</span>);
+                    }
                 }
 
                 <span class="comment">// 1.1. Someone else is reading (other thread is at 2.2);
@@ -1253,6 +1390,7 @@
 
     <span class="kw">fn </span>prefetch_maximum_request_bytes_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, max_bytes: <span class="kw-2">&amp;mut </span>MutexGuard&lt;<span class="lifetime">&#39;_</span>, MaxRequestBytes&gt;) {
         <span class="kw">if let </span>MaxRequestBytes::Unknown = <span class="kw-2">**</span>max_bytes {
+            <span class="macro">crate::info!</span>(<span class="string">&quot;Prefetching maximum request length&quot;</span>);
             <span class="kw">let </span>request = <span class="self">self
                 </span>.bigreq_enable()
                 .map(|cookie| cookie.into_sequence_number())
@@ -1310,6 +1448,11 @@
     }
 
     <span class="kw">fn </span>discard_reply(<span class="kw-2">&amp;</span><span class="self">self</span>, sequence: SequenceNumber, _kind: RequestKind, mode: DiscardMode) {
+        <span class="macro">crate::debug!</span>(
+            <span class="string">&quot;Discarding reply to request {} in mode {:?}&quot;</span>,
+            sequence,
+            mode
+        );
         <span class="self">self</span>.inner
             .lock()
             .unwrap()
@@ -1348,10 +1491,14 @@
     }
 
     <span class="kw">fn </span>wait_for_reply(<span class="kw-2">&amp;</span><span class="self">self</span>, sequence: SequenceNumber) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;, ConnectionError&gt; {
+        <span class="kw">let </span>_guard = <span class="macro">crate::debug_span!</span>(<span class="string">&quot;wait_for_reply&quot;</span>, sequence).entered();
+
         <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock().unwrap();
         inner = <span class="self">self</span>.flush_impl(inner)<span class="question-mark">?</span>;
         <span class="kw">loop </span>{
-            <span class="kw">match </span>inner.inner.poll_for_reply(sequence) {
+            <span class="macro">crate::trace!</span>({ sequence }, <span class="string">&quot;Polling for reply&quot;</span>);
+            <span class="kw">let </span>poll_result = inner.inner.poll_for_reply(sequence);
+            <span class="kw">match </span>poll_result {
                 PollReply::TryAgain =&gt; {}
                 PollReply::NoReply =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
                 PollReply::Reply(buffer) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(buffer)),
@@ -1364,15 +1511,20 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         sequence: SequenceNumber,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Buffer&gt;, ConnectionError&gt; {
+        <span class="kw">let </span>_guard = <span class="macro">crate::debug_span!</span>(<span class="string">&quot;check_for_raw_error&quot;</span>, sequence).entered();
+
         <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock().unwrap();
         <span class="kw">if </span>inner.inner.prepare_check_for_reply_or_error(sequence) {
+            <span class="macro">crate::trace!</span>(<span class="string">&quot;Inserting sync with the X11 server&quot;</span>);
             inner = <span class="self">self</span>.send_sync(inner)<span class="question-mark">?</span>;
             <span class="macro">assert!</span>(!inner.inner.prepare_check_for_reply_or_error(sequence));
         }
         <span class="comment">// Ensure the request is sent
         </span>inner = <span class="self">self</span>.flush_impl(inner)<span class="question-mark">?</span>;
         <span class="kw">loop </span>{
-            <span class="kw">match </span>inner.inner.poll_check_for_reply_or_error(sequence) {
+            <span class="macro">crate::trace!</span>({ sequence }, <span class="string">&quot;Polling for reply or error&quot;</span>);
+            <span class="kw">let </span>poll_result = inner.inner.poll_check_for_reply_or_error(sequence);
+            <span class="kw">match </span>poll_result {
                 PollReply::TryAgain =&gt; {}
                 PollReply::NoReply =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
                 PollReply::Reply(buffer) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(buffer)),
@@ -1385,14 +1537,19 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         sequence: SequenceNumber,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ReplyOrError&lt;BufWithFds, Buffer&gt;, ConnectionError&gt; {
+        <span class="kw">let </span>_guard = <span class="macro">crate::debug_span!</span>(<span class="string">&quot;wait_for_reply_with_fds_raw&quot;</span>, sequence).entered();
+
         <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock().unwrap();
         <span class="comment">// Ensure the request is sent
         </span>inner = <span class="self">self</span>.flush_impl(inner)<span class="question-mark">?</span>;
         <span class="kw">loop </span>{
+            <span class="macro">crate::trace!</span>({ sequence }, <span class="string">&quot;Polling for reply or error&quot;</span>);
             <span class="kw">if let </span><span class="prelude-val">Some</span>(reply) = inner.inner.poll_for_reply_or_error(sequence) {
                 <span class="kw">if </span>reply.<span class="number">0</span>[<span class="number">0</span>] == <span class="number">0 </span>{
+                    <span class="macro">crate::trace!</span>(<span class="string">&quot;Got error&quot;</span>);
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(ReplyOrError::Error(reply.<span class="number">0</span>));
                 } <span class="kw">else </span>{
+                    <span class="macro">crate::trace!</span>(<span class="string">&quot;Got reply&quot;</span>);
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(ReplyOrError::Reply(reply));
                 }
             }
@@ -1404,9 +1561,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>max_bytes = <span class="self">self</span>.maximum_request_bytes.lock().unwrap();
         <span class="self">self</span>.prefetch_maximum_request_bytes_impl(<span class="kw-2">&amp;mut </span>max_bytes);
         <span class="kw">use </span>MaxRequestBytes::<span class="kw-2">*</span>;
-        <span class="kw">match </span><span class="kw-2">*</span>max_bytes {
+        <span class="kw">let </span>max_bytes = <span class="kw-2">&amp;mut *</span>max_bytes;
+        <span class="kw">match </span>max_bytes {
             Unknown =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;We just prefetched this&quot;</span>),
             Requested(seqno) =&gt; {
+                <span class="kw">let </span>_guard = <span class="macro">crate::info_span!</span>(<span class="string">&quot;maximum_request_bytes&quot;</span>).entered();
+
                 <span class="kw">let </span>length = seqno
                     <span class="comment">// If prefetching the request succeeded, get a cookie
                     </span>.and_then(|seqno| {
@@ -1423,9 +1583,10 @@
                     .unwrap_or(usize::max_value());
                 <span class="kw">let </span>length = length * <span class="number">4</span>;
                 <span class="kw-2">*</span>max_bytes = Known(length);
+                <span class="macro">crate::info!</span>(<span class="string">&quot;Maximum request length is {} bytes&quot;</span>, length);
                 length
             }
-            Known(length) =&gt; length,
+            Known(length) =&gt; <span class="kw-2">*</span>length,
         }
     }
 
@@ -1449,6 +1610,8 @@
     <span class="kw">fn </span>wait_for_raw_event_with_sequence(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;RawEventAndSeqNumber&lt;Vec&lt;u8&gt;&gt;, ConnectionError&gt; {
+        <span class="kw">let </span>_guard = <span class="macro">crate::trace_span!</span>(<span class="string">&quot;wait_for_raw_event_with_sequence&quot;</span>).entered();
+
         <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock().unwrap();
         <span class="kw">loop </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(event) = inner.inner.poll_for_event_with_sequence() {
@@ -1461,6 +1624,8 @@
     <span class="kw">fn </span>poll_for_raw_event_with_sequence(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RawEventAndSeqNumber&lt;Vec&lt;u8&gt;&gt;&gt;, ConnectionError&gt; {
+        <span class="kw">let </span>_guard = <span class="macro">crate::trace_span!</span>(<span class="string">&quot;poll_for_raw_event_with_sequence&quot;</span>).entered();
+
         <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock().unwrap();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(event) = inner.inner.poll_for_event_with_sequence() {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(event))
@@ -1491,9 +1656,10 @@
                 </span>.extension_information(xc_misc::X11_EXTENSION_NAME)<span class="question-mark">?
                 </span>.is_none()
             {
-                <span class="comment">// IDs are exhausted and XC-MISC is not available
-                </span><span class="prelude-val">Err</span>(ReplyOrIdError::IdsExhausted)
+                <span class="macro">crate::error!</span>(<span class="string">&quot;XIDs are exhausted and XC-MISC extension is not available&quot;</span>);
+                <span class="prelude-val">Err</span>(ReplyOrIdError::IdsExhausted)
             } <span class="kw">else </span>{
+                <span class="macro">crate::info!</span>(<span class="string">&quot;XIDs are exhausted; fetching free range via XC-MISC&quot;</span>);
                 id_allocator.update_xid_range(<span class="kw-2">&amp;</span><span class="self">self</span>.xc_misc_get_xid_range()<span class="question-mark">?</span>.reply()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 id_allocator
                     .generate_id()
@@ -1510,6 +1676,34 @@
 <span class="kw">impl </span>Drop <span class="kw">for </span>NotifyOnDrop&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.<span class="number">0</span>.notify_all();
+    }
+}
+
+<span class="doccomment">/// Format information about a request in a Display impl
+</span><span class="kw">struct </span>RequestInfo&lt;<span class="lifetime">&#39;a</span>&gt; {
+    extension_manager: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mutex&lt;ExtensionManager&gt;,
+    major_opcode: u8,
+    minor_opcode: u8,
+}
+
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>RequestInfo&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="comment">// QueryExtension is used by the extension manager. We would deadlock if we
+        // tried to lock it again. Hence, this case is hardcoded here.
+        </span><span class="kw">if </span><span class="self">self</span>.major_opcode == QUERY_EXTENSION_REQUEST {
+            <span class="macro">write!</span>(f, <span class="string">&quot;QueryExtension request&quot;</span>)
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>guard = <span class="self">self</span>.extension_manager.lock().unwrap();
+            <span class="macro">write!</span>(
+                f,
+                <span class="string">&quot;{} request&quot;</span>,
+                x11rb_protocol::protocol::get_request_name(
+                    <span class="kw-2">&amp;*</span>guard,
+                    <span class="self">self</span>.major_opcode,
+                    <span class="self">self</span>.minor_opcode
+                )
+            )
+        }
     }
 }
 </code></pre></div></section></main></body></html>

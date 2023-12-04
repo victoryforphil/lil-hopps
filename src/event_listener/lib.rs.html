@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/event-listener-3.1.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="event_listener" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/smol-rs/smol/master/assets/images/logo_fullsize_transparent.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../event_listener/index.html"><img src="https://raw.githubusercontent.com/smol-rs/smol/master/assets/images/logo_fullsize_transparent.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/event-listener-4.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="event_listener" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/smol-rs/smol/master/assets/images/logo_fullsize_transparent.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../event_listener/index.html"><img src="https://raw.githubusercontent.com/smol-rs/smol/master/assets/images/logo_fullsize_transparent.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1326,6 +1326,32 @@
 <a href="#1326" id="1326">1326</a>
 <a href="#1327" id="1327">1327</a>
 <a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Notify async tasks or threads.
 //!
 //! This is a synchronization primitive similar to [eventcounts] invented by Dmitry Vyukov.
@@ -1596,8 +1622,8 @@
     /// use event_listener::{Event, EventListener};
     ///
     /// let event = Event::new();
-    /// let mut listener = Box::pin(EventListener::new(&amp;event));
-    /// listener.as_mut().listen();
+    /// let mut listener = Box::pin(EventListener::new());
+    /// listener.as_mut().listen(&amp;event);
     /// ```
     ///
     /// It creates a new listener, pins it to the heap, and inserts it into the linked list
@@ -1608,8 +1634,8 @@
     /// [`EventListener`] is `listen`ing before waiting on it; panics may occur otherwise.
     </span><span class="attr">#[cold]
     </span><span class="kw">pub fn </span>listen(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pin&lt;Box&lt;EventListener&lt;T&gt;&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>listener = Box::pin(EventListener::new(<span class="self">self</span>));
-        listener.as_mut().listen();
+        <span class="kw">let </span><span class="kw-2">mut </span>listener = Box::pin(EventListener::new());
+        listener.as_mut().listen(<span class="self">self</span>);
         listener
     }
 
@@ -2039,7 +2065,7 @@
     ///     }
     /// });
     ///
-    /// let listener = EventListener::new(&amp;event);
+    /// let listener = EventListener::new();
     ///
     /// // Make sure that the event listener is pinned before doing anything else.
     /// //
@@ -2059,7 +2085,7 @@
     ///     } else {
     ///         // We need to insert ourselves into the list. Since this insertion is an atomic
     ///         // operation, we should check the flag again before waiting.
-    ///         listener.as_mut().listen();
+    ///         listener.as_mut().listen(&amp;event);
     ///     }
     /// }
     /// ```
@@ -2092,6 +2118,12 @@
 <span class="kw">impl</span>&lt;T&gt; core::panic::UnwindSafe <span class="kw">for </span>EventListener&lt;T&gt; {}
 <span class="kw">impl</span>&lt;T&gt; core::panic::RefUnwindSafe <span class="kw">for </span>EventListener&lt;T&gt; {}
 
+<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>EventListener&lt;T&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
 <span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>EventListener&lt;T&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">&quot;EventListener&quot;</span>)
@@ -2113,29 +2145,34 @@
     /// use event_listener::{Event, EventListener};
     ///
     /// let event = Event::new();
-    /// let listener = EventListener::new(&amp;event);
+    /// let listener = EventListener::new();
     ///
     /// // Make sure that the listener is pinned and listening before doing anything else.
     /// let mut listener = Box::pin(listener);
-    /// listener.as_mut().listen();
+    /// listener.as_mut().listen(&amp;event);
     /// ```
-    </span><span class="kw">pub fn </span>new(event: <span class="kw-2">&amp;</span>Event&lt;T&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>inner = event.inner();
-
-        <span class="kw">let </span>listener = Listener {
-            event: <span class="kw">unsafe </span>{ Arc::clone(<span class="kw-2">&amp;</span>ManuallyDrop::new(Arc::from_raw(inner))) },
-            listener: <span class="prelude-val">None</span>,
-        };
-
-        <span class="self">Self </span>{ listener }
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            listener: Listener {
+                event: <span class="prelude-val">None</span>,
+                listener: <span class="prelude-val">None</span>,
+            },
+        }
     }
 
     <span class="doccomment">/// Register this listener into the given [`Event`].
     ///
     /// This method can only be called after the listener has been pinned, and must be called before
     /// the listener is polled.
-    </span><span class="kw">pub fn </span>listen(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) {
-        <span class="self">self</span>.listener().insert();
+    </span><span class="kw">pub fn </span>listen(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, event: <span class="kw-2">&amp;</span>Event&lt;T&gt;) {
+        <span class="kw">let </span>inner = {
+            <span class="kw">let </span>inner = event.inner();
+            <span class="kw">unsafe </span>{ Arc::clone(<span class="kw-2">&amp;</span>ManuallyDrop::new(Arc::from_raw(inner))) }
+        };
+
+        <span class="kw">let </span>ListenerProject { event, listener } = <span class="self">self</span>.as_mut().project().listener.project();
+        <span class="kw">let </span>inner = event.insert(inner);
+        inner.insert(listener);
 
         <span class="comment">// Make sure the listener is registered before whatever happens next.
         </span>notify::full_fence();
@@ -2149,13 +2186,13 @@
     /// use event_listener::{Event, EventListener};
     ///
     /// let event = Event::new();
-    /// let mut listener = Box::pin(EventListener::new(&amp;event));
+    /// let mut listener = Box::pin(EventListener::new());
     ///
     /// // The listener starts off not listening.
     /// assert!(!listener.is_listening());
     ///
     /// // After listen() is called, the listener is listening.
-    /// listener.as_mut().listen();
+    /// listener.as_mut().listen(&amp;event);
     /// assert!(listener.is_listening());
     ///
     /// // Once the future is notified, the listener is no longer listening.
@@ -2250,7 +2287,7 @@
     /// assert!(!listener2.as_mut().discard());
     /// ```
     </span><span class="kw">pub fn </span>discard(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; bool {
-        <span class="self">self</span>.listener().discard()
+        <span class="self">self</span>.project().listener.discard()
     }
 
     <span class="doccomment">/// Returns `true` if this listener listens to the given `Event`.
@@ -2267,8 +2304,12 @@
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>listens_to(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;T&gt;) -&gt; bool {
-        ptr::eq::&lt;Inner&lt;T&gt;&gt;(<span class="kw-2">&amp;**</span><span class="self">self</span>.inner(), event.inner.load(Ordering::Acquire))
-    }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="kw-2">&amp;</span><span class="self">self</span>.listener.event {
+            <span class="kw">return </span>ptr::eq::&lt;Inner&lt;T&gt;&gt;(<span class="kw-2">&amp;**</span>inner, event.inner.load(Ordering::Acquire));
+        }
+
+        <span class="bool-val">false
+    </span>}
 
     <span class="doccomment">/// Returns `true` if both listeners listen to the same `Event`.
     ///
@@ -2284,15 +2325,19 @@
     /// assert!(listener1.same_event(&amp;listener2));
     /// ```
     </span><span class="kw">pub fn </span>same_event(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>EventListener&lt;T&gt;) -&gt; bool {
-        ptr::eq::&lt;Inner&lt;T&gt;&gt;(<span class="kw-2">&amp;**</span><span class="self">self</span>.inner(), <span class="kw-2">&amp;**</span>other.inner())
-    }
+        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(inner1), <span class="prelude-val">Some</span>(inner2)) = (<span class="self">self</span>.inner(), other.inner()) {
+            <span class="kw">return </span>ptr::eq::&lt;Inner&lt;T&gt;&gt;(<span class="kw-2">&amp;**</span>inner1, <span class="kw-2">&amp;**</span>inner2);
+        }
+
+        <span class="bool-val">false
+    </span>}
 
     <span class="kw">fn </span>listener(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; Pin&lt;<span class="kw-2">&amp;mut </span>Listener&lt;T, Arc&lt;Inner&lt;T&gt;&gt;&gt;&gt; {
         <span class="self">self</span>.project().listener
     }
 
-    <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Arc&lt;Inner&lt;T&gt;&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.listener.event
+    <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Arc&lt;Inner&lt;T&gt;&gt;&gt; {
+        <span class="self">self</span>.listener.event.as_ref()
     }
 }
 
@@ -2306,14 +2351,18 @@
 
 <span class="macro">pin_project_lite::pin_project! </span>{
     <span class="attr">#[project(!Unpin)]
+    #[project = ListenerProject]
     </span><span class="kw">struct </span>Listener&lt;T, B: Borrow&lt;Inner&lt;T&gt;&gt;&gt;
     <span class="kw">where
         </span>B: Unpin,
     {
         <span class="comment">// The reference to the original event.
-        </span>event: B,
+        </span>event: <span class="prelude-ty">Option</span>&lt;B&gt;,
 
         <span class="comment">// The inner state of the listener.
+        //
+        // This is only ever `None` during initialization. After `listen()` has completed, this
+        // should be `Some`.
         </span><span class="attr">#[pin]
         </span>listener: <span class="prelude-ty">Option</span>&lt;sys::Listener&lt;T&gt;&gt;,
     }
@@ -2325,9 +2374,9 @@
         <span class="kw">fn </span>drop(<span class="kw-2">mut </span>this: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) {
             <span class="comment">// If we&#39;re being dropped, we need to remove ourself from the list.
             </span><span class="kw">let </span>this = this.project();
-            <span class="kw">let </span>inner = (<span class="kw-2">*</span>this.event).borrow();
-
-            inner.remove(this.listener, <span class="bool-val">true</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = this.event {
+                (<span class="kw-2">*</span>inner).borrow().remove(this.listener, <span class="bool-val">true</span>);
+            }
         }
     }
 }
@@ -2336,14 +2385,6 @@
 <span class="kw">unsafe impl</span>&lt;T: Send, B: Borrow&lt;Inner&lt;T&gt;&gt; + Unpin + Sync&gt; Sync <span class="kw">for </span>Listener&lt;T, B&gt; {}
 
 <span class="kw">impl</span>&lt;T, B: Borrow&lt;Inner&lt;T&gt;&gt; + Unpin&gt; Listener&lt;T, B&gt; {
-    <span class="doccomment">/// Register this listener with the event.
-    </span><span class="kw">fn </span>insert(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) {
-        <span class="kw">let </span>this = <span class="self">self</span>.project();
-        <span class="kw">let </span>inner = (<span class="kw-2">*</span>this.event).borrow();
-
-        inner.insert(this.listener);
-    }
-
     <span class="doccomment">/// Wait until the provided deadline.
     </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, not(target_family = <span class="string">&quot;wasm&quot;</span>)))]
     </span><span class="kw">fn </span>wait_internal(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, deadline: <span class="prelude-ty">Option</span>&lt;Instant&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
@@ -2387,7 +2428,11 @@
         unparker: TaskRef&lt;<span class="lifetime">&#39;_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
-        <span class="kw">let </span>inner = (<span class="kw-2">*</span>this.event).borrow();
+        <span class="kw">let </span>inner = (<span class="kw-2">*</span>this
+            .event
+            .as_ref()
+            .expect(<span class="string">&quot;must listen() on event listener before waiting&quot;</span>))
+        .borrow();
 
         <span class="comment">// Set the listener&#39;s state to `Task`.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(tag) = inner.register(this.listener.as_mut(), unparker).notified() {
@@ -2424,17 +2469,24 @@
     /// active listener.
     </span><span class="kw">fn </span>discard(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; bool {
         <span class="kw">let </span>this = <span class="self">self</span>.project();
-        <span class="kw">let </span>inner = (<span class="kw-2">*</span>this.event).borrow();
 
-        inner
-            .remove(this.listener, <span class="bool-val">false</span>)
-            .map_or(<span class="bool-val">false</span>, |state| state.is_notified())
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = this.event.as_ref() {
+            (<span class="kw-2">*</span>inner)
+                .borrow()
+                .remove(this.listener, <span class="bool-val">false</span>)
+                .map_or(<span class="bool-val">false</span>, |state| state.is_notified())
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 
     <span class="doccomment">/// Poll this listener for a notification.
     </span><span class="kw">fn </span>poll_internal(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;T&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
-        <span class="kw">let </span>inner = (<span class="kw-2">*</span>this.event).borrow();
+        <span class="kw">let </span>inner = <span class="kw">match </span><span class="kw-2">&amp;</span>this.event {
+            <span class="prelude-val">Some</span>(inner) =&gt; (<span class="kw-2">*</span>inner).borrow(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;&quot;</span>),
+        };
 
         <span class="comment">// Try to register the listener.
         </span><span class="kw">match </span>inner
