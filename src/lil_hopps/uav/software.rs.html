@@ -62,101 +62,53 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>log::info;
 
-<span class="kw">use </span><span class="kw">crate</span>::types::telemtry::{Telemtry, TelemtryType};
+<span class="kw">use crate</span>::{types::telemtry::{Telemtry, TelemtryType}, control::UAVController};
 
 <span class="kw">use </span><span class="kw">super</span>::state::UAVState;
 
-<span class="kw">pub struct </span>UAVSoftware {}
+<span class="kw">pub struct </span>UAVSoftware {
+    control: UAVController
+}
 
 <span class="kw">impl </span>UAVSoftware {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        UAVSoftware {}
+        UAVSoftware {
+            control: UAVController::new()
+        }
     }
 
-    <span class="kw">pub fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _t: f64, _dt: f32, in_state: <span class="kw-2">&amp;</span>UAVState) -&gt; <span class="prelude-ty">Result</span>&lt;UAVState, String&gt; {
-      
-        <span class="kw">let </span>pose_pos_x_tel = Telemtry{
-            name: <span class="string">&quot;pose_pos_x&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.pose.position.x.into())
-        };
-        <span class="kw">let </span>pose_pos_y_tel = Telemtry{
-            name: <span class="string">&quot;pose_pos_y&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.pose.position.y.into())
-        };
-        <span class="kw">let </span>pose_pos_z_tel = Telemtry{
-            name: <span class="string">&quot;pose_pos_z&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.pose.position.z.into())
-        };
-
-        <span class="kw">let </span>pose_ori_x_tel = Telemtry{
-            name: <span class="string">&quot;pose_ori_x_rad&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().<span class="number">0</span>.into())
-        };
-        <span class="kw">let </span>pose_ori_y_tel = Telemtry{
-            name: <span class="string">&quot;pose_ori_y_rad&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().<span class="number">1</span>.into())
-        };
-        <span class="kw">let </span>pose_ori_z_tel = Telemtry{
-            name: <span class="string">&quot;pose_ori_z_rad&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().<span class="number">2</span>.into())
-        };
-
-        <span class="kw">let </span>motor_1_tel = Telemtry{
-            name: <span class="string">&quot;motor_1&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.motors[<span class="number">0</span>].current_value.into())
-        };
-        <span class="kw">let </span>motor_2_tel = Telemtry{
-            name: <span class="string">&quot;motor_2&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.motors[<span class="number">1</span>].current_value.into())
-        };
-        <span class="kw">let </span>motor_3_tel = Telemtry{
-            name: <span class="string">&quot;motor_3&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.motors[<span class="number">2</span>].current_value.into())
-        };
-        <span class="kw">let </span>motor_4_tel = Telemtry{
-            name: <span class="string">&quot;motor_4&quot;</span>.to_string(),
-            value: TelemtryType::Float(in_state.motors[<span class="number">3</span>].current_value.into())
-        };
-
+    <span class="kw">pub fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _t: f64, dt: f32, in_state: <span class="kw-2">&amp;</span>UAVState) -&gt; <span class="prelude-ty">Result</span>&lt;UAVState, String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>state = in_state.clone();
-        state.telemtry.insert(pose_pos_x_tel.name.clone(), pose_pos_x_tel);
-        state.telemtry.insert(pose_pos_y_tel.name.clone(), pose_pos_y_tel);
-        state.telemtry.insert(pose_pos_z_tel.name.clone(), pose_pos_z_tel);
-        state.telemtry.insert(pose_ori_x_tel.name.clone(), pose_ori_x_tel);
-        state.telemtry.insert(pose_ori_y_tel.name.clone(), pose_ori_y_tel);
-        state.telemtry.insert(pose_ori_z_tel.name.clone(), pose_ori_z_tel);
-        state.telemtry.insert(motor_1_tel.name.clone(), motor_1_tel);
-        state.telemtry.insert(motor_2_tel.name.clone(), motor_2_tel);
-        state.telemtry.insert(motor_3_tel.name.clone(), motor_3_tel);
-        state.telemtry.insert(motor_4_tel.name.clone(), motor_4_tel);
-       
+
+        <span class="kw">let </span>motors = <span class="self">self</span>.control.update(<span class="kw-2">&amp;</span>state, dt <span class="kw">as </span>f64);
+        state.safe_set_motors([motors[<span class="number">0</span>] <span class="kw">as </span>f32, motors[<span class="number">1</span>] <span class="kw">as </span>f32, motors[<span class="number">2</span>] <span class="kw">as </span>f32, motors[<span class="number">3</span>] <span class="kw">as </span>f32]);
+
+
+        <span class="self">self</span>.update_telemetry(<span class="kw-2">&amp;mut </span>state);
         <span class="prelude-val">Ok</span>(state)
+    }
+
+    <span class="kw">fn </span>update_telemetry(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>UAVState) {
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;pose_pos_x&quot;</span>, TelemtryType::Float(state.pose.position.x.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;pose_pos_y&quot;</span>, TelemtryType::Float(state.pose.position.y.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;pose_pos_z&quot;</span>, TelemtryType::Float(state.pose.position.z.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;pose_ori_x_rad&quot;</span>, TelemtryType::Float(state.pose.orientation.euler_angles().<span class="number">0</span>.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;pose_ori_y_rad&quot;</span>, TelemtryType::Float(state.pose.orientation.euler_angles().<span class="number">1</span>.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;pose_ori_z_rad&quot;</span>, TelemtryType::Float(state.pose.orientation.euler_angles().<span class="number">2</span>.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;motor_1&quot;</span>, TelemtryType::Float(state.motors[<span class="number">0</span>].current_value.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;motor_2&quot;</span>, TelemtryType::Float(state.motors[<span class="number">1</span>].current_value.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;motor_3&quot;</span>, TelemtryType::Float(state.motors[<span class="number">2</span>].current_value.into()));
+        <span class="self">self</span>.add_telemetry(state, <span class="string">&quot;motor_4&quot;</span>, TelemtryType::Float(state.motors[<span class="number">3</span>].current_value.into()));
+    }
+
+    <span class="kw">fn </span>add_telemetry(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>UAVState, name: <span class="kw-2">&amp;</span>str, value: TelemtryType) {
+        <span class="kw">let </span>telemetry = Telemtry {
+            name: name.to_string(),
+            value,
+        };
+        state.telemtry.insert(telemetry.name.clone(), telemetry);
     }
 }
 

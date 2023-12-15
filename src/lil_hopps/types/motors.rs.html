@@ -171,6 +171,21 @@
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>nalgebra::Vector3;
 
 <span class="kw">use </span><span class="kw">crate</span>::uav::config::UAVConfig;
@@ -200,9 +215,15 @@
 
 <span class="kw">impl </span>std::string::ToString <span class="kw">for </span>Motor {
     <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="macro">format!</span>(
-            <span class="string">&quot;(Motor: {}, Force: {}, Offset: {})&quot;</span>,
-            <span class="self">self</span>.motor_number, <span class="self">self</span>.motor_force_n, <span class="self">self</span>.motor_offset_b
+        <span class="kw">let </span>physics = <span class="self">self</span>.get_physics();
+        <span class="comment">// [M1] Value=0.5, Force(Z)=, Offset(X)=, Offset(Y)=
+        </span><span class="macro">format!</span>(
+            <span class="string">&quot;[M{}] Value={}\tForce(Z)={}\tOffset(X)={}\tOffset(Y)={}&quot;</span>,
+            <span class="self">self</span>.motor_number,
+            <span class="self">self</span>.current_value,
+            physics.force.z,
+            physics.offset.x,
+            physics.offset.y
         )
     }
 }
@@ -230,7 +251,7 @@
     <span class="kw">pub fn </span>generate_motors(config: <span class="kw-2">&amp;</span>UAVConfig) -&gt; Vec&lt;Motor&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>motors = Vec::new();
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
-            motors.push(Motor::new(i <span class="kw">as </span>u8, <span class="kw-2">&amp;</span>config));
+            motors.push(Motor::new(i <span class="kw">as </span>u8 + <span class="number">1</span>, <span class="kw-2">&amp;</span>config));
         }
         motors
     }
@@ -253,7 +274,16 @@
     ///
     </span><span class="kw">pub fn </span>get_physics(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MotorPhysics {
         <span class="kw">let </span>force = <span class="self">self</span>.current_value * <span class="self">self</span>.motor_force_n;
-        <span class="kw">let </span>force_vector = Vector3::new(<span class="number">0.0</span>, <span class="number">0.0</span>, -force);
+        <span class="comment">// Randomize the force vector to simulate noise (0.5%)
+        
+        </span><span class="kw">let </span>force_vector = Vector3::new(<span class="number">0.0</span>, <span class="number">0.0</span>, force);
+        <span class="kw">if </span><span class="self">self</span>.current_value == <span class="number">0.0 </span>{
+            <span class="kw">return </span>MotorPhysics {
+                force: force_vector,
+                torque: Vector3::zeros(),
+                offset: <span class="self">self</span>.motor_offset_b,
+            };
+        }
         <span class="kw">let </span>offset = <span class="self">self</span>.motor_offset_b;
         <span class="kw">let </span>torque = Vector3::zeros(); <span class="comment">//TODO: Motor Torque https://github.com/victoryforphil/lil-hopps/issues/7
 
@@ -279,7 +309,7 @@
     </span><span class="kw">pub fn </span>calculate_offset(arm_size: f32, motor_num: u8) -&gt; Vector3&lt;f32&gt; {
         <span class="kw">match </span>motor_num {
             <span class="number">1 </span>=&gt; Vector3::new(arm_size, <span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="number">2 </span>=&gt; Vector3::new(<span class="number">0.0</span>, -arm_size, <span class="number">0.0</span>),
+            <span class="number">2 </span>=&gt; Vector3::new(<span class="number">0.0</span>, arm_size, <span class="number">0.0</span>),
             <span class="number">3 </span>=&gt; Vector3::new(-arm_size, <span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="number">4 </span>=&gt; Vector3::new(<span class="number">0.0</span>, -arm_size, <span class="number">0.0</span>),
             <span class="kw">_ </span>=&gt; Vector3::new(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>),
