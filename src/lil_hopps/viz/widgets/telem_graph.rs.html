@@ -99,12 +99,6 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>egui::{ScrollArea, Ui};
@@ -136,8 +130,8 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = sim_state {
             egui::SidePanel::left(<span class="string">&quot;left_panel&quot;</span>)
                 .resizable(<span class="bool-val">true</span>)
-                .default_width(<span class="number">100.0</span>)
-                .width_range(<span class="number">50.0</span>..=<span class="number">800.0</span>)
+                .default_width(<span class="number">75.0</span>)
+                .width_range(<span class="number">20.0</span>..=<span class="number">800.0</span>)
                 .show_inside(ui, |ui| {
                     <span class="kw">let </span>scroll_area = ScrollArea::vertical()
                         .auto_shrink([<span class="bool-val">false</span>; <span class="number">2</span>])
@@ -187,27 +181,21 @@
                         }
                     });
                 });
-            egui::SidePanel::right(<span class="string">&quot;right_panel&quot;</span>)
-                .resizable(<span class="bool-val">true</span>)
-                .default_width(<span class="number">600.0</span>)
-                .width_range(<span class="number">100.0</span>..=<span class="number">1000.0</span>)
-                .show_inside(ui, |ui| {
-                    <span class="kw">let </span><span class="kw-2">mut </span>lines = <span class="macro">vec!</span>[];
-                    <span class="kw">for </span>(name, data) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
-                        <span class="kw">let </span><span class="kw-2">mut </span>t = <span class="number">0</span>;
-                        <span class="kw">let </span>sin: PlotPoints = data.into_iter().map(|v| {
-                            t += <span class="number">1</span>;
-                            [t <span class="kw">as </span>f64, <span class="kw-2">*</span>v]
-                        }).collect();
-                        <span class="kw">let </span>line = Line::new(sin);
-                        lines.push(line);
+                <span class="kw">let </span><span class="kw-2">mut </span>lines = <span class="macro">vec!</span>[];
+                <span class="kw">for </span>(name, data) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
+                    <span class="kw">let </span><span class="kw-2">mut </span>t = <span class="number">0</span>;
+                    <span class="kw">let </span>sin: PlotPoints = data.into_iter().map(|v| {
+                        t += <span class="number">1</span>;
+                        [t <span class="kw">as </span>f64, <span class="kw-2">*</span>v]
+                    }).collect();
+                    <span class="kw">let </span>line = Line::new(sin);
+                    lines.push(line);
+                }
+                Plot::new(<span class="string">&quot;my_plot&quot;</span>).show(ui, |plot_ui| {
+                    <span class="kw">for </span>line <span class="kw">in </span>lines {
+                        
+                        plot_ui.line(line);
                     }
-                    Plot::new(<span class="string">&quot;my_plot&quot;</span>).view_aspect(<span class="number">2.0</span>).show(ui, |plot_ui| {
-                        <span class="kw">for </span>line <span class="kw">in </span>lines {
-                            
-                            plot_ui.line(line);
-                        }
-                    });
                 });
         }
     }
