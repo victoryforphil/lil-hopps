@@ -39,6 +39,23 @@ impl UAVSoftware {
             value: TelemtryType::Float(in_state.pose.orientation.euler_angles().2.into())
         };
 
+        let motor_1_tel = Telemtry{
+            name: "motor_1".to_string(),
+            value: TelemtryType::Float(in_state.motors[0].current_value.into())
+        };
+        let motor_2_tel = Telemtry{
+            name: "motor_2".to_string(),
+            value: TelemtryType::Float(in_state.motors[1].current_value.into())
+        };
+        let motor_3_tel = Telemtry{
+            name: "motor_3".to_string(),
+            value: TelemtryType::Float(in_state.motors[2].current_value.into())
+        };
+        let motor_4_tel = Telemtry{
+            name: "motor_4".to_string(),
+            value: TelemtryType::Float(in_state.motors[3].current_value.into())
+        };
+
         let mut state = in_state.clone();
         state.telemtry.insert(pose_pos_x_tel.name.clone(), pose_pos_x_tel);
         state.telemtry.insert(pose_pos_y_tel.name.clone(), pose_pos_y_tel);
@@ -46,6 +63,10 @@ impl UAVSoftware {
         state.telemtry.insert(pose_ori_x_tel.name.clone(), pose_ori_x_tel);
         state.telemtry.insert(pose_ori_y_tel.name.clone(), pose_ori_y_tel);
         state.telemtry.insert(pose_ori_z_tel.name.clone(), pose_ori_z_tel);
+        state.telemtry.insert(motor_1_tel.name.clone(), motor_1_tel);
+        state.telemtry.insert(motor_2_tel.name.clone(), motor_2_tel);
+        state.telemtry.insert(motor_3_tel.name.clone(), motor_3_tel);
+        state.telemtry.insert(motor_4_tel.name.clone(), motor_4_tel);
        
         Ok(state)
     }

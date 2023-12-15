@@ -29,8 +29,8 @@ impl DockableWidget for TelemetryGraphWidget {
         if let Some(state) = sim_state {
             egui::SidePanel::left("left_panel")
                 .resizable(true)
-                .default_width(100.0)
-                .width_range(50.0..=800.0)
+                .default_width(75.0)
+                .width_range(20.0..=800.0)
                 .show_inside(ui, |ui| {
                     let scroll_area = ScrollArea::vertical()
                         .auto_shrink([false; 2])
@@ -80,27 +80,21 @@ impl DockableWidget for TelemetryGraphWidget {
                         }
                     });
                 });
-            egui::SidePanel::right("right_panel")
-                .resizable(true)
-                .default_width(600.0)
-                .width_range(100.0..=1000.0)
-                .show_inside(ui, |ui| {
-                    let mut lines = vec![];
-                    for (name, data) in &self.data {
-                        let mut t = 0;
-                        let sin: PlotPoints = data.into_iter().map(|v| {
-                            t += 1;
-                            [t as f64, *v]
-                        }).collect();
-                        let line = Line::new(sin);
-                        lines.push(line);
+                let mut lines = vec![];
+                for (name, data) in &self.data {
+                    let mut t = 0;
+                    let sin: PlotPoints = data.into_iter().map(|v| {
+                        t += 1;
+                        [t as f64, *v]
+                    }).collect();
+                    let line = Line::new(sin);
+                    lines.push(line);
+                }
+                Plot::new("my_plot").show(ui, |plot_ui| {
+                    for line in lines {
+                        
+                        plot_ui.line(line);
                     }
-                    Plot::new("my_plot").view_aspect(2.0).show(ui, |plot_ui| {
-                        for line in lines {
-                            
-                            plot_ui.line(line);
-                        }
-                    });
                 });
         }
     }
