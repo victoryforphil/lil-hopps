@@ -52,5 +52,7 @@ impl DockableWidget for RunnerWidget {
             ui.label("Max time: ".to_string() + &runner.options.max_t.to_string());
             
         }
+        // Set max height to 100
+        
     }
 }

@@ -1,74 +1,50 @@
 use log::info;
 
-use crate::types::telemtry::{Telemtry, TelemtryType};
+use crate::{types::telemtry::{Telemtry, TelemtryType}, control::UAVController};
 
 use super::state::UAVState;
 
-pub struct UAVSoftware {}
+pub struct UAVSoftware {
+    control: UAVController
+}
 
 impl UAVSoftware {
     pub fn new() -> Self {
-        UAVSoftware {}
+        UAVSoftware {
+            control: UAVController::new()
+        }
     }
 
-    pub fn process(&mut self, _t: f64, _dt: f32, in_state: &UAVState) -> Result<UAVState, String> {
-      
-        let pose_pos_x_tel = Telemtry{
-            name: "pose_pos_x".to_string(),
-            value: TelemtryType::Float(in_state.pose.position.x.into())
-        };
-        let pose_pos_y_tel = Telemtry{
-            name: "pose_pos_y".to_string(),
-            value: TelemtryType::Float(in_state.pose.position.y.into())
-        };
-        let pose_pos_z_tel = Telemtry{
-            name: "pose_pos_z".to_string(),
-            value: TelemtryType::Float(in_state.pose.position.z.into())
-        };
-
-        let pose_ori_x_tel = Telemtry{
-            name: "pose_ori_x_rad".to_string(),
-            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().0.into())
-        };
-        let pose_ori_y_tel = Telemtry{
-            name: "pose_ori_y_rad".to_string(),
-            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().1.into())
-        };
-        let pose_ori_z_tel = Telemtry{
-            name: "pose_ori_z_rad".to_string(),
-            value: TelemtryType::Float(in_state.pose.orientation.euler_angles().2.into())
-        };
-
-        let motor_1_tel = Telemtry{
-            name: "motor_1".to_string(),
-            value: TelemtryType::Float(in_state.motors[0].current_value.into())
-        };
-        let motor_2_tel = Telemtry{
-            name: "motor_2".to_string(),
-            value: TelemtryType::Float(in_state.motors[1].current_value.into())
-        };
-        let motor_3_tel = Telemtry{
-            name: "motor_3".to_string(),
-            value: TelemtryType::Float(in_state.motors[2].current_value.into())
-        };
-        let motor_4_tel = Telemtry{
-            name: "motor_4".to_string(),
-            value: TelemtryType::Float(in_state.motors[3].current_value.into())
-        };
-
+    pub fn process(&mut self, _t: f64, dt: f32, in_state: &UAVState) -> Result<UAVState, String> {
         let mut state = in_state.clone();
-        state.telemtry.insert(pose_pos_x_tel.name.clone(), pose_pos_x_tel);
-        state.telemtry.insert(pose_pos_y_tel.name.clone(), pose_pos_y_tel);
-        state.telemtry.insert(pose_pos_z_tel.name.clone(), pose_pos_z_tel);
-        state.telemtry.insert(pose_ori_x_tel.name.clone(), pose_ori_x_tel);
-        state.telemtry.insert(pose_ori_y_tel.name.clone(), pose_ori_y_tel);
-        state.telemtry.insert(pose_ori_z_tel.name.clone(), pose_ori_z_tel);
-        state.telemtry.insert(motor_1_tel.name.clone(), motor_1_tel);
-        state.telemtry.insert(motor_2_tel.name.clone(), motor_2_tel);
-        state.telemtry.insert(motor_3_tel.name.clone(), motor_3_tel);
-        state.telemtry.insert(motor_4_tel.name.clone(), motor_4_tel);
-       
+
+        let motors = self.control.update(&state, dt as f64);
+        state.safe_set_motors([motors[0] as f32, motors[1] as f32, motors[2] as f32, motors[3] as f32]);
+
+
+        self.update_telemetry(&mut state);
         Ok(state)
+    }
+
+    fn update_telemetry(&self, state: &mut UAVState) {
+        self.add_telemetry(state, "pose_pos_x", TelemtryType::Float(state.pose.position.x.into()));
+        self.add_telemetry(state, "pose_pos_y", TelemtryType::Float(state.pose.position.y.into()));
+        self.add_telemetry(state, "pose_pos_z", TelemtryType::Float(state.pose.position.z.into()));
+        self.add_telemetry(state, "pose_ori_x_rad", TelemtryType::Float(state.pose.orientation.euler_angles().0.into()));
+        self.add_telemetry(state, "pose_ori_y_rad", TelemtryType::Float(state.pose.orientation.euler_angles().1.into()));
+        self.add_telemetry(state, "pose_ori_z_rad", TelemtryType::Float(state.pose.orientation.euler_angles().2.into()));
+        self.add_telemetry(state, "motor_1", TelemtryType::Float(state.motors[0].current_value.into()));
+        self.add_telemetry(state, "motor_2", TelemtryType::Float(state.motors[1].current_value.into()));
+        self.add_telemetry(state, "motor_3", TelemtryType::Float(state.motors[2].current_value.into()));
+        self.add_telemetry(state, "motor_4", TelemtryType::Float(state.motors[3].current_value.into()));
+    }
+
+    fn add_telemetry(&self, state: &mut UAVState, name: &str, value: TelemtryType) {
+        let telemetry = Telemtry {
+            name: name.to_string(),
+            value,
+        };
+        state.telemtry.insert(telemetry.name.clone(), telemetry);
     }
 }
 
