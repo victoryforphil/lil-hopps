@@ -54,12 +54,13 @@ impl UAVSoftware {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{uav::state::UAVState};
+    use crate::{uav::{state::UAVState, config}, types::motors::Motor};
 
     #[test]
     fn test_uav_software() {
         let mut software = UAVSoftware::new();
-        let state = UAVState::new();
+        let config = config::UAVConfig::new_250mm();
+        let state = UAVState::new(Motor::generate_motors(&config));
         let result = software.process(0.0, 0.0, &state);
         assert!(result.is_ok());
     }

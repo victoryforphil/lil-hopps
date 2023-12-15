@@ -6,7 +6,7 @@ use rapier3d::prelude::{
 
 use crate::{
     simulation::{context::SimulationContextHandle, state::SimulationState},
-    uav::{state::UAVState, UAV},
+    uav::{state::UAVState, UAV, config::UAVConfig}, types::motors::Motor,
 };
 
 use super::SimActor;
@@ -23,8 +23,9 @@ impl UAVActorResult {
     }
 
     pub fn new() -> Self {
+        let motors = Motor::generate_motors(&UAVConfig::new_250mm());
         UAVActorResult {
-            uav_state: UAVState::new(),
+            uav_state: UAVState::new(motors),
         }
     }
 }
@@ -46,7 +47,7 @@ impl UAVActor {
 
     pub fn apply_motor_force(&mut self, rigid_body_set: &mut RigidBodySet) {
         for i in 0..4 {
-            let physcis = self.uav.motors[i].get_physics();
+            let physcis = self.uav.state.motors[i].get_physics();
 
             let force = physcis.force;
             let _torque = physcis.torque;
@@ -127,9 +128,10 @@ mod tests {
         let mut uav_actor = UAVActor::new();
         let state = SimulationState::new();
         let uav_actor_result = uav_actor.init(&mut context, &state).unwrap();
+      
         assert_eq!(
             uav_actor_result.uav_state,
-            UAVState::new_with_pose(Pose::zero())
+            UAVState::new_with_pose(Pose::zero(), Motor::generate_motors(&UAVConfig::new_250mm()))
         );
         let _uav_actor_result = uav_actor.step(&mut context, &state, 0.0, 0.0).unwrap();
     }
