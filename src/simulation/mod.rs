@@ -1,3 +1,5 @@
+use log::info;
+
 use self::{
     actors::{uav_actor::UAVActor, world_actor::WorldActor, SimActor},
     context::SimulationContext,
@@ -28,7 +30,7 @@ impl Simulation {
     }
 
     pub fn init(&mut self) {
-        self.state.uav_state.uav_state.pose.position.z = 20.0;
+        self.state.uav_state.uav_state.pose.position.z = 10.0;
         let world_res = self.world.init(&mut self.context, &self.state);
         let uav_res = self.uav.init(&mut self.context, &self.state);
 
@@ -56,6 +58,7 @@ impl Simulation {
     pub fn step(&mut self, t: f64, dt: f64) {
         self.state.time = t;
         self.context.intergration_parameters.dt = dt as f32;
+        info!("Running simu at {}hz", self.context.intergration_parameters.inv_dt());
         self.state.running = true;
         self.context.physics_pipeline.step(
             &self.context.gravity,

@@ -9,8 +9,8 @@ pub struct UAVConfig{
 impl UAVConfig{
     pub fn new_250mm() -> UAVConfig{
         UAVConfig{
-            motor_force_n: 1000.0,
-            arm_length_m: 125.0,
+            motor_force_n: 1500.0,
+            arm_length_m: 0.125,
             weight_g: 500.0,
             rotation_lock: (false, false, false),
         }

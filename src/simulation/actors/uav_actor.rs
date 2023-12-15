@@ -1,8 +1,8 @@
 
 use nalgebra::{Point};
-use rapier3d::prelude::{
+use rapier3d::{prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
-};
+}, dynamics::LockedAxes};
 
 use crate::{
     simulation::{context::SimulationContextHandle, state::SimulationState},
@@ -46,16 +46,20 @@ impl UAVActor {
     }
 
     pub fn apply_motor_force(&mut self, rigid_body_set: &mut RigidBodySet) {
+        let rigid_body = rigid_body_set.get_mut(self.rigid_body).unwrap();
+        rigid_body.reset_forces( true);
         for i in 0..4 {
             let physcis = self.uav.state.motors[i].get_physics();
 
             let force = physcis.force;
             let _torque = physcis.torque;
-            let position = physcis.offset;
+            let position = physcis.offset + self.uav.state.pose.position;
 
             let point = Point::from(position);
 
-            let rigid_body = rigid_body_set.get_mut(self.rigid_body).unwrap();
+            //Rotate force by rigid body orientation
+            let force = rigid_body.position().rotation * force;
+          
             rigid_body.add_force_at_point(force, point, true);
         }
 
@@ -71,10 +75,12 @@ impl SimActor<UAVActorResult> for UAVActor {
     ) -> Result<UAVActorResult, String> {
         let rigid_body = RigidBodyBuilder::dynamic()
             .translation(last_state.uav_state.uav_state.pose.position.into())
+            .additional_mass(250.0)
+            .locked_axes(LockedAxes::ROTATION_LOCKED_Z)
             .build();
         let rigid_body_handle = context.rigid_bodies.insert(rigid_body);
         let collider = ColliderBuilder::cuboid(0.25, 0.25, 0.05)
-            .density(2.0)
+            .density(10.0)
             .build();
         // When the collider is attached, the rigid-body's mass and angular
         // inertia is automatically updated to take the collider into account.
@@ -95,18 +101,21 @@ impl SimActor<UAVActorResult> for UAVActor {
         t: f64,
         dt: f64,
     ) -> Result<UAVActorResult, String> {
-        self.apply_motor_force(&mut context.rigid_bodies);
-        self.uav.process(t, dt as f32);
+      
+       
         let mut new_state = self.uav.state.clone();
        
         let rigid_body = context.rigid_bodies.get_mut(self.rigid_body).unwrap();
 
         new_state.pose.position = rigid_body.position().translation.vector;
         new_state.pose.orientation = rigid_body.rotation().clone();
-        new_state.movenment.ang_accel = rigid_body.angvel().clone();
+        new_state.movenment.ang_vel = rigid_body.angvel().clone();
         new_state.movenment.lin_vel = rigid_body.linvel().clone();
-        self.uav.state = new_state.clone();
 
+        self.uav.state = new_state.clone();
+        self.uav.process(t, dt as f32);
+        self.apply_motor_force(&mut context.rigid_bodies);
+        
         Ok(UAVActorResult::new_with_state(new_state))
     }
 }

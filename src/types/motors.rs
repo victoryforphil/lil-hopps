@@ -27,9 +27,15 @@ impl std::fmt::Debug for Motor {
 
 impl std::string::ToString for Motor {
     fn to_string(&self) -> String {
+        let physics = self.get_physics();
+        // [M1] Value=0.5, Force(Z)=, Offset(X)=, Offset(Y)=
         format!(
-            "(Motor: {}, Force: {}, Offset: {})",
-            self.motor_number, self.motor_force_n, self.motor_offset_b
+            "[M{}] Value={}\tForce(Z)={}\tOffset(X)={}\tOffset(Y)={}",
+            self.motor_number,
+            self.current_value,
+            physics.force.z,
+            physics.offset.x,
+            physics.offset.y
         )
     }
 }
@@ -57,7 +63,7 @@ impl Motor {
     pub fn generate_motors(config: &UAVConfig) -> Vec<Motor> {
         let mut motors = Vec::new();
         for i in 0..4 {
-            motors.push(Motor::new(i as u8, &config));
+            motors.push(Motor::new(i as u8 + 1, &config));
         }
         motors
     }
@@ -80,7 +86,16 @@ impl Motor {
     ///
     pub fn get_physics(&self) -> MotorPhysics {
         let force = self.current_value * self.motor_force_n;
-        let force_vector = Vector3::new(0.0, 0.0, -force);
+        // Randomize the force vector to simulate noise (0.5%)
+        
+        let force_vector = Vector3::new(0.0, 0.0, force);
+        if self.current_value == 0.0 {
+            return MotorPhysics {
+                force: force_vector,
+                torque: Vector3::zeros(),
+                offset: self.motor_offset_b,
+            };
+        }
         let offset = self.motor_offset_b;
         let torque = Vector3::zeros(); //TODO: Motor Torque https://github.com/victoryforphil/lil-hopps/issues/7
 
@@ -106,7 +121,7 @@ impl Motor {
     pub fn calculate_offset(arm_size: f32, motor_num: u8) -> Vector3<f32> {
         match motor_num {
             1 => Vector3::new(arm_size, 0.0, 0.0),
-            2 => Vector3::new(0.0, -arm_size, 0.0),
+            2 => Vector3::new(0.0, arm_size, 0.0),
             3 => Vector3::new(-arm_size, 0.0, 0.0),
             4 => Vector3::new(0.0, -arm_size, 0.0),
             _ => Vector3::new(0.0, 0.0, 0.0),
