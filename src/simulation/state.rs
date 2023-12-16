@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::logging::LogEntry;
 
+use polars::frame::DataFrame;
+
 use super::actors::{uav_actor::UAVActorResult, world_actor::WorldActorResult};
 #[derive(Debug, Clone)]
 pub struct SimulationState {
@@ -22,6 +24,13 @@ impl SimulationState {
             time: 0.0,
         }
     }
+
+    pub fn get_df(&self, lable: String) -> DataFrame {
+        let mut df = self.uav_state.get_df(lable.clone());
+      
+        df
+    }
+  
 }
 
 #[cfg(test)]

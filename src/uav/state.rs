@@ -4,6 +4,10 @@ use crate::{
     logging::{LogData, LogEntry, Loggable},
     types::{motors::Motor, movement::Movement, pose::Pose, telemtry::Telemtry},
 };
+use polars::prelude::*;
+use polars::functions::*;
+
+use crate::types::{movement::Movement, pose::Pose, telemtry::Telemtry, motors::Motor};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct UAVState {
@@ -82,6 +86,21 @@ impl UAVState {
         for i in 0..4 {
             self.motors[i].set_input_scalar(motors[i].max(0.0).min(1.0));
         }
+    }
+
+    pub fn get_df(&self, lable:String) -> DataFrame{
+        // Get dataframes from pose motors and movement and merge them diagonal into one flat dataframe
+        let mut dfs = vec![];
+
+        dfs.push(self.pose.get_df(format!("{}.pose", lable)));
+        dfs.push(self.movenment.get_df(format!("{}.movement", lable)));
+     
+        for i in 0..4 {
+           dfs.push(self.motors[i].get_df(format!("{}.motor_{}", lable, i)));
+        }
+        concat_df_horizontal(dfs.as_slice()).unwrap()
+
+        
     }
 }
 

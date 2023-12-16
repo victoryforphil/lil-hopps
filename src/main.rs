@@ -28,7 +28,7 @@ fn main() {
         ),
     ])
     .unwrap();
-    let runner: SimRunner = SimRunner::new(SimRunnerOptions::new(3.0));
+    let runner: SimRunner = SimRunner::new(SimRunnerOptions::new_unjoined(60.0));
     let runner_handle = Arc::new(Mutex::new(runner));
     let mut viz = Visualization::new(runner_handle);
 

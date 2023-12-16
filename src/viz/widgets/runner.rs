@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use egui::Ui;
 
 use super::DockableWidget;
@@ -49,7 +51,7 @@ impl DockableWidget for RunnerWidget {
             }
 
             ui.label(state.time.to_string());
-            ui.label("Max time: ".to_string() + &runner.options.max_t.to_string());
+            ui.label(format!("Max T: {}", runner.options.max_t));
             
         }
     }

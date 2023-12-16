@@ -1,4 +1,6 @@
 use nalgebra::Vector3;
+use polars::{frame::DataFrame, df};
+use polars::prelude::*;
 
 use crate::{
     uav::config::UAVConfig,
@@ -113,6 +115,20 @@ impl Motor {
             4 => Vector3::new(0.0, -arm_size, 0.0),
             _ => Vector3::new(0.0, 0.0, 0.0),
         }
+    }
+
+    pub fn get_df(&self, lable: String) -> DataFrame {
+        let mut df = df!(
+            format!("{}.motor_number", lable).as_str() => &[self.motor_number as f32],
+            format!("{}.motor_force_n", lable).as_str() => &[self.motor_force_n],
+            format!("{}.motor_offset_b.x", lable).as_str() => &[self.motor_offset_b.x],
+            format!("{}.motor_offset_b.y", lable).as_str() => &[self.motor_offset_b.y],
+            format!("{}.motor_offset_b.z", lable).as_str() => &[self.motor_offset_b.z],
+            format!("{}.current_value", lable).as_str() => &[self.current_value],
+        )
+        .unwrap();
+
+        df
     }
 }
 
