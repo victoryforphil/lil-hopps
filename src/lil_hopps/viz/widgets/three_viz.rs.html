@@ -177,6 +177,10 @@
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>eframe::{egui_glow, glow};
@@ -194,7 +198,7 @@
         <span class="self">Self </span>{}
     }
     <span class="kw">fn </span>custom_painting(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ui: <span class="kw-2">&amp;mut </span>egui::Ui, state: <span class="prelude-ty">Option</span>&lt;SimulationState&gt;) {
-        <span class="kw">let </span>(rect, response) =
+        <span class="kw">let </span>(rect, _response) =
             ui.allocate_exact_size(egui::Vec2::splat(<span class="number">800.</span>), egui::Sense::drag());
 
             <span class="kw">let </span>callback = egui::PaintCallback {
@@ -215,7 +219,11 @@
 
 <span class="kw">impl </span>DockableWidget <span class="kw">for </span>ThreeVizWidget {
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ui: <span class="kw-2">&amp;mut </span>Ui, context: VizContext) {
-        <span class="kw">let </span>sim_state = context.sim_state.clone();
+        <span class="kw">let </span>runner_update = context.runner_update.clone();
+        <span class="kw">let </span>sim_state = <span class="kw">match </span>runner_update {
+            <span class="prelude-val">Some</span>(update) =&gt; update.state_sample,
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        };
         egui::Frame::canvas(ui.style()).show(ui, |ui| {
             <span class="self">self</span>.custom_painting(ui, sim_state.clone());
         });
@@ -275,7 +283,7 @@
             ),
         );
 
-        <span class="kw">let </span><span class="kw-2">mut </span>uav = Gm::new(
+        <span class="kw">let </span>uav = Gm::new(
             Mesh::new(<span class="kw-2">&amp;</span>context, <span class="kw-2">&amp;</span>CpuMesh::cube()),
             PhysicalMaterial::new_opaque(
                 <span class="kw-2">&amp;</span>context,
@@ -307,7 +315,7 @@
         </span><span class="self">self</span>.camera.set_viewport(frame_input.viewport);
        
         
-        <span class="kw">let </span><span class="kw-2">mut </span>ambient = AmbientLight::new(<span class="kw-2">&amp;</span><span class="self">self</span>.context, <span class="number">0.4</span>, Srgba::WHITE);
+        <span class="kw">let </span>ambient = AmbientLight::new(<span class="kw-2">&amp;</span><span class="self">self</span>.context, <span class="number">0.4</span>, Srgba::WHITE);
         <span class="kw">let </span><span class="kw-2">mut </span>directional0 = DirectionalLight::new(<span class="kw-2">&amp;</span><span class="self">self</span>.context, <span class="number">1.0</span>, Srgba::WHITE, <span class="kw-2">&amp;</span>vec3(-<span class="number">1.0</span>, -<span class="number">1.0</span>, -<span class="number">1.0</span>));
         
         <span class="kw">let </span><span class="kw-2">mut </span>objects: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Object&gt; = <span class="macro">vec!</span>[];

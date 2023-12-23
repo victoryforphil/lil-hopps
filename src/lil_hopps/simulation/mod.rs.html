@@ -112,12 +112,7 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>log::info;
-
-<span class="kw">use </span><span class="self">self</span>::{
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="self">self</span>::{
     actors::{uav_actor::UAVActor, world_actor::WorldActor, SimActor},
     context::SimulationContext,
     state::SimulationState,
@@ -147,7 +142,7 @@
     }
 
     <span class="kw">pub fn </span>init(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.state.uav_state.uav_state.pose.position.z = <span class="number">10.0</span>;
+        <span class="self">self</span>.state.uav_state.uav_state.pose.position.z = <span class="number">20.0</span>;
         <span class="kw">let </span>world_res = <span class="self">self</span>.world.init(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context, <span class="kw-2">&amp;</span><span class="self">self</span>.state);
         <span class="kw">let </span>uav_res = <span class="self">self</span>.uav.init(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context, <span class="kw-2">&amp;</span><span class="self">self</span>.state);
 
@@ -175,7 +170,6 @@
     <span class="kw">pub fn </span>step(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t: f64, dt: f64) {
         <span class="self">self</span>.state.time = t;
         <span class="self">self</span>.context.intergration_parameters.dt = dt <span class="kw">as </span>f32;
-        <span class="macro">info!</span>(<span class="string">&quot;Running simu at {}hz&quot;</span>, <span class="self">self</span>.context.intergration_parameters.inv_dt());
         <span class="self">self</span>.state.running = <span class="bool-val">true</span>;
         <span class="self">self</span>.context.physics_pipeline.step(
             <span class="kw-2">&amp;</span><span class="self">self</span>.context.gravity,

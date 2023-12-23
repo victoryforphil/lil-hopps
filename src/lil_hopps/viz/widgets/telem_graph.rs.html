@@ -99,6 +99,10 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>egui::{ScrollArea, Ui};
@@ -125,7 +129,11 @@
 
 <span class="kw">impl </span>DockableWidget <span class="kw">for </span>TelemetryGraphWidget {
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ui: <span class="kw-2">&amp;mut </span>Ui, context: VizContext) {
-        <span class="kw">let </span>sim_state = context.sim_state.clone();
+        <span class="kw">let </span>runner_update = context.runner_update.clone();
+        <span class="kw">let </span>sim_state = <span class="kw">match </span>runner_update {
+            <span class="prelude-val">Some</span>(update) =&gt; update.state_sample,
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        };
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = sim_state {
             egui::SidePanel::left(<span class="string">&quot;left_panel&quot;</span>)

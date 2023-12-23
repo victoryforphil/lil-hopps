@@ -72,7 +72,6 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>eframe::NativeOptions;
 
 <span class="kw">use crate</span>::{simulation::runner::SimRunnerHandle, viz::app::VisualizationApp};
@@ -93,9 +92,8 @@
         Visualization {
             sim_runner: runner.clone(),
             win_options: NativeOptions {
-                initial_window_size: <span class="prelude-val">Some</span>(egui::vec2(<span class="number">1920.0</span>, <span class="number">1080.0</span>)),
+                initial_window_size: <span class="prelude-val">Some</span>(egui::vec2(<span class="number">1280.0</span>, <span class="number">720.0</span>)),
                 renderer: eframe::Renderer::Glow,
-                resizable: <span class="bool-val">true</span>,
                 depth_buffer: <span class="number">32</span>,
                 stencil_buffer: <span class="number">8</span>,
                 multisampling: <span class="number">4</span>,
