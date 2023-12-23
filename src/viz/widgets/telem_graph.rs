@@ -24,7 +24,11 @@ impl TelemetryGraphWidget {
 
 impl DockableWidget for TelemetryGraphWidget {
     fn draw(&mut self, ui: &mut Ui, context: VizContext) {
-        let sim_state = context.sim_state.clone();
+        let runner_update = context.runner_update.clone();
+        let sim_state = match runner_update {
+            Some(update) => update.state_sample,
+            None => None,
+        };
 
         if let Some(state) = sim_state {
             egui::SidePanel::left("left_panel")

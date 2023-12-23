@@ -7,11 +7,20 @@ use std::{
 };
 
 use log::info;
+use nalgebra::U32;
 use polars::{frame::DataFrame, functions::concat_df_horizontal};
 use polars::lazy::*;
 use polars::functions::*;
 use polars::prelude::*;
 use super::{runner_options::SimRunnerOptions, Simulation, SimulationState};
+
+#[derive(Clone, Debug)]
+pub struct RunnerUpdate {
+    pub state_sample: Option<SimulationState>,
+    pub df: Option<DataFrame>,
+    pub is_done: bool,
+    pub tick: u32,
+}
 
 /// Simulation runner that creates a thread and channel, starts a simulation,
 /// Calls simulation tick on a loop, and sends the simulation state to the
@@ -25,9 +34,10 @@ pub struct SimRunner {
     // Convert to having channels report back SIm Status
     // such as current time, runtime stamps, and a latest sample of the dataframe and sim state.
 
-    pub channel_tx: Sender<SimulationState>,
-    pub channel_rx: Receiver<SimulationState>,
+    pub channel_tx: Sender<RunnerUpdate>,
+    pub channel_rx: Receiver<RunnerUpdate>,
     pub df: DataFrame,
+    pub update: RunnerUpdate,
     pub thread: Option<JoinHandle<DataFrame>>,
     pub options: SimRunnerOptions,
 }
@@ -40,6 +50,12 @@ impl SimRunner {
             channel_tx: tx,
             channel_rx: rx,
             thread: None,
+            update: RunnerUpdate {
+                state_sample: None,
+                df: None,
+                is_done: false,
+                tick: 0,
+            },
             options,
             df: DataFrame::empty(),
         }
@@ -56,6 +72,7 @@ impl SimRunner {
         let send_every = self.options.send_every;
         let mut df = DataFrame::empty();
         info!("[SimRunner] Initializing Simulation");
+        let mut update = self.update.clone();
         sim.init();
         if self.options.threaded {
             let thread = thread::spawn(move || {
@@ -66,17 +83,23 @@ impl SimRunner {
                     sim.step(t, dt);
 
                     if tick % send_every == 0 {
-                        tx.send(sim.state.clone()).unwrap();
+                        update.tick = update.tick + 1;
+                        update.state_sample = Some(sim.state.clone());
+                        tx.send(update.clone());
+                        
                         let new_df = sim.state.get_df("UAV Test".to_string());
                         threaded_df = threaded_df.vstack(&new_df).unwrap();
+                        
                     }
 
                     // Append DF vertically
 
                     if t >= max_t {
                         sim.stop();
-                        tx.send(sim.state.clone()).unwrap();
-                        
+                      
+                        update.df = Some(threaded_df.clone());
+                        update.is_done = true;
+                        tx.send(update.clone()).unwrap();
                         break;
                     }
                 }
@@ -100,10 +123,16 @@ impl SimRunner {
             info!("[SimRunner] Running Simulation (unthreaded)...");
             let start_time = Instant::now();
             let mut dfs = vec![];
+            
             loop {
+               
                 t += dt;
                 sim.step(t, dt);
-                tx.send(sim.state.clone()).unwrap();
+
+                update.tick = update.tick + 1;
+                update.state_sample = Some(sim.state.clone());
+
+                tx.send(update.clone()).unwrap();
                 let new_df = sim.state.get_df("UAV Test".to_string());
                 // Append DF vertically
 
@@ -112,7 +141,9 @@ impl SimRunner {
 
                 if t >= max_t {
                     sim.stop();
-                    tx.send(sim.state.clone()).unwrap();
+                
+                    update.is_done = true;
+                    tx.send(update.clone()).unwrap();
                     break;
                 }
             }

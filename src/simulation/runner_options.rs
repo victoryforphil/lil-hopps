@@ -21,7 +21,7 @@ impl SimRunnerOptions {
             dt: 0.005,
             threaded: true,
             join: true,
-            send_every: 5,
+            send_every: 10,
         }
     }
 
@@ -38,7 +38,7 @@ impl SimRunnerOptions {
             dt: 0.005,
             threaded: true,
             join: false,
-            send_every: 5,
+            send_every: 10,
         }
     }
 
@@ -55,7 +55,7 @@ impl SimRunnerOptions {
             dt: 0.005,
             threaded: false,
             join: false,
-            send_every: 1,
+            send_every: 10,
         }
     }
 }

@@ -36,7 +36,11 @@ impl ThreeVizWidget {
 
 impl DockableWidget for ThreeVizWidget {
     fn draw(&mut self, ui: &mut Ui, context: VizContext) {
-        let sim_state = context.sim_state.clone();
+        let runner_update = context.runner_update.clone();
+        let sim_state = match runner_update {
+            Some(update) => update.state_sample,
+            None => None,
+        };
         egui::Frame::canvas(ui.style()).show(ui, |ui| {
             self.custom_painting(ui, sim_state.clone());
         });
