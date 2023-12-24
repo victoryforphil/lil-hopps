@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use egui::{ScrollArea, Ui};
 use egui_plot::{Line, Plot, PlotPoints};
-use log::info;
+
 
 use super::DockableWidget;
 
@@ -79,7 +79,7 @@ impl DockableWidget for TelemetryGraphWidget {
                     });
                 });
             let mut lines = vec![];
-            for (name, data) in &self.data {
+            for (_name, data) in &self.data {
                 let mut t = 0;
                 let sin: PlotPoints = data
                     .into_iter()

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use egui::{ScrollArea, Ui};
 use egui_plot::{Line, Plot, PlotPoints};
-use log::info;
+
 
 use super::DockableWidget;
 
@@ -37,7 +37,7 @@ impl LogGraphWidget {
                         floats.insert(key, vec![v]);
                     }
                 }
-                crate::logging::LogData::Movement(m) => {}
+                crate::logging::LogData::Movement(_m) => {}
                 crate::logging::LogData::Pose(p) => {
                     let pos_x_key = format!("{}/{}/{}", key, "pos", "x").to_string();
                     let pos_y_key = format!("{}/{}/{}", key, "pos", "y").to_string();
@@ -117,7 +117,7 @@ impl DockableWidget for LogGraphWidget {
                     });
                 });
             let mut lines = vec![];
-            for (name, data) in &self.data {
+            for (_name, data) in &self.data {
                 let mut t = 0;
                 let sin: PlotPoints = data
                     .into_iter()

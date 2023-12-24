@@ -5,7 +5,6 @@ use crate::{
     types::{motors::Motor, movement::Movement, pose::Pose, telemtry::Telemtry},
 };
 
-use super::{config::UAVConfig, UAV};
 #[derive(Debug, PartialEq, Clone)]
 pub struct UAVState {
     pub pose: Pose,
@@ -88,7 +87,7 @@ impl UAVState {
 
 #[cfg(test)]
 mod tests {
-    use crate::uav::config;
+    use crate::uav::config::{self, UAVConfig};
 
     use super::*;
 

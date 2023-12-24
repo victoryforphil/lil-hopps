@@ -1,8 +1,6 @@
 use nalgebra::Vector3;
 
 use crate::{
-    logging::{LogData, LogEntry, Loggable},
-    types::pose::Pose,
     uav::config::UAVConfig,
 };
 #[derive(PartialEq, Clone)]

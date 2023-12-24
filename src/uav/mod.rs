@@ -15,7 +15,7 @@ pub struct UAV {
 impl UAV {
     pub fn new() -> Self {
         let config = UAVConfig::new_250mm();
-        let mut motors = Motor::generate_motors(&config);
+        let motors = Motor::generate_motors(&config);
 
     
         UAV {

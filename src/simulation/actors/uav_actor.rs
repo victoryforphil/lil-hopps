@@ -91,7 +91,7 @@ impl SimActor<UAVActorResult> for UAVActor {
     fn step(
         &mut self,
         context: SimulationContextHandle,
-        state: &SimulationState,
+        _state: &SimulationState,
         t: f64,
         dt: f64,
     ) -> Result<UAVActorResult, String> {
