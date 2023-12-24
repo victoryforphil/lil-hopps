@@ -135,16 +135,15 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-</pre></div><pre class="rust"><code>
-<span class="kw">use </span>nalgebra::{Point};
+</pre></div><pre class="rust"><code><span class="kw">use </span>nalgebra::Point;
 <span class="kw">use </span>rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };
 
 <span class="kw">use crate</span>::{
     simulation::{context::SimulationContextHandle, state::SimulationState},
-    uav::{state::UAVState, UAV, config::UAVConfig}, types::motors::Motor,
+    types::motors::Motor,
+    uav::{config::UAVConfig, state::UAVState, UAV},
 };
 
 <span class="kw">use </span><span class="kw">super</span>::SimActor;
@@ -234,9 +233,9 @@
         dt: f64,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UAVActorResult, String&gt; {
         <span class="self">self</span>.apply_motor_force(<span class="kw-2">&amp;mut </span>context.rigid_bodies);
-        <span class="self">self</span>.uav.process(t, dt <span class="kw">as </span>f32);
+        <span class="kw">let _ </span>= <span class="self">self</span>.uav.process(t, dt <span class="kw">as </span>f32);
         <span class="kw">let </span><span class="kw-2">mut </span>new_state = <span class="self">self</span>.uav.state.clone();
-       
+
         <span class="kw">let </span>rigid_body = context.rigid_bodies.get_mut(<span class="self">self</span>.rigid_body).unwrap();
 
         new_state.pose.position = rigid_body.position().translation.vector;
@@ -252,11 +251,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
 
-    <span class="kw">use crate</span>::{
-        simulation::{context::SimulationContext},
-        types::pose::Pose,
-        uav::state::UAVState,
-    };
+    <span class="kw">use crate</span>::{simulation::context::SimulationContext, types::pose::Pose, uav::state::UAVState};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -266,10 +261,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>uav_actor = UAVActor::new();
         <span class="kw">let </span>state = SimulationState::new();
         <span class="kw">let </span>uav_actor_result = uav_actor.init(<span class="kw-2">&amp;mut </span>context, <span class="kw-2">&amp;</span>state).unwrap();
-      
+
         <span class="macro">assert_eq!</span>(
             uav_actor_result.uav_state,
-            UAVState::new_with_pose(Pose::zero(), Motor::generate_motors(<span class="kw-2">&amp;</span>UAVConfig::new_250mm()))
+            UAVState::new_with_pose(
+                Pose::zero(),
+                Motor::generate_motors(<span class="kw-2">&amp;</span>UAVConfig::new_250mm())
+            )
         );
         <span class="kw">let </span>_uav_actor_result = uav_actor.step(<span class="kw-2">&amp;mut </span>context, <span class="kw-2">&amp;</span>state, <span class="number">0.0</span>, <span class="number">0.0</span>).unwrap();
     }

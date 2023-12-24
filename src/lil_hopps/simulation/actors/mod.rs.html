@@ -67,6 +67,7 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{context::SimulationContextHandle, state::SimulationState};
 <span class="kw">pub mod </span>uav_actor;
 <span class="kw">pub mod </span>world_actor;
@@ -87,10 +88,10 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::collections::HashMap;
+
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use crate</span>::{
-        simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext},
-    };
+    <span class="kw">use </span><span class="kw">crate</span>::simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext};
 
     <span class="kw">struct </span>TestActor {}
 
@@ -129,6 +130,7 @@
             world_state: world_actor::WorldActorResult {},
             running: <span class="bool-val">false</span>,
             time: <span class="number">0.0</span>,
+            logs: HashMap::new(),
         };
         <span class="kw">let </span>result = actor.init(<span class="kw-2">&amp;mut </span>context, <span class="kw-2">&amp;</span>state);
         <span class="macro">assert!</span>(result.is_ok());
