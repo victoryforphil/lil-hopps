@@ -34,20 +34,16 @@
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
 <a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-<a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a>
-<a href="#40" id="40">40</a>
-<a href="#41" id="41">41</a>
-</pre></div><pre class="rust"><code>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use </span>polars::frame::DataFrame;
+<span class="kw">use </span><span class="kw">crate</span>::logging::LogEntry;
 
 <span class="kw">use </span><span class="kw">super</span>::actors::{uav_actor::UAVActorResult, world_actor::WorldActorResult};
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>SimulationState {
     <span class="kw">pub </span>uav_state: UAVActorResult,
     <span class="kw">pub </span>world_state: WorldActorResult,
+    <span class="kw">pub </span>logs: HashMap&lt;String, Vec&lt;LogEntry&gt;&gt;,
     <span class="kw">pub </span>running: bool,
     <span class="kw">pub </span>time: f64,
 }
@@ -57,17 +53,11 @@
         SimulationState {
             uav_state: UAVActorResult::new(),
             world_state: WorldActorResult::new(),
+            logs: HashMap::new(),
             running: <span class="bool-val">false</span>,
             time: <span class="number">0.0</span>,
         }
     }
-
-    <span class="kw">pub fn </span>get_df(<span class="kw-2">&amp;</span><span class="self">self</span>, lable: String) -&gt; DataFrame {
-        <span class="kw">let </span><span class="kw-2">mut </span>df = <span class="self">self</span>.uav_state.get_df(lable.clone());
-      
-        df
-    }
-  
 }
 
 <span class="attr">#[cfg(test)]

@@ -26,19 +26,19 @@
 <a href="#26" id="26">26</a>
 <a href="#27" id="27">27</a>
 <a href="#28" id="28">28</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::simulation::{runner::{SimRunnerHandle, RunnerUpdate}, state::SimulationState};
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::simulation::{runner::SimRunnerHandle, state::SimulationState};
 
 <span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>VizContext {
     <span class="kw">pub </span>runner_handle: SimRunnerHandle,
-    <span class="kw">pub </span>runner_update: <span class="prelude-ty">Option</span>&lt;RunnerUpdate&gt;,
+    <span class="kw">pub </span>sim_state: <span class="prelude-ty">Option</span>&lt;SimulationState&gt;,
 }
 
 <span class="kw">impl </span>VizContext {
     <span class="kw">pub fn </span>new(runner_handle: SimRunnerHandle) -&gt; <span class="self">Self </span>{
         VizContext {
             runner_handle,
-            runner_update: <span class="prelude-val">None</span>,
+            sim_state: <span class="prelude-val">None</span>,
         }
     }
 
@@ -47,8 +47,8 @@
 
         <span class="kw">let </span>state_req = runner.channel_rx.try_recv();
         <span class="kw">match </span>state_req {
-            <span class="prelude-val">Ok</span>(update) =&gt; {
-                <span class="self">self</span>.runner_update = <span class="prelude-val">Some</span>(update);
+            <span class="prelude-val">Ok</span>(state) =&gt; {
+                <span class="self">self</span>.sim_state = <span class="prelude-val">Some</span>(state);
             }
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {}
         }

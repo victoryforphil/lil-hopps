@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["RunnerUpdate","SimRunner"],"type":["SimRunnerHandle"]};
+window.SIDEBAR_ITEMS = {"struct":["SimRunner"],"type":["SimRunnerHandle"]};

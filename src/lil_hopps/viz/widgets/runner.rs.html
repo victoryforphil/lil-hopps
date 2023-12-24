@@ -54,17 +54,7 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::format;
-
-<span class="kw">use </span>egui::Ui;
+</pre></div><pre class="rust"><code><span class="kw">use </span>egui::Ui;
 
 <span class="kw">use </span><span class="kw">super</span>::DockableWidget;
 
@@ -86,12 +76,7 @@
             runner.start();
         }
 
-        <span class="kw">let </span>runner_update = context.runner_update.clone();
-        <span class="kw">let </span>sim_state = <span class="kw">match </span>runner_update {
-            <span class="prelude-val">Some</span>(update) =&gt; update.state_sample,
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
-        };
-       
+        <span class="kw">let </span>sim_state = context.sim_state.clone();
         <span class="comment">// UI for setting delta time
         </span>ui.horizontal(|ui| {
             ui.label(<span class="string">&quot;dt: &quot;</span>);
@@ -110,7 +95,6 @@
             
         });
         <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = sim_state {
-
             <span class="kw">let </span>running = state.running;
 
             <span class="comment">// Print Green lable if running else red
@@ -121,7 +105,7 @@
             }
 
             ui.label(state.time.to_string());
-            ui.label(<span class="macro">format!</span>(<span class="string">&quot;Max T: {}&quot;</span>, runner.options.max_t));
+            ui.label(<span class="string">&quot;Max time: &quot;</span>.to_string() + <span class="kw-2">&amp;</span>runner.options.max_t.to_string());
             
         }
     }

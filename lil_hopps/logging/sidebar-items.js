@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LogData"],"struct":["LogEntry"],"trait":["Loggable"]};

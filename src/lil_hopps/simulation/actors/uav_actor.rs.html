@@ -136,17 +136,8 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
 </pre></div><pre class="rust"><code>
 <span class="kw">use </span>nalgebra::{Point};
-<span class="kw">use </span>polars::frame::DataFrame;
 <span class="kw">use </span>rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };
@@ -174,13 +165,6 @@
         UAVActorResult {
             uav_state: UAVState::new(motors),
         }
-    }
-
-    <span class="kw">pub fn </span>get_df(<span class="kw-2">&amp;</span><span class="self">self</span>, lable: String) -&gt; DataFrame {
-        <span class="comment">// Get dataframes from pose motors and movement and merge them into one flat dataframe
-        </span><span class="kw">let </span><span class="kw-2">mut </span>df = <span class="self">self</span>.uav_state.get_df(lable.clone());
-
-        df
     }
 }
 
