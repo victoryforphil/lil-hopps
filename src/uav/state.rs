@@ -1,8 +1,9 @@
-
-
 use std::collections::HashMap;
 
-use crate::types::{movement::Movement, pose::Pose, telemtry::Telemtry, motors::Motor};
+use crate::{
+    logging::{LogData, LogEntry, Loggable},
+    types::{motors::Motor, movement::Movement, pose::Pose, telemtry::Telemtry},
+};
 
 use super::{config::UAVConfig, UAV};
 #[derive(Debug, PartialEq, Clone)]
@@ -10,7 +11,35 @@ pub struct UAVState {
     pub pose: Pose,
     pub movenment: Movement,
     pub motors: [Motor; 4],
-    pub telemtry: HashMap<String, Telemtry>
+    pub telemtry: HashMap<String, Telemtry>,
+}
+
+impl Loggable for UAVState {
+    fn log(&self, t: f64) -> Vec<crate::logging::LogEntry> {
+        let mut entries = vec![];
+
+        for motor in &self.motors {
+            entries.push(LogEntry::new(
+                format!("motor_{}", motor.motor_number),
+                t,
+                LogData::Motor(motor.clone()),
+            ));
+        }
+
+        entries.push(LogEntry::new(
+            "pose".to_string(),
+            t,
+            LogData::Pose(self.pose.clone()),
+        ));
+
+        entries.push(LogEntry::new(
+            "movement".to_string(),
+            t,
+            LogData::Movement(self.movenment.clone()),
+        ));
+
+        return entries;
+    }
 }
 
 impl UAVState {
@@ -18,12 +47,16 @@ impl UAVState {
     /// Creates a new UAVState with the given pose and zero movement and motors.
     ///
     pub fn new(motors: Vec<Motor>) -> Self {
-       
         UAVState {
             pose: Pose::zero(),
             movenment: Movement::zero(),
-            motors: [motors[0].clone(), motors[1].clone(), motors[2].clone(), motors[3].clone()],
-            telemtry: HashMap::new()
+            motors: [
+                motors[0].clone(),
+                motors[1].clone(),
+                motors[2].clone(),
+                motors[3].clone(),
+            ],
+            telemtry: HashMap::new(),
         }
     }
 
@@ -31,12 +64,16 @@ impl UAVState {
     /// Creates a new UAVState with the given pose and zero movement and motors.
     ///
     pub fn new_with_pose(init_pose: Pose, motors: Vec<Motor>) -> Self {
-        
         UAVState {
             pose: init_pose,
             movenment: Movement::zero(),
-            motors: [motors[0].clone(), motors[1].clone(), motors[2].clone(), motors[3].clone()],
-            telemtry: HashMap::new()
+            motors: [
+                motors[0].clone(),
+                motors[1].clone(),
+                motors[2].clone(),
+                motors[3].clone(),
+            ],
+            telemtry: HashMap::new(),
         }
     }
 
@@ -68,7 +105,7 @@ mod tests {
     fn test_new_pose() {
         let pose = Pose::zero();
         let config = config::UAVConfig::new_250mm();
-        
+
         let state = UAVState::new_with_pose(pose, Motor::generate_motors(&config));
         assert_eq!(state.pose, pose);
         assert_eq!(state.movenment, Movement::zero());

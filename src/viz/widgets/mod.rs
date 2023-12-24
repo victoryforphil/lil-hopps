@@ -9,10 +9,11 @@ use self::{
 use super::context::VizContext;
 
 pub mod dock;
+pub mod log_graph;
 pub mod runner;
-pub mod uav_state;
-pub mod three_viz;
 pub mod telem_graph;
+pub mod three_viz;
+pub mod uav_state;
 pub struct WidgetUI {
     dock_tree: DockState<String>,
     last_drock_tree: String,
@@ -42,13 +43,15 @@ impl WidgetUI {
 
         let telem_graph_widget: Box<_> = Box::new(telem_graph::TelemetryGraphWidget::new());
         self.add_dock_widget("Telemetry Graph".to_string(), telem_graph_widget);
+
+        let log_graph_widget: Box<_> = Box::new(log_graph::LogGraphWidget::new());
+        self.add_dock_widget("Log Graph".to_string(), log_graph_widget);
     }
 
     fn add_dock_widget(&mut self, name: String, widget: Box<dyn DockableWidget>) {
         self.dock.register_window(name.clone(), widget);
-       
+
         self.dock_tree.push_to_focused_leaf(name.clone());
-       
     }
 
     pub fn draw(&mut self, ctx: &egui::Context, context: &VizContext) {

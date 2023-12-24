@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+
+use crate::logging::{LogEntry, Loggable};
+
 use self::{
     actors::{uav_actor::UAVActor, world_actor::WorldActor, SimActor},
     context::SimulationContext,
@@ -92,6 +96,17 @@ impl Simulation {
             Err(e) => {
                 println!("Error stepping uav actor: {}", e);
             }
+        }
+
+        let uav_logs = self.state.uav_state.uav_state.log(t);
+        let uav_logs = LogEntry::prefix_batch(uav_logs, "uav_state/");
+
+        for log in uav_logs {
+            self.state
+                .logs
+                .entry(log.key.clone())
+                .or_insert_with(Vec::new)
+                .push(log);
         }
     }
 
