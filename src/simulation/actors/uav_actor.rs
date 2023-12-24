@@ -1,12 +1,12 @@
-
-use nalgebra::{Point};
+use nalgebra::Point;
 use rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };
 
 use crate::{
     simulation::{context::SimulationContextHandle, state::SimulationState},
-    uav::{state::UAVState, UAV, config::UAVConfig}, types::motors::Motor,
+    types::motors::Motor,
+    uav::{config::UAVConfig, state::UAVState, UAV},
 };
 
 use super::SimActor;
@@ -96,9 +96,9 @@ impl SimActor<UAVActorResult> for UAVActor {
         dt: f64,
     ) -> Result<UAVActorResult, String> {
         self.apply_motor_force(&mut context.rigid_bodies);
-        self.uav.process(t, dt as f32);
+        let _ = self.uav.process(t, dt as f32);
         let mut new_state = self.uav.state.clone();
-       
+
         let rigid_body = context.rigid_bodies.get_mut(self.rigid_body).unwrap();
 
         new_state.pose.position = rigid_body.position().translation.vector;
@@ -114,11 +114,7 @@ impl SimActor<UAVActorResult> for UAVActor {
 #[cfg(test)]
 mod tests {
 
-    use crate::{
-        simulation::{context::SimulationContext},
-        types::pose::Pose,
-        uav::state::UAVState,
-    };
+    use crate::{simulation::context::SimulationContext, types::pose::Pose, uav::state::UAVState};
 
     use super::*;
 
@@ -128,10 +124,13 @@ mod tests {
         let mut uav_actor = UAVActor::new();
         let state = SimulationState::new();
         let uav_actor_result = uav_actor.init(&mut context, &state).unwrap();
-      
+
         assert_eq!(
             uav_actor_result.uav_state,
-            UAVState::new_with_pose(Pose::zero(), Motor::generate_motors(&UAVConfig::new_250mm()))
+            UAVState::new_with_pose(
+                Pose::zero(),
+                Motor::generate_motors(&UAVConfig::new_250mm())
+            )
         );
         let _uav_actor_result = uav_actor.step(&mut context, &state, 0.0, 0.0).unwrap();
     }

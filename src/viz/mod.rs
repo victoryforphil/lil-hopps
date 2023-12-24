@@ -34,7 +34,7 @@ impl Visualization {
     pub fn start(&self) {
         println!("Visualization start");
         let context = self.contsturct_context().clone();
-        eframe::run_native(
+        let _ = eframe::run_native(
             "Lil Sim",
             self.win_options.clone(),
             Box::new(|cc| Box::new(VisualizationApp::new(cc, context).init())),
