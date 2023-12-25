@@ -1,16 +1,20 @@
-use crate::simulation::{runner::SimRunnerHandle, state::SimulationState};
+use log::info;
+
+use crate::simulation::{runner::{SimRunnerHandle, RunnerUpdate}, state::SimulationState};
 
 #[derive(Clone)]
 pub struct VizContext {
     pub runner_handle: SimRunnerHandle,
-    pub sim_state: Option<SimulationState>,
+    pub runner_update: Option<RunnerUpdate>,
+    pub state: Option<SimulationState>,
 }
 
 impl VizContext {
     pub fn new(runner_handle: SimRunnerHandle) -> Self {
         VizContext {
             runner_handle,
-            sim_state: None,
+            runner_update: None,
+            state: None,
         }
     }
 
@@ -19,10 +23,19 @@ impl VizContext {
 
         let state_req = runner.channel_rx.try_recv();
         match state_req {
-            Ok(state) => {
-                self.sim_state = Some(state);
+            Ok(update) => {
+                self.runner_update = Some(update);
             }
             Err(_) => {}
+        }
+        {
+            let state = runner.state.clone();
+            let state = state.lock().unwrap();
+            
+            if state.is_some() {
+                info!("[VizContext] Got SimulationState from SimRunner");
+                self.state = Some(state.to_owned().unwrap());
+            }
         }
     }
 }

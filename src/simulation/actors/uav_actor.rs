@@ -1,4 +1,7 @@
 use nalgebra::Point;
+
+
+use polars::frame::DataFrame;
 use rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,
 };
@@ -27,6 +30,13 @@ impl UAVActorResult {
         UAVActorResult {
             uav_state: UAVState::new(motors),
         }
+    }
+
+    pub fn get_df(&self, lable: String) -> DataFrame {
+        // Get dataframes from pose motors and movement and merge them into one flat dataframe
+        let mut df = self.uav_state.get_df(lable.clone());
+
+        df
     }
 }
 

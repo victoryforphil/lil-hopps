@@ -14,28 +14,43 @@ impl UAVStateWidget {
 
 impl DockableWidget for UAVStateWidget {
     fn draw(&mut self, ui: &mut Ui, context: VizContext) {
-        let sim_state = context.sim_state.clone();
+        let runner_update = context.runner_update.clone();
+        let (sim_state,df) = match runner_update {
+            Some(update) => (update.state_sample, update.df),
+            None => return,
+        };
+       
 
         if let Some(state) = sim_state {
+            
             let uav_pose = state.uav_state.uav_state.pose;
             let uav_motors = state.uav_state.uav_state.motors;
 
             ui.label("UAV Pose");
-            ui.label("X: ".to_string() + &uav_pose.position.x.to_string());
-            ui.label("Y: ".to_string() + &uav_pose.position.y.to_string());
-            ui.label("Z: ".to_string() + &uav_pose.position.z.to_string());
+            ui.label(&format!("X: {}", uav_pose.position.x));
+            ui.label(&format!("Y: {}", uav_pose.position.y));
+            ui.label(&format!("Z: {}", uav_pose.position.z));
             ui.separator();
 
             ui.label("UAV Orientation");
-            ui.label("X: ".to_string() + &uav_pose.orientation.euler_angles().0.to_string());
-            ui.label("Y: ".to_string() + &uav_pose.orientation.euler_angles().1.to_string());
-            ui.label("Z: ".to_string() + &uav_pose.orientation.euler_angles().2.to_string());
+            ui.label(&format!("X: {}", uav_pose.orientation.euler_angles().0));
+            ui.label(&format!("Y: {}", uav_pose.orientation.euler_angles().1));
+            ui.label(&format!("Z: {}", uav_pose.orientation.euler_angles().2));
             ui.separator();
             ui.label("UAV Motors");
-            ui.label("M1: ".to_string() + &uav_motors[0].to_string());
-            ui.label("M2: ".to_string() + &uav_motors[1].to_string());
-            ui.label("M3: ".to_string() + &uav_motors[2].to_string());
-            ui.label("M4: ".to_string() + &uav_motors[3].to_string());
+            ui.label(&format!("M1: {:?}", uav_motors[0]));
+            ui.label(&format!("M2: {:?}", uav_motors[1]));
+            ui.label(&format!("M3: {:?}", uav_motors[2]));
+            ui.label(&format!("M4: {:?}", uav_motors[3]));
+        }
+
+        if let Some(df) = df {
+           // Print all latest dataframes
+              for col in df.get_columns() {
+                ui.label(&format!("{}: {}",col.name(), col.f32().unwrap().last().unwrap()));
+              }
+            
+           
         }
     }
 }

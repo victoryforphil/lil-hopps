@@ -3,10 +3,25 @@ use std::{
         mpsc::{channel, Receiver, Sender},
         Arc, Mutex,
     },
-    thread::{self, JoinHandle},
+    thread::{self, JoinHandle}, time::Instant,
 };
 
+use log::info;
+use nalgebra::U32;
+use polars::{frame::DataFrame, functions::concat_df_horizontal};
+use polars::lazy::*;
+use polars::functions::*;
+use polars::prelude::*;
 use super::{runner_options::SimRunnerOptions, Simulation, SimulationState};
+
+#[derive(Clone, Debug)]
+pub struct RunnerUpdate {
+    pub state_sample: Option<SimulationState>,
+    pub df: Option<DataFrame>,
+    pub is_done: bool,
+    pub tick: u32,
+    pub time: f64,
+}
 
 /// Simulation runner that creates a thread and channel, starts a simulation,
 /// Calls simulation tick on a loop, and sends the simulation state to the
@@ -16,10 +31,16 @@ use super::{runner_options::SimRunnerOptions, Simulation, SimulationState};
 /// It creates the simulation and calls init() on new(), but runs the loop once start() is called.
 
 pub struct SimRunner {
-    pub channel_tx: Sender<SimulationState>,
-    pub channel_rx: Receiver<SimulationState>,
-    pub thread: Option<JoinHandle<()>>,
+    //TODO:
+    // Convert to having channels report back SIm Status
+    // such as current time, runtime stamps, and a latest sample of the dataframe and sim state.
+
+    pub channel_tx: Sender<RunnerUpdate>,
+    pub channel_rx: Receiver<RunnerUpdate>,
+    pub update: RunnerUpdate,
+    pub thread: Option<JoinHandle<SimulationState>>,
     pub options: SimRunnerOptions,
+    pub state: Arc<Mutex<Option<SimulationState>>>,
 }
 
 pub type SimRunnerHandle = Arc<Mutex<SimRunner>>;
@@ -30,35 +51,70 @@ impl SimRunner {
             channel_tx: tx,
             channel_rx: rx,
             thread: None,
+            update: RunnerUpdate {
+                state_sample: None,
+                df: None,
+                is_done: false,
+                tick: 0,
+                time: 0.0,
+            },
             options,
+            state: Arc::new(Mutex::new(None)),
         }
     }
 
     pub fn start(&mut self) {
+        info!("[SimRunner] Starting Simulation with options: {:?}", self.options);
         let tx = self.channel_tx.clone();
         let mut sim = Simulation::new();
         let max_t = self.options.max_t;
         let dt = self.options.dt;
         let mut t = 0.0;
+        let mut tick = 0;
+        let send_every = self.options.send_every;
+
+        info!("[SimRunner] Initializing Simulation");
+        let mut update = self.update.clone();
+        let state = self.state.clone();
         sim.init();
         if self.options.threaded {
-            let thread = thread::spawn(move || loop {
-                t += dt;
-                sim.step(t, dt);
-                tx.send(sim.state.clone()).unwrap();
-                println!("SimRunner tick: t={:?}", t);
-                if t >= max_t {
-                    sim.stop();
-                    tx.send(sim.state.clone()).unwrap();
-                    break;
-                }
-            });
-            self.thread = Some(thread);
+            let thread = thread::spawn(move || {
+                
+                loop {
+                    t += dt;
+                    tick += 1;
+                    sim.step(t, dt);
 
+                    if tick % send_every == 0 {
+                        update.tick = update.tick + 1;
+                        update.time = t;
+                        update.state_sample = Some(sim.state.clone_without_logs());
+                        tx.send(update.clone());
+                    }
+
+                    if t >= max_t {
+                        sim.stop();
+                        update.is_done = true;
+                        tx.send(update.clone()).unwrap();
+                        break;
+                    }
+                }
+                {
+                    let state = state.clone();
+                    let state = state.lock();
+                    let mut state = state.unwrap();
+                    state.replace(sim.state.clone());
+                }
+                return sim.state.clone();
+            });
+
+            self.thread = Some(thread);
+            
             if self.options.join {
                 match self.thread.take() {
                     Some(thread) => {
-                        thread.join().unwrap();
+                        let state = thread.join().unwrap();
+                        self.state.clone().lock().unwrap().replace(state);
                     }
                     None => {
                         println!("SimRunner thread not found");
@@ -66,17 +122,51 @@ impl SimRunner {
                 }
             }
         } else {
+            info!("[SimRunner] Running Simulation (unthreaded)...");
+            let start_time = Instant::now();
+            
             loop {
+               
                 t += dt;
                 sim.step(t, dt);
-                tx.send(sim.state.clone()).unwrap();
+
+                update.tick = update.tick + 1;
+                update.state_sample = Some(sim.state.clone_without_logs());
+
+                tx.send(update.clone()).unwrap();
+               // let new_df = sim.state.get_df("UAV Test".to_string());
+                // Append DF vertically
+
+              //  dfs.push(new_df.lazy());
+              
+
                 if t >= max_t {
+                    info!("[SimRunner] Simulation reached max_t");
                     sim.stop();
-                    tx.send(sim.state.clone()).unwrap();
+                
+                    update.is_done = true;
+                    tx.send(update.clone()).unwrap();
                     break;
                 }
             }
+            self.state.clone().lock().unwrap().replace(sim.state.clone());
+            let end_time = Instant::now();
+            let duration = end_time.duration_since(start_time);
+            info!("[SimRunner] Simulation Complete in {:?} ", duration);
+
+            //info!("[SimRunner] Concatenating {:?} DataFrames", dfs.len());
+            let start_time = Instant::now();
+           
+            //df = concat(dfs.as_slice(), UnionArgs { parallel: true, rechunk: false, to_supertypes: false }).unwrap().collect().unwrap();
+            let end_time = Instant::now();
+            let duration = end_time.duration_since(start_time);
+            info!("[SimRunner] Saved DataFrames Complete in {:?} ", duration);
+          
         }
+
+        
+
+    
     }
 }
 

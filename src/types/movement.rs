@@ -1,3 +1,5 @@
+use polars::prelude::*;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Movement {
     pub lin_accel: nalgebra::Vector3<f32>,
@@ -28,6 +30,26 @@ impl Movement {
             lin_vel: nalgebra::Vector3::zeros(),
             ang_vel: nalgebra::Vector3::zeros(),
         }
+    }
+
+    pub fn get_df(&self, lable: String) -> DataFrame {
+        let mut df = df!(
+            format!("{}.lin_accel.x", lable).as_str() => &[self.lin_accel.x],
+            format!("{}.lin_accel.y", lable).as_str() => &[self.lin_accel.y],
+            format!("{}.lin_accel.z", lable).as_str() => &[self.lin_accel.z],
+            format!("{}.ang_accel.x", lable).as_str() => &[self.ang_accel.x],
+            format!("{}.ang_accel.y", lable).as_str() => &[self.ang_accel.y],
+            format!("{}.ang_accel.z", lable).as_str() => &[self.ang_accel.z],
+            format!("{}.lin_vel.x", lable).as_str() => &[self.lin_vel.x],
+            format!("{}.lin_vel.y", lable).as_str() => &[self.lin_vel.y],
+            format!("{}.lin_vel.z", lable).as_str() => &[self.lin_vel.z],
+            format!("{}.ang_vel.x", lable).as_str() => &[self.ang_vel.x],
+            format!("{}.ang_vel.y", lable).as_str() => &[self.ang_vel.y],
+            format!("{}.ang_vel.z", lable).as_str() => &[self.ang_vel.z],
+        )
+        .unwrap();
+
+        df
     }
 }
 
