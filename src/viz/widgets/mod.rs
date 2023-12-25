@@ -14,7 +14,7 @@ pub mod runner;
 pub mod telem_graph;
 pub mod three_viz;
 pub mod uav_state;
-pub mod dataframe_graph;
+
 pub struct WidgetUI {
     dock_tree: DockState<String>,
     last_drock_tree: String,

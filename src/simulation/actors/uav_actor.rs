@@ -1,6 +1,6 @@
 use nalgebra::Point;
 
-use nalgebra::{Point};
+
 use polars::frame::DataFrame;
 use rapier3d::prelude::{
     ColliderBuilder, ColliderHandle, RigidBodyBuilder, RigidBodyHandle, RigidBodySet,

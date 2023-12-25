@@ -30,6 +30,16 @@ impl SimulationState {
       
         df
     }
+
+    pub fn clone_without_logs(&self) -> Self {
+        SimulationState {
+            uav_state: self.uav_state.clone(),
+            world_state: self.world_state.clone(),
+            logs: HashMap::new(),
+            running: self.running,
+            time: self.time,
+        }
+    }
   
 }
 

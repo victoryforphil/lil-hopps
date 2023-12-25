@@ -71,7 +71,7 @@ impl LogGraphWidget {
 
 impl DockableWidget for LogGraphWidget {
     fn draw(&mut self, ui: &mut Ui, context: VizContext) {
-        let sim_state = context.sim_state;
+        let sim_state = context.state;
 
         if let Some(state) = sim_state {
             egui::SidePanel::left("left_panel")
