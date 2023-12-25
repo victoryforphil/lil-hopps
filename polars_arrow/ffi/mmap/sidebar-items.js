@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["bitmap","slice","slice_and_owner"]};

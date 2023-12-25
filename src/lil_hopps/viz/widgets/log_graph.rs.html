@@ -210,7 +210,7 @@
 
 <span class="kw">impl </span>DockableWidget <span class="kw">for </span>LogGraphWidget {
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ui: <span class="kw-2">&amp;mut </span>Ui, context: VizContext) {
-        <span class="kw">let </span>sim_state = context.sim_state;
+        <span class="kw">let </span>sim_state = context.state;
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = sim_state {
             egui::SidePanel::left(<span class="string">&quot;left_panel&quot;</span>)

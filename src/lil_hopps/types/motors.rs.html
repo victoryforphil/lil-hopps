@@ -173,7 +173,25 @@
 <a href="#173" id="173">173</a>
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>nalgebra::Vector3;
+<span class="kw">use </span>polars::{frame::DataFrame, df};
+<span class="kw">use </span>polars::prelude::<span class="kw-2">*</span>;
 
 <span class="kw">use crate</span>::{
     uav::config::UAVConfig,
@@ -288,6 +306,20 @@
             <span class="number">4 </span>=&gt; Vector3::new(<span class="number">0.0</span>, -arm_size, <span class="number">0.0</span>),
             <span class="kw">_ </span>=&gt; Vector3::new(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>),
         }
+    }
+
+    <span class="kw">pub fn </span>get_df(<span class="kw-2">&amp;</span><span class="self">self</span>, lable: String) -&gt; DataFrame {
+        <span class="kw">let </span><span class="kw-2">mut </span>df = <span class="macro">df!</span>(
+            <span class="macro">format!</span>(<span class="string">&quot;{}.motor_number&quot;</span>, lable).as_str() =&gt; <span class="kw-2">&amp;</span>[<span class="self">self</span>.motor_number <span class="kw">as </span>f32],
+            <span class="macro">format!</span>(<span class="string">&quot;{}.motor_force_n&quot;</span>, lable).as_str() =&gt; <span class="kw-2">&amp;</span>[<span class="self">self</span>.motor_force_n],
+            <span class="macro">format!</span>(<span class="string">&quot;{}.motor_offset_b.x&quot;</span>, lable).as_str() =&gt; <span class="kw-2">&amp;</span>[<span class="self">self</span>.motor_offset_b.x],
+            <span class="macro">format!</span>(<span class="string">&quot;{}.motor_offset_b.y&quot;</span>, lable).as_str() =&gt; <span class="kw-2">&amp;</span>[<span class="self">self</span>.motor_offset_b.y],
+            <span class="macro">format!</span>(<span class="string">&quot;{}.motor_offset_b.z&quot;</span>, lable).as_str() =&gt; <span class="kw-2">&amp;</span>[<span class="self">self</span>.motor_offset_b.z],
+            <span class="macro">format!</span>(<span class="string">&quot;{}.current_value&quot;</span>, lable).as_str() =&gt; <span class="kw-2">&amp;</span>[<span class="self">self</span>.current_value],
+        )
+        .unwrap();
+
+        df
     }
 }
 

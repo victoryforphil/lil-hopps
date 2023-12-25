@@ -86,11 +86,18 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
-</pre></div><pre class="rust"><code><span class="kw">pub struct </span>SimRunnerOptions {
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+</pre></div><pre class="rust"><code><span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SimRunnerOptions {
     <span class="kw">pub </span>max_t: f64,
     <span class="kw">pub </span>dt: f64,
     <span class="kw">pub </span>threaded: bool,
     <span class="kw">pub </span>join: bool,
+    <span class="kw">pub </span>send_every: usize,
 }
 
 <span class="kw">impl </span>SimRunnerOptions {
@@ -107,6 +114,7 @@
             dt: <span class="number">0.005</span>,
             threaded: <span class="bool-val">true</span>,
             join: <span class="bool-val">true</span>,
+            send_every: <span class="number">100</span>,
         }
     }
 
@@ -123,6 +131,7 @@
             dt: <span class="number">0.005</span>,
             threaded: <span class="bool-val">true</span>,
             join: <span class="bool-val">false</span>,
+            send_every: <span class="number">100</span>,
         }
     }
 
@@ -139,6 +148,7 @@
             dt: <span class="number">0.005</span>,
             threaded: <span class="bool-val">false</span>,
             join: <span class="bool-val">false</span>,
+            send_every: <span class="number">100</span>,
         }
     }
 }

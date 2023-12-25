@@ -126,15 +126,120 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     sync::{
         mpsc::{channel, Receiver, Sender},
         Arc, Mutex,
     },
-    thread::{<span class="self">self</span>, JoinHandle},
+    thread::{<span class="self">self</span>, JoinHandle}, time::Instant,
 };
 
+<span class="kw">use </span>log::info;
+<span class="kw">use </span>nalgebra::U32;
+<span class="kw">use </span>polars::{frame::DataFrame, functions::concat_df_horizontal};
+<span class="kw">use </span>polars::lazy::<span class="kw-2">*</span>;
+<span class="kw">use </span>polars::functions::<span class="kw-2">*</span>;
+<span class="kw">use </span>polars::prelude::<span class="kw-2">*</span>;
 <span class="kw">use super</span>::{runner_options::SimRunnerOptions, Simulation, SimulationState};
+
+<span class="attr">#[derive(Clone, Debug)]
+</span><span class="kw">pub struct </span>RunnerUpdate {
+    <span class="kw">pub </span>state_sample: <span class="prelude-ty">Option</span>&lt;SimulationState&gt;,
+    <span class="kw">pub </span>df: <span class="prelude-ty">Option</span>&lt;DataFrame&gt;,
+    <span class="kw">pub </span>is_done: bool,
+    <span class="kw">pub </span>tick: u32,
+    <span class="kw">pub </span>time: f64,
+}
 
 <span class="doccomment">/// Simulation runner that creates a thread and channel, starts a simulation,
 /// Calls simulation tick on a loop, and sends the simulation state to the
@@ -144,10 +249,16 @@
 /// It creates the simulation and calls init() on new(), but runs the loop once start() is called.
 
 </span><span class="kw">pub struct </span>SimRunner {
-    <span class="kw">pub </span>channel_tx: Sender&lt;SimulationState&gt;,
-    <span class="kw">pub </span>channel_rx: Receiver&lt;SimulationState&gt;,
-    <span class="kw">pub </span>thread: <span class="prelude-ty">Option</span>&lt;JoinHandle&lt;()&gt;&gt;,
+    <span class="comment">//TODO:
+    // Convert to having channels report back SIm Status
+    // such as current time, runtime stamps, and a latest sample of the dataframe and sim state.
+
+    </span><span class="kw">pub </span>channel_tx: Sender&lt;RunnerUpdate&gt;,
+    <span class="kw">pub </span>channel_rx: Receiver&lt;RunnerUpdate&gt;,
+    <span class="kw">pub </span>update: RunnerUpdate,
+    <span class="kw">pub </span>thread: <span class="prelude-ty">Option</span>&lt;JoinHandle&lt;SimulationState&gt;&gt;,
     <span class="kw">pub </span>options: SimRunnerOptions,
+    <span class="kw">pub </span>state: Arc&lt;Mutex&lt;<span class="prelude-ty">Option</span>&lt;SimulationState&gt;&gt;&gt;,
 }
 
 <span class="kw">pub type </span>SimRunnerHandle = Arc&lt;Mutex&lt;SimRunner&gt;&gt;;
@@ -158,35 +269,70 @@
             channel_tx: tx,
             channel_rx: rx,
             thread: <span class="prelude-val">None</span>,
+            update: RunnerUpdate {
+                state_sample: <span class="prelude-val">None</span>,
+                df: <span class="prelude-val">None</span>,
+                is_done: <span class="bool-val">false</span>,
+                tick: <span class="number">0</span>,
+                time: <span class="number">0.0</span>,
+            },
             options,
+            state: Arc::new(Mutex::new(<span class="prelude-val">None</span>)),
         }
     }
 
     <span class="kw">pub fn </span>start(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="macro">info!</span>(<span class="string">&quot;[SimRunner] Starting Simulation with options: {:?}&quot;</span>, <span class="self">self</span>.options);
         <span class="kw">let </span>tx = <span class="self">self</span>.channel_tx.clone();
         <span class="kw">let </span><span class="kw-2">mut </span>sim = Simulation::new();
         <span class="kw">let </span>max_t = <span class="self">self</span>.options.max_t;
         <span class="kw">let </span>dt = <span class="self">self</span>.options.dt;
         <span class="kw">let </span><span class="kw-2">mut </span>t = <span class="number">0.0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tick = <span class="number">0</span>;
+        <span class="kw">let </span>send_every = <span class="self">self</span>.options.send_every;
+
+        <span class="macro">info!</span>(<span class="string">&quot;[SimRunner] Initializing Simulation&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>update = <span class="self">self</span>.update.clone();
+        <span class="kw">let </span>state = <span class="self">self</span>.state.clone();
         sim.init();
         <span class="kw">if </span><span class="self">self</span>.options.threaded {
-            <span class="kw">let </span>thread = thread::spawn(<span class="kw">move </span>|| <span class="kw">loop </span>{
-                t += dt;
-                sim.step(t, dt);
-                tx.send(sim.state.clone()).unwrap();
-                <span class="macro">println!</span>(<span class="string">&quot;SimRunner tick: t={:?}&quot;</span>, t);
-                <span class="kw">if </span>t &gt;= max_t {
-                    sim.stop();
-                    tx.send(sim.state.clone()).unwrap();
-                    <span class="kw">break</span>;
-                }
-            });
-            <span class="self">self</span>.thread = <span class="prelude-val">Some</span>(thread);
+            <span class="kw">let </span>thread = thread::spawn(<span class="kw">move </span>|| {
+                
+                <span class="kw">loop </span>{
+                    t += dt;
+                    tick += <span class="number">1</span>;
+                    sim.step(t, dt);
 
+                    <span class="kw">if </span>tick % send_every == <span class="number">0 </span>{
+                        update.tick = update.tick + <span class="number">1</span>;
+                        update.time = t;
+                        update.state_sample = <span class="prelude-val">Some</span>(sim.state.clone_without_logs());
+                        tx.send(update.clone());
+                    }
+
+                    <span class="kw">if </span>t &gt;= max_t {
+                        sim.stop();
+                        update.is_done = <span class="bool-val">true</span>;
+                        tx.send(update.clone()).unwrap();
+                        <span class="kw">break</span>;
+                    }
+                }
+                {
+                    <span class="kw">let </span>state = state.clone();
+                    <span class="kw">let </span>state = state.lock();
+                    <span class="kw">let </span><span class="kw-2">mut </span>state = state.unwrap();
+                    state.replace(sim.state.clone());
+                }
+                <span class="kw">return </span>sim.state.clone();
+            });
+
+            <span class="self">self</span>.thread = <span class="prelude-val">Some</span>(thread);
+            
             <span class="kw">if </span><span class="self">self</span>.options.join {
                 <span class="kw">match </span><span class="self">self</span>.thread.take() {
                     <span class="prelude-val">Some</span>(thread) =&gt; {
-                        thread.join().unwrap();
+                        <span class="kw">let </span>state = thread.join().unwrap();
+                        <span class="self">self</span>.state.clone().lock().unwrap().replace(state);
                     }
                     <span class="prelude-val">None </span>=&gt; {
                         <span class="macro">println!</span>(<span class="string">&quot;SimRunner thread not found&quot;</span>);
@@ -194,17 +340,51 @@
                 }
             }
         } <span class="kw">else </span>{
+            <span class="macro">info!</span>(<span class="string">&quot;[SimRunner] Running Simulation (unthreaded)...&quot;</span>);
+            <span class="kw">let </span>start_time = Instant::now();
+            
             <span class="kw">loop </span>{
+               
                 t += dt;
                 sim.step(t, dt);
-                tx.send(sim.state.clone()).unwrap();
-                <span class="kw">if </span>t &gt;= max_t {
+
+                update.tick = update.tick + <span class="number">1</span>;
+                update.state_sample = <span class="prelude-val">Some</span>(sim.state.clone_without_logs());
+
+                tx.send(update.clone()).unwrap();
+               <span class="comment">// let new_df = sim.state.get_df(&quot;UAV Test&quot;.to_string());
+                // Append DF vertically
+
+              //  dfs.push(new_df.lazy());
+              
+
+                </span><span class="kw">if </span>t &gt;= max_t {
+                    <span class="macro">info!</span>(<span class="string">&quot;[SimRunner] Simulation reached max_t&quot;</span>);
                     sim.stop();
-                    tx.send(sim.state.clone()).unwrap();
+                
+                    update.is_done = <span class="bool-val">true</span>;
+                    tx.send(update.clone()).unwrap();
                     <span class="kw">break</span>;
                 }
             }
+            <span class="self">self</span>.state.clone().lock().unwrap().replace(sim.state.clone());
+            <span class="kw">let </span>end_time = Instant::now();
+            <span class="kw">let </span>duration = end_time.duration_since(start_time);
+            <span class="macro">info!</span>(<span class="string">&quot;[SimRunner] Simulation Complete in {:?} &quot;</span>, duration);
+
+            <span class="comment">//info!(&quot;[SimRunner] Concatenating {:?} DataFrames&quot;, dfs.len());
+            </span><span class="kw">let </span>start_time = Instant::now();
+           
+            <span class="comment">//df = concat(dfs.as_slice(), UnionArgs { parallel: true, rechunk: false, to_supertypes: false }).unwrap().collect().unwrap();
+            </span><span class="kw">let </span>end_time = Instant::now();
+            <span class="kw">let </span>duration = end_time.duration_since(start_time);
+            <span class="macro">info!</span>(<span class="string">&quot;[SimRunner] Saved DataFrames Complete in {:?} &quot;</span>, duration);
+          
         }
+
+        
+
+    
     }
 }
 
