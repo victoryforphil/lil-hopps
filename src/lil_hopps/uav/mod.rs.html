@@ -73,7 +73,7 @@
 <span class="kw">impl </span>UAV {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = UAVConfig::new_250mm();
-        <span class="kw">let </span><span class="kw-2">mut </span>motors = Motor::generate_motors(<span class="kw-2">&amp;</span>config);
+        <span class="kw">let </span>motors = Motor::generate_motors(<span class="kw-2">&amp;</span>config);
 
     
         UAV {

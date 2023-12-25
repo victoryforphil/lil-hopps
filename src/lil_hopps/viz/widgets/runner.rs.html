@@ -80,7 +80,7 @@
         <span class="comment">// UI for setting delta time
         </span>ui.horizontal(|ui| {
             ui.label(<span class="string">&quot;dt: &quot;</span>);
-            <span class="kw">let </span>dt = ui 
+            <span class="kw">let </span>_dt = ui 
                 .add(egui::DragValue::new(<span class="kw-2">&amp;mut </span>runner.options.dt).speed(<span class="number">0.001</span>));
             
             
@@ -90,7 +90,7 @@
         <span class="comment">// ui for setting max t
         </span>ui.horizontal(|ui| {
             ui.label(<span class="string">&quot;max_t: &quot;</span>);
-            <span class="kw">let </span>max_t = ui
+            <span class="kw">let </span>_max_t = ui
                 .add(egui::DragValue::new(<span class="kw-2">&amp;mut </span>runner.options.max_t).speed(<span class="number">0.1</span>));
             
         });

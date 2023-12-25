@@ -141,7 +141,7 @@
 
 <span class="kw">use </span>egui::{ScrollArea, Ui};
 <span class="kw">use </span>egui_plot::{Line, Plot, PlotPoints};
-<span class="kw">use </span>log::info;
+
 
 <span class="kw">use </span><span class="kw">super</span>::DockableWidget;
 
@@ -176,7 +176,7 @@
                         floats.insert(key, <span class="macro">vec!</span>[v]);
                     }
                 }
-                <span class="kw">crate</span>::logging::LogData::Movement(m) =&gt; {}
+                <span class="kw">crate</span>::logging::LogData::Movement(_m) =&gt; {}
                 <span class="kw">crate</span>::logging::LogData::Pose(p) =&gt; {
                     <span class="kw">let </span>pos_x_key = <span class="macro">format!</span>(<span class="string">&quot;{}/{}/{}&quot;</span>, key, <span class="string">&quot;pos&quot;</span>, <span class="string">&quot;x&quot;</span>).to_string();
                     <span class="kw">let </span>pos_y_key = <span class="macro">format!</span>(<span class="string">&quot;{}/{}/{}&quot;</span>, key, <span class="string">&quot;pos&quot;</span>, <span class="string">&quot;y&quot;</span>).to_string();
@@ -256,7 +256,7 @@
                     });
                 });
             <span class="kw">let </span><span class="kw-2">mut </span>lines = <span class="macro">vec!</span>[];
-            <span class="kw">for </span>(name, data) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
+            <span class="kw">for </span>(_name, data) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
                 <span class="kw">let </span><span class="kw-2">mut </span>t = <span class="number">0</span>;
                 <span class="kw">let </span>sin: PlotPoints = data
                     .into_iter()

@@ -173,14 +173,10 @@
 <a href="#173" id="173">173</a>
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+</pre></div><pre class="rust"><code>
 
 <span class="kw">use </span>eframe::{egui_glow, glow};
-<span class="kw">use </span>egui::{Ui, Frame};
+<span class="kw">use </span>egui::{Ui};
 <span class="kw">use </span>three_d::<span class="kw-2">*</span>;
 
 <span class="kw">use </span><span class="kw">super</span>::DockableWidget;
@@ -194,7 +190,7 @@
         <span class="self">Self </span>{}
     }
     <span class="kw">fn </span>custom_painting(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ui: <span class="kw-2">&amp;mut </span>egui::Ui, state: <span class="prelude-ty">Option</span>&lt;SimulationState&gt;) {
-        <span class="kw">let </span>(rect, response) =
+        <span class="kw">let </span>(rect, _response) =
             ui.allocate_exact_size(egui::Vec2::splat(<span class="number">800.</span>), egui::Sense::drag());
 
             <span class="kw">let </span>callback = egui::PaintCallback {
@@ -236,11 +232,7 @@
 }
 
 
-<span class="doccomment">///
-/// Based on the `three-d` [Triangle example](https://github.com/asny/three-d/blob/master/examples/triangle/src/main.rs).
-/// This is where you&#39;ll need to customize
-///
-</span><span class="kw">use </span>three_d::<span class="kw-2">*</span>;
+
 <span class="kw">pub struct </span>ThreeDApp {
     context: Context,
     camera: Camera,
@@ -275,7 +267,7 @@
             ),
         );
 
-        <span class="kw">let </span><span class="kw-2">mut </span>uav = Gm::new(
+        <span class="kw">let </span>uav = Gm::new(
             Mesh::new(<span class="kw-2">&amp;</span>context, <span class="kw-2">&amp;</span>CpuMesh::cube()),
             PhysicalMaterial::new_opaque(
                 <span class="kw-2">&amp;</span>context,
@@ -307,7 +299,7 @@
         </span><span class="self">self</span>.camera.set_viewport(frame_input.viewport);
        
         
-        <span class="kw">let </span><span class="kw-2">mut </span>ambient = AmbientLight::new(<span class="kw-2">&amp;</span><span class="self">self</span>.context, <span class="number">0.4</span>, Srgba::WHITE);
+        <span class="kw">let </span>ambient = AmbientLight::new(<span class="kw-2">&amp;</span><span class="self">self</span>.context, <span class="number">0.4</span>, Srgba::WHITE);
         <span class="kw">let </span><span class="kw-2">mut </span>directional0 = DirectionalLight::new(<span class="kw-2">&amp;</span><span class="self">self</span>.context, <span class="number">1.0</span>, Srgba::WHITE, <span class="kw-2">&amp;</span>vec3(-<span class="number">1.0</span>, -<span class="number">1.0</span>, -<span class="number">1.0</span>));
         
         <span class="kw">let </span><span class="kw-2">mut </span>objects: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Object&gt; = <span class="macro">vec!</span>[];

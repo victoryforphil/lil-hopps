@@ -103,7 +103,7 @@
 
 <span class="kw">use </span>egui::{ScrollArea, Ui};
 <span class="kw">use </span>egui_plot::{Line, Plot, PlotPoints};
-<span class="kw">use </span>log::info;
+
 
 <span class="kw">use </span><span class="kw">super</span>::DockableWidget;
 
@@ -180,7 +180,7 @@
                     });
                 });
             <span class="kw">let </span><span class="kw-2">mut </span>lines = <span class="macro">vec!</span>[];
-            <span class="kw">for </span>(name, data) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
+            <span class="kw">for </span>(_name, data) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
                 <span class="kw">let </span><span class="kw-2">mut </span>t = <span class="number">0</span>;
                 <span class="kw">let </span>sin: PlotPoints = data
                     .into_iter()
