@@ -99,7 +99,7 @@ impl Simulation {
         }
 
         let uav_logs = self.state.uav_state.uav_state.log(t);
-        let uav_logs = LogEntry::prefix_batch(uav_logs, "uav_state/");
+        //let uav_logs = LogEntry::prefix_batch(uav_logs, "uav_state/");
 
         for log in uav_logs {
             self.state
