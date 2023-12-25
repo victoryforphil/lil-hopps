@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use egui::{ScrollArea, Ui};
-use egui_plot::{Line, PlotPoints, Plot};
-use log::info;
+use egui_plot::{Line, Plot, PlotPoints};
+
 
 use super::DockableWidget;
 
@@ -10,7 +10,7 @@ use crate::viz::context::VizContext;
 
 pub struct TelemetryGraphWidget {
     pub data: HashMap<String, Vec<f64>>,
-    pub limit : u64,
+    pub limit: u64,
 }
 
 impl TelemetryGraphWidget {
@@ -37,7 +37,7 @@ impl DockableWidget for TelemetryGraphWidget {
                         .stick_to_bottom(true);
                     scroll_area.show(ui, |ui| {
                         let telem = state.uav_state.uav_state.telemtry;
-                        // Limit 
+                        // Limit
                         ui.add(egui::Slider::new(&mut self.limit, 100..=5000).text("Limit"));
 
                         for (name, data) in telem {
@@ -48,8 +48,7 @@ impl DockableWidget for TelemetryGraphWidget {
                                     let mut enabled = self.data.contains_key(name.as_str());
                                     ui.checkbox(&mut enabled, name.as_str());
                                     // Limit selector (default 1000)
-                                 
-                                    
+
                                     if enabled {
                                         // If the checkbox was checked, add the line to the plot
                                         let data = self.data.entry(name.clone()).or_default();
@@ -64,38 +63,39 @@ impl DockableWidget for TelemetryGraphWidget {
                                     }
 
                                     ui.horizontal(|ui| {
-                                         // Show current value
-                                    ui.label(format!("{:.2}", v));
+                                        // Show current value
+                                        ui.label(format!("{:.2}", v));
 
-                                    // Clear button
-                                    if ui.button("Clear").clicked() {
-                                        self.data.remove(name.as_str());
-                                    }
+                                        // Clear button
+                                        if ui.button("Clear").clicked() {
+                                            self.data.remove(name.as_str());
+                                        }
                                     });
 
                                     ui.separator();
                                 }
                             }
-                            
                         }
                     });
                 });
-                let mut lines = vec![];
-                for (name, data) in &self.data {
-                    let mut t = 0;
-                    let sin: PlotPoints = data.into_iter().map(|v| {
+            let mut lines = vec![];
+            for (_name, data) in &self.data {
+                let mut t = 0;
+                let sin: PlotPoints = data
+                    .into_iter()
+                    .map(|v| {
                         t += 1;
                         [t as f64, *v]
-                    }).collect();
-                    let line = Line::new(sin);
-                    lines.push(line);
+                    })
+                    .collect();
+                let line = Line::new(sin);
+                lines.push(line);
+            }
+            Plot::new("my_plot").show(ui, |plot_ui| {
+                for line in lines {
+                    plot_ui.line(line);
                 }
-                Plot::new("my_plot").show(ui, |plot_ui| {
-                    for line in lines {
-                        
-                        plot_ui.line(line);
-                    }
-                });
+            });
         }
     }
 }

@@ -24,7 +24,7 @@ impl DockableWidget for RunnerWidget {
         // UI for setting delta time
         ui.horizontal(|ui| {
             ui.label("dt: ");
-            let dt = ui 
+            let _dt = ui 
                 .add(egui::DragValue::new(&mut runner.options.dt).speed(0.001));
             
             
@@ -34,7 +34,7 @@ impl DockableWidget for RunnerWidget {
         // ui for setting max t
         ui.horizontal(|ui| {
             ui.label("max_t: ");
-            let max_t = ui
+            let _max_t = ui
                 .add(egui::DragValue::new(&mut runner.options.max_t).speed(0.1));
             
         });

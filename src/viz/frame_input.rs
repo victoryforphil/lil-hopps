@@ -1,4 +1,4 @@
-use eframe::{egui_glow::Painter, glow};
+use eframe::{egui_glow::Painter};
 
 ///
 /// Translates from egui input to three-d input

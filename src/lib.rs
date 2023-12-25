@@ -1,3 +1,4 @@
+pub mod logging;
 pub mod simulation;
 pub mod types;
 pub mod uav;

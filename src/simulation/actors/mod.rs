@@ -18,10 +18,10 @@ pub trait SimActor<T> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::*;
-    use crate::{
-        simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext},
-    };
+    use crate::simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext};
 
     struct TestActor {}
 
@@ -60,6 +60,7 @@ mod tests {
             world_state: world_actor::WorldActorResult {},
             running: false,
             time: 0.0,
+            logs: HashMap::new(),
         };
         let result = actor.init(&mut context, &state);
         assert!(result.is_ok());

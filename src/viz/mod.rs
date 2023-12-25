@@ -6,8 +6,8 @@ use self::context::VizContext;
 
 pub mod app;
 pub mod context;
-pub mod widgets;
 pub mod frame_input;
+pub mod widgets;
 pub struct Visualization {
     pub sim_runner: SimRunnerHandle,
     pub win_options: NativeOptions,
@@ -20,10 +20,9 @@ impl Visualization {
             win_options: NativeOptions {
                 initial_window_size: Some(egui::vec2(1280.0, 720.0)),
                 renderer: eframe::Renderer::Glow,
-                depth_buffer: 32,
-                stencil_buffer: 8,
-                multisampling: 4,
-                
+                depth_buffer: 8,
+                //stencil_buffer: 8,
+                // multisampling: 4,
                 ..Default::default()
             },
         }
@@ -35,7 +34,7 @@ impl Visualization {
     pub fn start(&self) {
         println!("Visualization start");
         let context = self.contsturct_context().clone();
-        eframe::run_native(
+        let _ = eframe::run_native(
             "Lil Sim",
             self.win_options.clone(),
             Box::new(|cc| Box::new(VisualizationApp::new(cc, context).init())),

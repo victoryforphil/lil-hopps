@@ -52,9 +52,9 @@ impl SimActor<WorldActorResult> for WorldActor {
 #[cfg(test)]
 mod tests {
 
-    use crate::{
-        simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext},
-    };
+    use std::collections::HashMap;
+
+    use crate::simulation::{actors::uav_actor::UAVActorResult, context::SimulationContext};
 
     use super::*;
 
@@ -66,6 +66,7 @@ mod tests {
             uav_state: UAVActorResult::new(),
             world_state: WorldActorResult {},
             running: false,
+            logs: HashMap::new(),
             time: 0.0,
         };
         let result = world_actor.init(&mut context, &state);

@@ -1,6 +1,8 @@
 use nalgebra::Vector3;
 
-use crate::uav::config::UAVConfig;
+use crate::{
+    uav::config::UAVConfig,
+};
 #[derive(PartialEq, Clone)]
 pub struct Motor {
     pub motor_force_n: f32,

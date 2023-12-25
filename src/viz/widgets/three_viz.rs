@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+
 
 use eframe::{egui_glow, glow};
-use egui::{Ui, Frame};
+use egui::{Ui};
 use three_d::*;
 
 use super::DockableWidget;
@@ -15,7 +15,7 @@ impl ThreeVizWidget {
         Self {}
     }
     fn custom_painting(&mut self, ui: &mut egui::Ui, state: Option<SimulationState>) {
-        let (rect, response) =
+        let (rect, _response) =
             ui.allocate_exact_size(egui::Vec2::splat(800.), egui::Sense::drag());
 
             let callback = egui::PaintCallback {
@@ -57,11 +57,7 @@ fn with_three_d<R>(gl: &std::sync::Arc<glow::Context>, f: impl FnOnce(&mut Three
 }
 
 
-///
-/// Based on the `three-d` [Triangle example](https://github.com/asny/three-d/blob/master/examples/triangle/src/main.rs).
-/// This is where you'll need to customize
-///
-use three_d::*;
+
 pub struct ThreeDApp {
     context: Context,
     camera: Camera,
@@ -96,7 +92,7 @@ impl ThreeDApp {
             ),
         );
 
-        let mut uav = Gm::new(
+        let uav = Gm::new(
             Mesh::new(&context, &CpuMesh::cube()),
             PhysicalMaterial::new_opaque(
                 &context,
@@ -128,7 +124,7 @@ impl ThreeDApp {
         self.camera.set_viewport(frame_input.viewport);
        
         
-        let mut ambient = AmbientLight::new(&self.context, 0.4, Srgba::WHITE);
+        let ambient = AmbientLight::new(&self.context, 0.4, Srgba::WHITE);
         let mut directional0 = DirectionalLight::new(&self.context, 1.0, Srgba::WHITE, &vec3(-1.0, -1.0, -1.0));
         
         let mut objects: Vec<&dyn Object> = vec![];

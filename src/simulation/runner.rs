@@ -70,7 +70,6 @@ impl SimRunner {
                 t += dt;
                 sim.step(t, dt);
                 tx.send(sim.state.clone()).unwrap();
-                println!("SimRunner tick: t={:?}", t);
                 if t >= max_t {
                     sim.stop();
                     tx.send(sim.state.clone()).unwrap();

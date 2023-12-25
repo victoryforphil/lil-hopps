@@ -8,6 +8,7 @@ use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, W
 use simulation::{runner::SimRunner, runner_options::SimRunnerOptions};
 use viz::Visualization;
 
+pub mod logging;
 pub mod simulation;
 pub mod types;
 pub mod uav;
