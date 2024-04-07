@@ -63,6 +63,10 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>primatives;
 <span class="kw">use </span>std::collections::BTreeSet;
 
@@ -71,6 +75,10 @@
 <span class="kw">use crate</span>::{Tag, Timestamp};
 
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
+</span><span class="doccomment">/// Stpres a single data point with a timestamp, data, and tags
+/// - timestamp: The time the data point was recorded
+/// - data: The data point itself
+/// - tags: A set of tags associated with the data point
 </span><span class="kw">pub struct </span>DataPoint{
     <span class="kw">pub </span>timestamp: Timestamp,
     <span class="kw">pub </span>data: Primatives,

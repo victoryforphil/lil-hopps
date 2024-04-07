@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Primatives"],"struct":["Bucket","DataPoint","Tag","Timestamp"]};
+window.SIDEBAR_ITEMS = {"enum":["Primatives","QueryCommand","TagFilterMode"],"struct":["Bucket","DataPoint","Database","LookupQuery","LookupRangeQuery","QueryResponse","QueryResponseMetadata","Tag","TagFilter","Timestamp","WriteQuery"]};
