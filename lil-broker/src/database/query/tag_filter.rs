@@ -1,4 +1,4 @@
-use crate::Tag;
+use crate::{DataPoint, Tag};
 #[derive(Debug,Clone)]
 pub enum TagFilterMode{
     Include,
@@ -38,5 +38,15 @@ impl TagFilter{
     pub fn include_with_value(mut self) -> Self{
         self.mode = TagFilterMode::IncludeWithValue;
         self
+    }
+
+    pub fn is_valid(&self, datapoint: &DataPoint) -> bool{
+        match self.mode{
+            TagFilterMode::Include => datapoint.tags.contains(&self.tag),
+            TagFilterMode::Exclude => !datapoint.tags.contains(&self.tag),
+            // TODO: Implement value checking [vfp//2021-09-29]
+            TagFilterMode::IncludeWithValue => datapoint.tags.contains(&self.tag),
+            TagFilterMode::ExcludeWithValue => !datapoint.tags.contains(&self.tag),
+        }
     }
 }

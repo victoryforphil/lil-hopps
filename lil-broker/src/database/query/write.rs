@@ -1,11 +1,11 @@
-use crate::{Primatives, Timestamp};
+use crate::{ Bucket, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
 
-use super::tag_filter::TagFilter;
 
+use tracing::info;
 #[derive(Debug, Clone)]
 pub struct WriteQuery{
     pub topic: String,
-    pub data: Primatives.
+    pub data: Primatives,
     pub timestamp: Timestamp,
     pub tags: Vec<Tag>,
 }
@@ -20,4 +20,59 @@ impl WriteQuery{
         }
     }
 
+}
+// Conversion from WriteQuery to QueryCommands::Write(WriteQuery)
+impl From<WriteQuery> for QueryCommand{
+    fn from(query: WriteQuery) -> QueryCommand{
+        QueryCommand::Write(query)
+    }
+}
+
+impl From<QueryCommand> for WriteQuery{
+    fn from(query: QueryCommand) -> WriteQuery{
+        match query{
+            QueryCommand::Write(query) => query,
+            _ => panic!("Not a WriteQuery"),
+        }
+    }
+}
+
+impl Database{
+    pub fn query_write(&mut self, query: WriteQuery) -> Result<QueryResponse, String>{
+        let mut response = QueryResponse::default();
+
+        // If no bucket exists create one 
+        if !self.buckets.contains_key(&query.topic){
+            self.buckets.insert(query.topic.clone(), Bucket::new(&query.topic));
+            info!("Created new bucket for topic: {}", query.topic);
+        }
+
+        if let Some(bucket) = self.buckets.get_mut(&query.topic){
+            let data = bucket.add_primative(query.timestamp, query.data);
+            response.data.insert(query.topic.clone(), data.get_latest().unwrap());
+            response.metadata.n_results += 1;
+        }
+
+        Ok(response)
+    }
+}
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn test_write_query_basic(){
+        let mut db = Database::new();
+        let query = WriteQuery::new("test".into(), Primatives::Number(7.0), Timestamp::new(0));
+
+        let response = db.query(query.into()).unwrap();
+
+        assert_eq!(response.metadata.n_results, 1);
+        assert_eq!(response.data.len(), 1);
+      
+        let bucket = db.buckets.get("test").unwrap();
+        let data = bucket.get_latest();
+        assert_eq!(data.unwrap().data, Primatives::Number(7.0));
+    }
 }

@@ -6,6 +6,10 @@ pub use primatives::Primatives;
 use crate::{Tag, Timestamp};
 
 #[derive(Debug, Clone, PartialEq)]
+/// Stpres a single data point with a timestamp, data, and tags
+/// - timestamp: The time the data point was recorded
+/// - data: The data point itself
+/// - tags: A set of tags associated with the data point
 pub struct DataPoint{
     pub timestamp: Timestamp,
     pub data: Primatives,
