@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"lil_hopps":[["impl <a class=\"trait\" href=\"egui_dock/widgets/tab_viewer/trait.TabViewer.html\" title=\"trait egui_dock::widgets::tab_viewer::TabViewer\">TabViewer</a> for <a class=\"struct\" href=\"lil_hopps/viz/widgets/dock/struct.DockedWindow.html\" title=\"struct lil_hopps::viz::widgets::dock::DockedWindow\">DockedWindow</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

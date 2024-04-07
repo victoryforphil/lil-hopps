@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"lil_hopps":[["impl <a class=\"trait\" href=\"eframe/epi/trait.App.html\" title=\"trait eframe::epi::App\">App</a> for <a class=\"struct\" href=\"lil_hopps/viz/app/struct.VisualizationApp.html\" title=\"struct lil_hopps::viz::app::VisualizationApp\">VisualizationApp</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

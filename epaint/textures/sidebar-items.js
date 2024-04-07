@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["TextureFilter"],"struct":["TextureManager","TextureMeta","TextureOptions","TexturesDelta"]};

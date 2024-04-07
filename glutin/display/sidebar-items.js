@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Display","DisplayApiPreference","RawDisplay"],"struct":["DisplayFeatures"],"trait":["AsRawDisplay","GetDisplayExtensions","GetGlDisplay","GlDisplay"]};

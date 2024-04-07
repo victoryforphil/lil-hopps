@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Abs","AbsArgs","AbsIterator","AbsStream","Button","ButtonArgs","ButtonIterator","ButtonStream","MouseProxy","MouseProxyBlocking","Rel","RelArgs","RelIterator","RelStream"]};

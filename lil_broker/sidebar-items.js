@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Primatives"],"struct":["Bucket","DataPoint","Tag","Timestamp"]};

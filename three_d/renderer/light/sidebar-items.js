@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["lights_shader_source"],"struct":["AmbientLight","Attenuation","DirectionalLight","Environment","PointLight","SpotLight"],"trait":["Light"]};

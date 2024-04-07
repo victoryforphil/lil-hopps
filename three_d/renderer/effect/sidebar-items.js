@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Background"],"struct":["CopyEffect","FogEffect","FxaaEffect","ScreenEffect","WaterEffect"],"trait":["Effect"],"type":["WaterMaterial"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Granularity"],"struct":["TextProxy","TextProxyBlocking"]};

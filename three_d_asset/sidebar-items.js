@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Error","ProjectionType"],"mod":["geometry","io","material","prelude","texture","volume"],"struct":["Camera","KeyFrameAnimation","KeyFrames","Model","Node","PixelPoint","Primitive","Scene","UvCoordinate","Viewport"],"type":["Result"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ColorTexture","CubeMapSide","DepthTexture","Interpolation","TextureData","Wrapping"],"struct":["CpuTexture","CpuTexture3D","CubeMapSideIterator","DepthTexture2D","DepthTexture2DArray","DepthTextureCubeMap","Texture2D","Texture2DArray","Texture3D","TextureCubeMap","f24"],"trait":["DepthTextureDataType","TextureDataType"]};

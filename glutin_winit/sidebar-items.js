@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ApiPrefence"],"fn":["finalize_window"],"struct":["DisplayBuilder"],"trait":["GlWindow"]};

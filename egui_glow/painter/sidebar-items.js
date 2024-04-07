@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["clear"],"struct":["CallbackFn","Context","Painter"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["PollMode"],"mod":["os"],"struct":["Event","Poller"],"trait":["Source"]};

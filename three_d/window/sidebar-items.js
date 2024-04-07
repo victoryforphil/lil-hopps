@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["HardwareAcceleration","WindowError"],"struct":["FrameInput","FrameInputGenerator","FrameOutput","SurfaceSettings","Window","WindowSettings","WindowedContext"]};

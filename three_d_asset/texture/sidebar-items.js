@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Interpolation","TextureData","Wrapping"],"struct":["Texture2D","Texture3D","f16"]};

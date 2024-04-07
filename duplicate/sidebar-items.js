@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"attr":["duplicate_item"],"macro":["duplicate"]};
