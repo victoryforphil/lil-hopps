@@ -8,7 +8,7 @@ var srcIndex = new Map(JSON.parse('[\
 ["env_filter",["",[],["directive.rs","filter.rs","filtered_log.rs","lib.rs","op.rs","parser.rs"]]],\
 ["env_logger",["",[["fmt",[["writer",[],["buffer.rs","mod.rs","target.rs"]]],["humantime.rs","mod.rs"]]],["lib.rs","logger.rs"]]],\
 ["humantime",["",[],["date.rs","duration.rs","lib.rs","wrapper.rs"]]],\
-["lil_broker",["",[["buckets",[],["mod.rs","querying.rs"]],["database",[["query",[],["get_latest.rs","lookup.rs","lookup_range.rs","mod.rs","tag_filter.rs","write.rs"]]],["mod.rs"]],["datapoint",[],["mod.rs","primatives.rs"]],["types",[],["mod.rs","tag.rs","timestamp.rs"]]],["lib.rs"]]],\
+["lil_broker",["",[["buckets",[],["mod.rs","querying.rs"]],["database",[["query",[],["get_latest.rs","lookup.rs","lookup_range.rs","mod.rs","tag_filter.rs","write.rs"]]],["mod.rs"]],["datapoint",[],["mod.rs","primatives.rs"]],["types",[],["mod.rs","tag.rs","timestamp.rs"]],["utils",[],["mod.rs"]]],["lib.rs"]]],\
 ["lil_helper",["",[],["lib.rs"]]],\
 ["lil_quad",["",[],["main.rs"]]],\
 ["lil_sym",["",[],["main.rs"]]],\
