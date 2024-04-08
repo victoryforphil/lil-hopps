@@ -70,7 +70,7 @@ impl Database{
                 }
 
                 if passed_filters{
-                    response.data.insert(bucket_key.clone(), data.clone());
+                    response.data.insert(bucket_key.clone(), vec![data.clone()]);
                     response.metadata.n_results += 1;
                 }
             }
@@ -150,6 +150,7 @@ mod tests{
         assert_eq!(read_res.data.len(), 1);
 
         let data = read_res.data.get("test/a/1").unwrap();
+        let data = data.get(0).unwrap();
         assert_eq!(data.tags.contains(&"sys/acknowledged".into()), true);
 
         let read_query = GetLatestQuery{
@@ -181,7 +182,7 @@ mod tests{
         assert_eq!(read_res.metadata.n_results, 1);
         assert_eq!(read_res.data.len(), 1);
 
-        let tags = read_res.data.get("test/a/1").unwrap().tags.clone();
+        let tags = read_res.data.get("test/a/1").unwrap()[0].tags.clone();
         assert_eq!(tags.contains(&"user/test_tag".into()), true);
 
     }

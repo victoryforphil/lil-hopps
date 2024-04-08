@@ -29,7 +29,7 @@ pub struct QueryResponseMetadata{
 }
 #[derive(Debug, Clone)]
 pub struct QueryResponse{
-    pub data: BTreeMap<String, DataPoint>,
+    pub data: BTreeMap<String, Vec<DataPoint>>,
     pub metadata: QueryResponseMetadata,
 }
 

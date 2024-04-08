@@ -55,6 +55,7 @@ impl Bucket{
             Some(dp) => dp.1.clone(),
             None => {return None;}
         };
+        
 
         self.apply_global_tags(&mut data_point);
         Some(data_point)

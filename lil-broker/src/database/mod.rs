@@ -24,6 +24,7 @@ impl Database{
        match query{
            QueryCommand::GetLatest(query) => self.query_get_latest(query),
            QueryCommand::Write(query) => self.query_write(query),
+              QueryCommand::LookupRange(query) => self.query_lookup_range(query),
            _ => Err("Query not implemented".to_string())
        }
 

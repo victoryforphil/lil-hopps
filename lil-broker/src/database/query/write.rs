@@ -1,4 +1,4 @@
-use crate::{ Bucket, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
+use crate::{ Bucket, DataPoint, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
 
 
 use tracing::info;
@@ -48,8 +48,14 @@ impl Database{
         }
 
         if let Some(bucket) = self.buckets.get_mut(&query.topic){
-            let data = bucket.add_primative(query.timestamp, query.data);
-            response.data.insert(query.topic.clone(), data.get_latest().unwrap());
+            let datapoint = DataPoint::new(query.timestamp, query.data);
+            bucket.add_data_point(datapoint.clone());
+            if response.data.contains_key(&query.topic){
+                response.data.get_mut(&query.topic).unwrap().push(datapoint);
+            }else{ 
+                response.data.insert(query.topic.clone(), vec![datapoint]);
+            }
+         
             response.metadata.n_results += 1;
         }
 
