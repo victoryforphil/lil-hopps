@@ -181,9 +181,10 @@
 <a href="#179" id="179">179</a>
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{Bucket, DataPoint, Timestamp};
 
-
+<span class="kw">use </span>tracing::debug;
 <span class="kw">impl </span>Bucket{
 
     <span class="doccomment">///Get the latest DataPoint in the bucket
@@ -209,6 +210,7 @@
 
         <span class="kw">let </span>global_tags = <span class="self">self</span>.bucket_tags.clone();
         <span class="kw">for </span>tag <span class="kw">in </span>global_tags.iter(){
+            <span class="macro">debug!</span>(<span class="string">"Adding tag: {:#?} to data point"</span>, tag);
             data_point.add_tag(tag.clone());
         }
         <span class="prelude-val">Some</span>(data_point)

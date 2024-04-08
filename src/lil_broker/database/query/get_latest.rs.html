@@ -165,6 +165,29 @@
 <a href="#163" id="163">163</a>
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{Database, QueryCommand, QueryResponse};
 
 <span class="kw">use </span><span class="kw">super</span>::tag_filter::TagFilter;
@@ -253,7 +276,7 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_write_query_basic(){
+    </span><span class="kw">fn </span>test_get_latest_basic(){
         <span class="kw">let </span><span class="kw-2">mut </span>db = Database::new();
         <span class="kw">let </span>query1 = WriteQuery::new(<span class="string">"test"</span>.into(), <span class="number">7.0</span>.into(), Timestamp::from_seconds(<span class="number">10.0</span>));
         <span class="kw">let </span>query2 = WriteQuery::new(<span class="string">"test"</span>.into(), <span class="number">10.0</span>.into(), Timestamp::from_seconds(<span class="number">5.0</span>));
@@ -276,7 +299,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_write_query_wildcard(){
+    </span><span class="kw">fn </span>test_get_latest_wildcard(){
         <span class="kw">let </span><span class="kw-2">mut </span>db = Database::new();
         <span class="kw">let </span>query1 = WriteQuery::new(<span class="string">"test/a/1"</span>.into(), <span class="number">1.0</span>.into(), Timestamp::from_seconds(<span class="number">1.0</span>));
         <span class="kw">let </span>query2 = WriteQuery::new(<span class="string">"test/a/2"</span>.into(), <span class="number">2.0</span>.into(), Timestamp::from_seconds(<span class="number">1.0</span>));
@@ -300,7 +323,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_write_query_ack(){
+    </span><span class="kw">fn </span>test_get_latest_query_ack(){
         env_logger::init();
         <span class="kw">let </span><span class="kw-2">mut </span>db = Database::new();
         <span class="kw">let </span>query1 = WriteQuery::new(<span class="string">"test/a/1"</span>.into(), <span class="number">1.0</span>.into(), Timestamp::from_seconds(<span class="number">1.0</span>));
@@ -328,5 +351,28 @@
         <span class="kw">let </span>read_res = db.query(read_query.into()).unwrap();
         <span class="macro">debug!</span>(<span class="string">"Read Res after ack: {:#?}"</span>, read_res);
         <span class="macro">assert_eq!</span>(read_res.metadata.n_results, <span class="number">0</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_get_latest_query_bucket_tags(){
+        env_logger::init();
+        <span class="kw">let </span><span class="kw-2">mut </span>db = Database::new();
+        <span class="kw">let </span>query1 = WriteQuery::new(<span class="string">"test/a/1"</span>.into(), <span class="number">1.0</span>.into(), Timestamp::from_seconds(<span class="number">1.0</span>));
+        db.add_tag_to_bucket(<span class="string">"test/a/1"</span>, <span class="string">"user/test_tag"</span>.into());
+        <span class="kw">let </span>_write_res = db.query_batch(<span class="macro">vec!</span>[query1.into() ]).unwrap();
+
+        <span class="kw">let </span>read_query = GetLatestQuery{
+            topics: <span class="macro">vec!</span>[<span class="string">"test/a/"</span>.into()],
+            ack_topics: <span class="macro">vec!</span>[<span class="string">"test/a/1"</span>.into()],
+            tag_filters: Vec::new(),
+        };
+        <span class="kw">let </span>read_res = db.query(read_query.into()).unwrap();
+        <span class="macro">debug!</span>(<span class="string">"Read Response 1: {:#?}"</span>, read_res);
+        <span class="macro">assert_eq!</span>(read_res.metadata.n_results, <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(read_res.data.len(), <span class="number">1</span>);
+
+        <span class="kw">let </span>tags = read_res.data.get(<span class="string">"test/a/1"</span>).unwrap().tags.clone();
+        <span class="macro">assert_eq!</span>(tags.contains(<span class="kw-2">&amp;</span><span class="string">"user/test_tag"</span>.into()), <span class="bool-val">true</span>);
+
     }
 }</code></pre></div></section></main></body></html>
