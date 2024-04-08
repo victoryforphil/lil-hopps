@@ -1,7 +1,7 @@
 use crate::{Database, QueryCommand, QueryResponse};
 
 use super::tag_filter::TagFilter;
-use tracing::info;
+use tracing::{info, debug};
 #[derive(Debug, Clone)]
 pub struct GetLatestQuery{
     pub topics: Vec<String>,
@@ -38,7 +38,8 @@ impl Default for GetLatestQuery{
 impl Database{
     pub fn query_get_latest(&mut self, query: GetLatestQuery) -> Result<QueryResponse, String>{
         let mut response = QueryResponse::default();
-        let all_bucket_keys = self.buckets.keys();
+
+        let all_bucket_keys = self.get_keys().into_iter();
         let matching_keys = all_bucket_keys.filter(|key| {
             for topic in &query.topics{
                 if key.starts_with(topic){
@@ -48,8 +49,8 @@ impl Database{
             false
         });
         for bucket_key in matching_keys{
-            if let Some(bucket) = self.buckets.get(bucket_key){
-                let data = bucket.get_latest();
+            if let Some(bucket) = self.buckets.get_mut(&bucket_key){
+                let data = bucket.get_latest_mut();
                 if data.is_none(){
                     continue;
                 }
@@ -62,20 +63,25 @@ impl Database{
                     }
                 }
 
+                // Check to see if we should ack the data
+                if query.ack_topics.contains(&bucket_key){
+                    debug!("Acking data for topic: {}", &bucket_key);
+                    data.add_tag("sys/acknowledged".into());
+                }
+
                 if passed_filters{
                     response.data.insert(bucket_key.clone(), data.clone());
                     response.metadata.n_results += 1;
                 }
             }
         }
-        println!("{:#?}", &response);
         Ok(response)
     }
 }
 
 #[cfg(test)]
 mod tests{
-    use crate::{Primatives, Timestamp, WriteQuery};
+    use crate::{Primatives, Tag, Timestamp, WriteQuery};
 
     use super::*;
 
@@ -124,6 +130,36 @@ mod tests{
         assert_eq!(read_res.data.len(), 3);
 
         assert_eq!(read_res.data.keys().into_iter().collect::<Vec<&String>>(), vec!["test/a/1", "test/a/2", "test/a/3"]);
-     
+    }
+
+    #[test]
+    fn test_write_query_ack(){
+        env_logger::init();
+        let mut db = Database::new();
+        let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
+        let _write_res = db.query_batch(vec![query1.into() ]).unwrap();
+
+        let read_query = GetLatestQuery{
+            topics: vec!["test/a/".into()],
+            ack_topics: vec!["test/a/1".into()],
+            tag_filters: Vec::new(),
+        };
+        let read_res = db.query(read_query.into()).unwrap();
+        debug!("Read Response 1: {:#?}", read_res);
+        assert_eq!(read_res.metadata.n_results, 1);
+        assert_eq!(read_res.data.len(), 1);
+
+        let data = read_res.data.get("test/a/1").unwrap();
+        assert_eq!(data.tags.contains(&"sys/acknowledged".into()), true);
+
+        let read_query = GetLatestQuery{
+            topics: vec!["test/a/".into()],
+            ack_topics: Vec::new(),
+            tag_filters: vec![TagFilter::new("sys/acknowledged".into()).exclude()],
+        };
+    
+        let read_res = db.query(read_query.into()).unwrap();
+        debug!("Read Res after ack: {:#?}", read_res);
+        assert_eq!(read_res.metadata.n_results, 0);
     }
 }

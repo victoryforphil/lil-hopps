@@ -35,5 +35,7 @@ impl Bucket{
         for tag in self.bucket_tags.iter(){
             data_point.add_tag(tag.clone());
         }
+
+
     }
 }

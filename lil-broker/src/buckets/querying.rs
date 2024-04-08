@@ -16,6 +16,21 @@ impl Bucket{
         Some(data_point)
     }
 
+    pub fn get_latest_mut(&mut self) -> Option<&mut DataPoint>{
+        let data_point = self.values.values_mut().last();
+
+        let data_point = match data_point{
+            Some(dp) => dp, 
+            None => {return None;}
+        };
+
+        let global_tags = self.bucket_tags.clone();
+        for tag in global_tags.iter(){
+            data_point.add_tag(tag.clone());
+        }
+        Some(data_point)
+    }
+
     pub fn get_earliest(&self) -> Option<DataPoint>{
         let data_point = self.values.values().nth(0);
 

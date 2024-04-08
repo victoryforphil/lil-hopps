@@ -17,7 +17,9 @@ impl Database{
             buckets: BTreeMap::new()
         }
     }
-
+    pub fn get_keys(&self) -> Vec<String>{
+        self.buckets.keys().cloned().collect()
+    }
     pub fn query(&mut self, query: QueryCommand) -> Result<QueryResponse, String>{
        match query{
            QueryCommand::GetLatest(query) => self.query_get_latest(query),
