@@ -1,6 +1,6 @@
 use crate::{Bucket, DataPoint, Timestamp};
 
-
+use tracing::debug;
 impl Bucket{
 
     ///Get the latest DataPoint in the bucket
@@ -26,6 +26,7 @@ impl Bucket{
 
         let global_tags = self.bucket_tags.clone();
         for tag in global_tags.iter(){
+            debug!("Adding tag: {:#?} to data point", tag);
             data_point.add_tag(tag.clone());
         }
         Some(data_point)

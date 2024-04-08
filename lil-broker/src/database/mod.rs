@@ -1,9 +1,9 @@
 mod query;
 use std::collections::BTreeMap;
-
+use tracing::{info, error, debug};
 pub use query::*;
 
-use crate::Bucket;
+use crate::{Bucket, Tag};
 
 
 pub struct Database{
@@ -27,6 +27,21 @@ impl Database{
            _ => Err("Query not implemented".to_string())
        }
 
+    }
+
+    pub fn add_tag_to_bucket(&mut self, bucket_name: &str, tag: Tag){
+
+        //Create a new bucket if it doesn't exist
+        if !self.buckets.contains_key(bucket_name){
+            info!("Bucket: {} not found, creating new bucket", bucket_name);
+            self.new_bucket(bucket_name);
+        }
+
+        if let Some(bucket) = self.buckets.get_mut(bucket_name){
+            bucket.add_tag(tag);
+        }else{
+            error!("Bucket: {} not found", bucket_name);
+        }
     }
 
     pub fn query_batch(&mut self, queries: Vec<QueryCommand>) -> Result<Vec<QueryResponse>, String>{

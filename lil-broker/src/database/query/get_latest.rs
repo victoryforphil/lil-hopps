@@ -86,7 +86,7 @@ mod tests{
     use super::*;
 
     #[test]
-    fn test_write_query_basic(){
+    fn test_get_latest_basic(){
         let mut db = Database::new();
         let query1 = WriteQuery::new("test".into(), 7.0.into(), Timestamp::from_seconds(10.0));
         let query2 = WriteQuery::new("test".into(), 10.0.into(), Timestamp::from_seconds(5.0));
@@ -109,7 +109,7 @@ mod tests{
     }
 
     #[test]
-    fn test_write_query_wildcard(){
+    fn test_get_latest_wildcard(){
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
         let query2 = WriteQuery::new("test/a/2".into(), 2.0.into(), Timestamp::from_seconds(1.0));
@@ -133,7 +133,7 @@ mod tests{
     }
 
     #[test]
-    fn test_write_query_ack(){
+    fn test_get_latest_query_ack(){
         env_logger::init();
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
@@ -161,5 +161,28 @@ mod tests{
         let read_res = db.query(read_query.into()).unwrap();
         debug!("Read Res after ack: {:#?}", read_res);
         assert_eq!(read_res.metadata.n_results, 0);
+    }
+
+    #[test]
+    fn test_get_latest_query_bucket_tags(){
+        env_logger::init();
+        let mut db = Database::new();
+        let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
+        db.add_tag_to_bucket("test/a/1", "user/test_tag".into());
+        let _write_res = db.query_batch(vec![query1.into() ]).unwrap();
+
+        let read_query = GetLatestQuery{
+            topics: vec!["test/a/".into()],
+            ack_topics: vec!["test/a/1".into()],
+            tag_filters: Vec::new(),
+        };
+        let read_res = db.query(read_query.into()).unwrap();
+        debug!("Read Response 1: {:#?}", read_res);
+        assert_eq!(read_res.metadata.n_results, 1);
+        assert_eq!(read_res.data.len(), 1);
+
+        let tags = read_res.data.get("test/a/1").unwrap().tags.clone();
+        assert_eq!(tags.contains(&"user/test_tag".into()), true);
+
     }
 }
