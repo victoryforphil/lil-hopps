@@ -129,10 +129,46 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{Database, QueryCommand, QueryResponse};
 
 <span class="kw">use </span><span class="kw">super</span>::tag_filter::TagFilter;
-<span class="kw">use </span>tracing::info;
+<span class="kw">use </span>tracing::{info, debug};
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>GetLatestQuery{
     <span class="kw">pub </span>topics: Vec&lt;String&gt;,
@@ -169,7 +205,8 @@
 <span class="kw">impl </span>Database{
     <span class="kw">pub fn </span>query_get_latest(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: GetLatestQuery) -&gt; <span class="prelude-ty">Result</span>&lt;QueryResponse, String&gt;{
         <span class="kw">let </span><span class="kw-2">mut </span>response = QueryResponse::default();
-        <span class="kw">let </span>all_bucket_keys = <span class="self">self</span>.buckets.keys();
+
+        <span class="kw">let </span>all_bucket_keys = <span class="self">self</span>.get_keys().into_iter();
         <span class="kw">let </span>matching_keys = all_bucket_keys.filter(|key| {
             <span class="kw">for </span>topic <span class="kw">in </span><span class="kw-2">&amp;</span>query.topics{
                 <span class="kw">if </span>key.starts_with(topic){
@@ -179,8 +216,8 @@
             <span class="bool-val">false
         </span>});
         <span class="kw">for </span>bucket_key <span class="kw">in </span>matching_keys{
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = <span class="self">self</span>.buckets.get(bucket_key){
-                <span class="kw">let </span>data = bucket.get_latest();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = <span class="self">self</span>.buckets.get_mut(<span class="kw-2">&amp;</span>bucket_key){
+                <span class="kw">let </span>data = bucket.get_latest_mut();
                 <span class="kw">if </span>data.is_none(){
                     <span class="kw">continue</span>;
                 }
@@ -193,20 +230,25 @@
                     }
                 }
 
+                <span class="comment">// Check to see if we should ack the data
+                </span><span class="kw">if </span>query.ack_topics.contains(<span class="kw-2">&amp;</span>bucket_key){
+                    <span class="macro">debug!</span>(<span class="string">"Acking data for topic: {}"</span>, <span class="kw-2">&amp;</span>bucket_key);
+                    data.add_tag(<span class="string">"sys/acknowledged"</span>.into());
+                }
+
                 <span class="kw">if </span>passed_filters{
                     response.data.insert(bucket_key.clone(), data.clone());
                     response.metadata.n_results += <span class="number">1</span>;
                 }
             }
         }
-        <span class="macro">println!</span>(<span class="string">"{:#?}"</span>, <span class="kw-2">&amp;</span>response);
         <span class="prelude-val">Ok</span>(response)
     }
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests{
-    <span class="kw">use crate</span>::{Primatives, Timestamp, WriteQuery};
+    <span class="kw">use crate</span>::{Primatives, Tag, Timestamp, WriteQuery};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -255,6 +297,36 @@
         <span class="macro">assert_eq!</span>(read_res.data.len(), <span class="number">3</span>);
 
         <span class="macro">assert_eq!</span>(read_res.data.keys().into_iter().collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>String&gt;&gt;(), <span class="macro">vec!</span>[<span class="string">"test/a/1"</span>, <span class="string">"test/a/2"</span>, <span class="string">"test/a/3"</span>]);
-     
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_write_query_ack(){
+        env_logger::init();
+        <span class="kw">let </span><span class="kw-2">mut </span>db = Database::new();
+        <span class="kw">let </span>query1 = WriteQuery::new(<span class="string">"test/a/1"</span>.into(), <span class="number">1.0</span>.into(), Timestamp::from_seconds(<span class="number">1.0</span>));
+        <span class="kw">let </span>_write_res = db.query_batch(<span class="macro">vec!</span>[query1.into() ]).unwrap();
+
+        <span class="kw">let </span>read_query = GetLatestQuery{
+            topics: <span class="macro">vec!</span>[<span class="string">"test/a/"</span>.into()],
+            ack_topics: <span class="macro">vec!</span>[<span class="string">"test/a/1"</span>.into()],
+            tag_filters: Vec::new(),
+        };
+        <span class="kw">let </span>read_res = db.query(read_query.into()).unwrap();
+        <span class="macro">debug!</span>(<span class="string">"Read Response 1: {:#?}"</span>, read_res);
+        <span class="macro">assert_eq!</span>(read_res.metadata.n_results, <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(read_res.data.len(), <span class="number">1</span>);
+
+        <span class="kw">let </span>data = read_res.data.get(<span class="string">"test/a/1"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(data.tags.contains(<span class="kw-2">&amp;</span><span class="string">"sys/acknowledged"</span>.into()), <span class="bool-val">true</span>);
+
+        <span class="kw">let </span>read_query = GetLatestQuery{
+            topics: <span class="macro">vec!</span>[<span class="string">"test/a/"</span>.into()],
+            ack_topics: Vec::new(),
+            tag_filters: <span class="macro">vec!</span>[TagFilter::new(<span class="string">"sys/acknowledged"</span>.into()).exclude()],
+        };
+    
+        <span class="kw">let </span>read_res = db.query(read_query.into()).unwrap();
+        <span class="macro">debug!</span>(<span class="string">"Read Res after ack: {:#?}"</span>, read_res);
+        <span class="macro">assert_eq!</span>(read_res.metadata.n_results, <span class="number">0</span>);
     }
 }</code></pre></div></section></main></body></html>

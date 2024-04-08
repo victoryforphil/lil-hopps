@@ -39,6 +39,8 @@
 <a href="#37" id="37">37</a>
 <a href="#38" id="38">38</a>
 <a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
 <span class="kw">use crate</span>::{DataPoint, Primatives, Tag, Timestamp};
@@ -76,5 +78,7 @@
         <span class="kw">for </span>tag <span class="kw">in </span><span class="self">self</span>.bucket_tags.iter(){
             data_point.add_tag(tag.clone());
         }
+
+
     }
 }</code></pre></div></section></main></body></html>
