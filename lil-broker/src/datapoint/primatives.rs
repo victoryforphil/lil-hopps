@@ -6,6 +6,7 @@ pub enum Primatives{
     StringArray(Vec<String>),
     NumberArray(Vec<f64>),
     BooleanArray(Vec<bool>),
+    ArrayRef(Vec<String>)
 }
 
 ///Concversion Function from Primative to f64
