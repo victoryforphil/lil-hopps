@@ -13,7 +13,7 @@ mod write;
 pub use tag_filter::*;
 pub use lookup::*;
 pub use lookup_range::*;
-pub use get_latest::*;
+
 pub use write::*;
 #[derive(Debug, Clone)]
 pub enum QueryCommand{
