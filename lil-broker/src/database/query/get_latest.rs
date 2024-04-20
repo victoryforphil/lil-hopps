@@ -100,7 +100,7 @@ impl Database {
 
     pub fn query_get_latest(&mut self, query: GetLatestQuery) -> Result<QueryResponse, String> {
         let mut response = QueryResponse::default();
-
+        debug!("Querying for latest data: {:?}", query);
         let all_bucket_keys = self.get_keys().into_iter();
         let matching_keys = all_bucket_keys.filter(|key| {
             for topic in &query.topics {

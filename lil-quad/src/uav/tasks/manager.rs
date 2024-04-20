@@ -6,7 +6,9 @@ use std::{
 use lil_broker::{DataPoint, Database, QueryCommand, Timestamp, WriteQuery};
 use tracing::{debug, error, info, warn};
 
-use crate::tasks::{TaskResult, TaskSubscription};
+
+
+use crate::uav::TaskSubscription;
 
 use super::{Task, TaskMetadata};
 #[derive(Debug, Clone, PartialEq)]
@@ -165,6 +167,9 @@ impl TaskManager {
                 }
             }
         }
+
+        debug!("Task Database after tick: {:#?}", self.data.buckets.keys());
+
         Ok(())
     }
 }
@@ -173,11 +178,10 @@ impl TaskManager {
 mod tests {
     use lil_broker::{Primatives, WriteQuery};
 
-    use crate::tasks::TaskResult;
+  
+    use crate::uav::TaskResult;
 
     use super::*;
-
-    use std::collections::HashMap;
 
     pub struct TaskA {}
     pub struct TaskB {}
