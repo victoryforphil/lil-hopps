@@ -4,6 +4,7 @@ var srcIndex = new Map(JSON.parse('[\
 ["anstyle",["",[],["color.rs","effect.rs","lib.rs","macros.rs","reset.rs","style.rs"]]],\
 ["anstyle_parse",["",[["state",[],["definitions.rs","mod.rs","table.rs"]]],["lib.rs","params.rs"]]],\
 ["anstyle_query",["",[],["lib.rs","windows.rs"]]],\
+["anyhow",["",[],["backtrace.rs","chain.rs","context.rs","ensure.rs","error.rs","fmt.rs","kind.rs","lib.rs","macros.rs","ptr.rs","wrapper.rs"]]],\
 ["colorchoice",["",[],["lib.rs"]]],\
 ["diff",["",[],["lib.rs"]]],\
 ["env_filter",["",[],["directive.rs","filter.rs","filtered_log.rs","lib.rs","op.rs","parser.rs"]]],\
@@ -11,7 +12,7 @@ var srcIndex = new Map(JSON.parse('[\
 ["humantime",["",[],["date.rs","duration.rs","lib.rs","wrapper.rs"]]],\
 ["lil_broker",["",[["buckets",[],["mod.rs","querying.rs"]],["database",[["query",[],["get_latest.rs","lookup.rs","lookup_range.rs","mod.rs","tag_filter.rs","write.rs"]]],["mod.rs"]],["datapoint",[],["mod.rs","primatives.rs"]],["types",[],["mod.rs","tag.rs","timestamp.rs"]],["utils",[],["mod.rs"]]],["lib.rs"]]],\
 ["lil_helper",["",[],["lib.rs"]]],\
-["lil_quad",["",[],["main.rs"]]],\
+["lil_quad",["",[["tasks",[],["mod.rs"]]],["main.rs"]]],\
 ["lil_sym",["",[],["main.rs"]]],\
 ["log",["",[],["__private_api.rs","lib.rs","macros.rs"]]],\
 ["memchr",["",[["arch",[["all",[["packedpair",[],["default_rank.rs","mod.rs"]]],["memchr.rs","mod.rs","rabinkarp.rs","shiftor.rs","twoway.rs"]],["generic",[],["memchr.rs","mod.rs","packedpair.rs"]],["x86_64",[["avx2",[],["memchr.rs","mod.rs","packedpair.rs"]],["sse2",[],["memchr.rs","mod.rs","packedpair.rs"]]],["memchr.rs","mod.rs"]]],["mod.rs"]],["memmem",[],["mod.rs","searcher.rs"]]],["cow.rs","ext.rs","lib.rs","macros.rs","memchr.rs","vector.rs"]]],\
