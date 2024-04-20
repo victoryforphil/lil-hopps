@@ -1,18 +1,6 @@
-[package]
-name = "lil-hopps"
-version = "0.1.0"
-edition = "2021"
+[workspace]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-eframe = "0.23.0"
-egui = "0.23.0"
-egui_dock = "0.8.2"
-log = "0.4.20"
-egui_plot = "0.23.0"
-nalgebra = "0.32.3"
-rapier3d = "0.17.2"
-simplelog = "0.12.1"
-three-d = "0.16.3"
-polars = {version = "0.35.4", features = ["lazy", "diagonal_concat", "horizontal_concat", "csv"]}
+members = [
+    "lil-broker", "lil-helper", "lil-quad", "lil-sym",
+]
+resolver = "2"
