@@ -5,6 +5,7 @@ var srcIndex = new Map(JSON.parse('[\
 ["anstyle_parse",["",[["state",[],["definitions.rs","mod.rs","table.rs"]]],["lib.rs","params.rs"]]],\
 ["anstyle_query",["",[],["lib.rs","windows.rs"]]],\
 ["colorchoice",["",[],["lib.rs"]]],\
+["diff",["",[],["lib.rs"]]],\
 ["env_filter",["",[],["directive.rs","filter.rs","filtered_log.rs","lib.rs","op.rs","parser.rs"]]],\
 ["env_logger",["",[["fmt",[["writer",[],["buffer.rs","mod.rs","target.rs"]]],["humantime.rs","mod.rs"]]],["lib.rs","logger.rs"]]],\
 ["humantime",["",[],["date.rs","duration.rs","lib.rs","wrapper.rs"]]],\
@@ -16,6 +17,7 @@ var srcIndex = new Map(JSON.parse('[\
 ["memchr",["",[["arch",[["all",[["packedpair",[],["default_rank.rs","mod.rs"]]],["memchr.rs","mod.rs","rabinkarp.rs","shiftor.rs","twoway.rs"]],["generic",[],["memchr.rs","mod.rs","packedpair.rs"]],["x86_64",[["avx2",[],["memchr.rs","mod.rs","packedpair.rs"]],["sse2",[],["memchr.rs","mod.rs","packedpair.rs"]]],["memchr.rs","mod.rs"]]],["mod.rs"]],["memmem",[],["mod.rs","searcher.rs"]]],["cow.rs","ext.rs","lib.rs","macros.rs","memchr.rs","vector.rs"]]],\
 ["once_cell",["",[],["imp_std.rs","lib.rs","race.rs"]]],\
 ["pin_project_lite",["",[],["lib.rs"]]],\
+["pretty_assertions",["",[],["lib.rs","printer.rs"]]],\
 ["proc_macro2",["",[],["detection.rs","extra.rs","fallback.rs","lib.rs","marker.rs","parse.rs","rcvec.rs","wrapper.rs"]]],\
 ["quote",["",[],["ext.rs","format.rs","ident_fragment.rs","lib.rs","runtime.rs","spanned.rs","to_tokens.rs"]]],\
 ["regex",["",[["regex",[],["bytes.rs","mod.rs","string.rs"]],["regexset",[],["bytes.rs","mod.rs","string.rs"]]],["builders.rs","bytes.rs","error.rs","find_byte.rs","lib.rs"]]],\
@@ -28,6 +30,7 @@ var srcIndex = new Map(JSON.parse('[\
 ["tracing_attributes",["",[],["attr.rs","expand.rs","lib.rs"]]],\
 ["tracing_core",["",[],["callsite.rs","dispatcher.rs","event.rs","field.rs","lazy.rs","lib.rs","metadata.rs","parent.rs","span.rs","stdlib.rs","subscriber.rs"]]],\
 ["unicode_ident",["",[],["lib.rs","tables.rs"]]],\
-["utf8parse",["",[],["lib.rs","types.rs"]]]\
+["utf8parse",["",[],["lib.rs","types.rs"]]],\
+["yansi",["",[],["color.rs","lib.rs","macros.rs","paint.rs","style.rs","windows.rs"]]]\
 ]'));
 createSrcSidebar();
