@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::DataPoint;
 
-use self::get_latest::GetLatestQuery;
+
 
 mod tag_filter;
 mod lookup;
@@ -13,6 +13,7 @@ mod write;
 pub use tag_filter::*;
 pub use lookup::*;
 pub use lookup_range::*;
+pub use get_latest::*;
 
 pub use write::*;
 #[derive(Debug, Clone)]

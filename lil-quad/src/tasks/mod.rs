@@ -1,11 +1,55 @@
+mod manager;
+pub use manager::*;
+
 use std::{any, collections::BTreeMap};
 
-use lil_broker::{DataPoint, Timestamp, WriteQuery};
-
+use lil_broker::{DataPoint, GetLatestQuery, Timestamp};
+#[derive(Debug, Clone, PartialEq)]
 pub struct TaskMetadata {
     pub name: String,
-    pub subscriptions: Vec<String>,
+    pub subscriptions: Vec<TaskSubscription>,
     pub refresh_rate: Timestamp,
+}
+#[derive(Debug, Clone, PartialEq)]
+pub struct TaskSubscription{
+    pub name: String,
+    pub ack: bool,
+}
+
+impl TaskSubscription{
+    pub fn new(name: String) -> TaskSubscription{
+        TaskSubscription{
+            name,
+            ack: false,
+        }
+    }
+
+    pub fn with_ack(mut self, ack: bool) -> TaskSubscription{
+        self.ack = ack;
+        self
+    }
+
+    pub fn generate_latest_query(subs: &Vec<TaskSubscription>) -> GetLatestQuery{
+        let topics = subs.iter().map(|sub| sub.name.clone()).collect();
+        let acks = subs.iter().filter(|sub| sub.ack).map(|sub| sub.name.clone()).collect();
+        GetLatestQuery{
+            topics,
+            ack_topics: acks,
+            tag_filters: Vec::new(),
+        }
+    }
+}
+
+impl From<String> for TaskSubscription{
+    fn from(name: String) -> Self{
+        TaskSubscription::new(name)
+    }
+}
+
+impl From<&str> for TaskSubscription{
+    fn from(name: &str) -> Self{
+        TaskSubscription::new(name.into())
+    }
 }
 
 impl TaskMetadata {
@@ -16,12 +60,12 @@ impl TaskMetadata {
         }
     }
 
-    pub fn with_subscription(mut self, subscription: String) -> TaskMetadata {
+    pub fn with_subscription(mut self, subscription: TaskSubscription) -> TaskMetadata {
         self.subscriptions.push(subscription);
         self
     }
 
-    pub fn with_subscriptions(mut self, subscriptions: Vec<String>) -> TaskMetadata {
+    pub fn with_subscriptions(mut self, subscriptions: Vec<TaskSubscription>) -> TaskMetadata {
         self.subscriptions.extend(subscriptions);
         self
     }
@@ -48,7 +92,7 @@ impl Default for TaskMetadata {
 }
 
 pub struct TaskResult {
-    pub data: BTreeMap<String, Vec<DataPoint>>,
+    pub data: BTreeMap<String, DataPoint>,
     pub execution_time: Timestamp,
 }
 
@@ -57,7 +101,7 @@ pub trait Task {
     fn run(
         &mut self,
         t: &Timestamp,
-        inputs: BTreeMap<String, DataPoint>,
+        inputs: &BTreeMap<String, DataPoint>,
     ) -> Result<TaskResult, anyhow::Error>;
 }
 
@@ -82,7 +126,7 @@ impl Task for MockTask {
     fn run(
         &mut self,
         t: &Timestamp,
-        inputs: BTreeMap<String, DataPoint>,
+        inputs: &BTreeMap<String, DataPoint>,
     ) -> Result<TaskResult, anyhow::Error> {
         let mut result = TaskResult {
             data: BTreeMap::new(),
@@ -100,7 +144,7 @@ impl Task for MockTask {
             DataPoint::new(t.clone(), lil_broker::Primatives::String(debug_message));
         result
             .data
-            .insert("/debug/0".into(), vec![debug_message_dp]);
+            .insert("/debug/0".into(), debug_message_dp);
         Ok(result)
     }
 }
@@ -114,7 +158,7 @@ mod test {
         let metadata = MockTask {}.metadata();
         assert_eq!(metadata.name, "Mock Task");
         assert_eq!(metadata.subscriptions.len(), 1);
-        assert_eq!(metadata.subscriptions[0], "/topic/0");
+        assert_eq!(metadata.subscriptions[0], "/topic/0".into());
         assert_eq!(metadata.refresh_rate, Timestamp::from_hz(100.0 as f32));
     }
 
@@ -127,14 +171,13 @@ mod test {
             map.insert("/topic/0".into(), DataPoint::new(t, 5.0.into()));
             map
         };
-        let result = task.run(&t, inputs).unwrap();
+        let result = task.run(&t, &inputs).unwrap();
 
         assert_eq!(result.data.len(), 1);
         assert_eq!(result.execution_time, Timestamp::zero());
 
         let debug_messages = result.data.get("/debug/0").unwrap();
-        assert_eq!(debug_messages.len(), 1);
-        let debug_message = &debug_messages[0];
+        let debug_message = &debug_messages;
         assert_eq!(debug_message.data, lil_broker::Primatives::String("topic_0=5".to_string()));
     }
 }

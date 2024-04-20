@@ -16,6 +16,17 @@ impl From<GetLatestQuery> for QueryCommand {
     }
 }
 
+impl From<Vec<String>> for GetLatestQuery {
+    fn from(topics: Vec<String>) -> GetLatestQuery {
+        GetLatestQuery {
+            topics,
+            ack_topics: Vec::new(),
+            tag_filters: Vec::new(),
+        }
+    }
+}
+
+
 impl From<QueryCommand> for GetLatestQuery {
     fn from(command: QueryCommand) -> GetLatestQuery {
         match command {
