@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"mod":["tasks"]};
+window.SIDEBAR_ITEMS = {"mod":["uav"]};

@@ -289,6 +289,17 @@
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
 <a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{Database, QueryCommand, QueryResponse};
 
 <span class="kw">use </span><span class="kw">super</span>::tag_filter::TagFilter;
@@ -306,6 +317,17 @@
         QueryCommand::GetLatest(query)
     }
 }
+
+<span class="kw">impl </span>From&lt;Vec&lt;String&gt;&gt; <span class="kw">for </span>GetLatestQuery {
+    <span class="kw">fn </span>from(topics: Vec&lt;String&gt;) -&gt; GetLatestQuery {
+        GetLatestQuery {
+            topics,
+            ack_topics: Vec::new(),
+            tag_filters: Vec::new(),
+        }
+    }
+}
+
 
 <span class="kw">impl </span>From&lt;QueryCommand&gt; <span class="kw">for </span>GetLatestQuery {
     <span class="kw">fn </span>from(command: QueryCommand) -&gt; GetLatestQuery {
@@ -380,7 +402,7 @@
 
     <span class="kw">pub fn </span>query_get_latest(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: GetLatestQuery) -&gt; <span class="prelude-ty">Result</span>&lt;QueryResponse, String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>response = QueryResponse::default();
-
+        <span class="macro">debug!</span>(<span class="string">"Querying for latest data: {:?}"</span>, query);
         <span class="kw">let </span>all_bucket_keys = <span class="self">self</span>.get_keys().into_iter();
         <span class="kw">let </span>matching_keys = all_bucket_keys.filter(|key| {
             <span class="kw">for </span>topic <span class="kw">in </span><span class="kw-2">&amp;</span>query.topics {

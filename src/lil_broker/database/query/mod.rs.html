@@ -52,11 +52,12 @@
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="kw">use </span><span class="kw">crate</span>::DataPoint;
 
-<span class="kw">use </span><span class="self">self</span>::get_latest::GetLatestQuery;
+
 
 <span class="kw">mod </span>tag_filter;
 <span class="kw">mod </span>lookup;
@@ -67,6 +68,7 @@
 <span class="kw">pub use </span>tag_filter::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>lookup::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>lookup_range::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>get_latest::<span class="kw-2">*</span>;
 
 <span class="kw">pub use </span>write::<span class="kw-2">*</span>;
 <span class="attr">#[derive(Debug, Clone)]
