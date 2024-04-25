@@ -14,7 +14,7 @@ impl EchoTask {
 
 impl Task for EchoTask {
     fn metadata(&self) -> TaskMetadata {
-        TaskMetadata::new("Echo Task".to_string())
+        TaskMetadata::new("EchoTask".to_string())
             .with_subscriptions(
                 self.echo_topics
                     .iter()
@@ -50,7 +50,7 @@ mod test {
         let echo_topics = vec!["/topic/0".to_string(), "/topic/1".to_string()];
         let task = EchoTask::new(echo_topics);
         let metadata = task.metadata();
-        assert_eq!(metadata.name, "Echo Task");
+        assert_eq!(metadata.name, "EchoTask");
         assert_eq!(metadata.subscriptions.len(), 2);
         assert_eq!(metadata.subscriptions[0].name, "/topic/0".to_string());
         assert_eq!(metadata.subscriptions[1].name, "/topic/1".to_string());

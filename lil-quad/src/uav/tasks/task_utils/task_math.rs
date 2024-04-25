@@ -20,7 +20,7 @@ impl MathTask {
 
 impl Task for MathTask {
     fn metadata(&self) -> TaskMetadata {
-        TaskMetadata::new("Math Task".to_string())
+        TaskMetadata::new("MathTask".to_string())
             .with_subscriptions(vec![
                 self.topic_a.clone(),
                 self.topic_b.clone(),
@@ -79,7 +79,7 @@ mod test {
     fn test_math_task_metadata() {
         let task = MathTask::new("/math/0".into(), "/math/1".into());
         let metadata = task.metadata();
-        assert_eq!(metadata.name, "Math Task");
+        assert_eq!(metadata.name, "MathTask");
         assert_eq!(metadata.subscriptions.len(), 3);
         assert_eq!(metadata.subscriptions[0].name, "/math/0".to_string());
         assert_eq!(metadata.subscriptions[1].name, "/math/1".to_string());
