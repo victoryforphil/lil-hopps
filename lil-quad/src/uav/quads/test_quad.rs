@@ -1,15 +1,16 @@
-use std::{sync::{Arc, Mutex}, vec};
+use std::{
+    sync::{Arc, Mutex},
+    vec,
+};
 
 use lil_broker::{Primatives, Timestamp, WriteQuery};
 
 use crate::uav::{EchoTask, MathTask, TaskHandle, TaskSubscription, UAVRuntime};
 
+pub struct TestQuadRuntime {}
 
-
-pub struct TestQuadRuntime{}
-
-impl UAVRuntime for TestQuadRuntime{
-    fn get_tasks(&self) -> Vec<TaskHandle>{
+impl UAVRuntime for TestQuadRuntime {
+    fn get_tasks(&self) -> Vec<TaskHandle> {
         let mut tasks: Vec<TaskHandle> = Vec::new();
 
         // Task layout:
@@ -41,32 +42,50 @@ impl UAVRuntime for TestQuadRuntime{
 
         tasks
     }
-    
-    fn inital_state(&mut self, db: &mut lil_broker::Database) {
-       // Initialize the database with some data
-       let queries = vec![
-           WriteQuery::new("/math/0".to_string(), Primatives::Number(10.0), Timestamp::zero()).into(),
-          WriteQuery::new("/math/1".to_string(), Primatives::Number(20.0), Timestamp::zero()).into(),
-          WriteQuery::new("/math/operation".to_string(), Primatives::String("+".to_string()), Timestamp::zero()).into(),
-       ];
 
-       db.query_batch(queries).unwrap();
+    fn inital_state(&mut self, db: &mut lil_broker::Database) {
+        // Initialize the database with some data
+        let queries = vec![
+            WriteQuery::new(
+                "/math/0".to_string(),
+                Primatives::Number(10.0),
+                Timestamp::zero(),
+            )
+            .into(),
+            WriteQuery::new(
+                "/math/1".to_string(),
+                Primatives::Number(20.0),
+                Timestamp::zero(),
+            )
+            .into(),
+            WriteQuery::new(
+                "/math/operation".to_string(),
+                Primatives::String("+".to_string()),
+                Timestamp::zero(),
+            )
+            .into(),
+        ];
+
+        db.query_batch(queries).unwrap();
+    }
+
+    fn get_active_tasks(&self) -> Vec<String> {
+        vec!["MathTask".to_string(), "EchoTask".to_string()]
     }
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_test_quad_runtime(){
+    fn test_test_quad_runtime() {
         let mut db = lil_broker::Database::new();
-        let mut runtime = TestQuadRuntime{};
+        let mut runtime = TestQuadRuntime {};
         runtime.inital_state(&mut db);
 
         let tasks = runtime.get_tasks();
         assert_eq!(tasks.len(), 2);
     }
 }
-

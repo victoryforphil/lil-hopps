@@ -6,8 +6,6 @@ use std::{
 use lil_broker::{DataPoint, Database, QueryCommand, Timestamp, WriteQuery};
 use tracing::{debug, error, info, warn};
 
-
-
 use crate::uav::TaskSubscription;
 
 use super::{Task, TaskMetadata};
@@ -67,6 +65,7 @@ impl TaskEntry {
 pub struct TaskManager {
     pub data: Database,
     pub tasks: Vec<TaskEntry>, // State tracking
+    pub active_tasks: Vec<String>,
 }
 
 impl TaskManager {
@@ -74,6 +73,7 @@ impl TaskManager {
         TaskManager {
             tasks: Vec::new(),
             data: Database::new(),
+            active_tasks: Vec::new(),
         }
     }
     pub fn add_task(&mut self, task: TaskHandle) {
@@ -84,6 +84,13 @@ impl TaskManager {
             info!("  Sub: {:?}", sub);
         }
         self.tasks.push(task);
+    }
+    pub fn activate_all_tasks(&mut self) {
+        let tasks: Vec<String> = self.tasks.iter().map(|t| t.name.clone()).collect();
+        self.active_tasks = tasks;
+    }
+    pub fn set_active_tasks(&mut self, tasks: Vec<String>) {
+        self.active_tasks = tasks;
     }
 
     pub fn get_task_entry(&self, name: &str) -> Option<&TaskEntry> {
@@ -106,7 +113,9 @@ impl TaskManager {
         info!("TaskManager tick: {:?}", timestamp);
         for task in self.tasks.iter_mut() {
             // Get the metadat for the task
-
+            if !self.active_tasks.contains(&task.metadata.name) {
+                continue;
+            }
             let metadata = &task.metadata;
             let state = &mut task.state;
             if timestamp.tick_ms > 0 {
@@ -178,7 +187,6 @@ impl TaskManager {
 mod tests {
     use lil_broker::{Primatives, WriteQuery};
 
-  
     use crate::uav::TaskResult;
 
     use super::*;
@@ -256,6 +264,7 @@ mod tests {
 
         task_manager.add_task(task_a);
         task_manager.add_task(task_b);
+        task_manager.activate_all_tasks();
 
         let mut db: Database = Database::new();
         let queries = vec![
@@ -279,7 +288,7 @@ mod tests {
             .data
             .query_get_latest(vec!["a/output".to_string()].into())
             .unwrap();
-        
+
         let a_out = result_a.data.get("a/output").unwrap();
         assert_eq!(a_out[0].data, Primatives::Number(4.0));
 
@@ -291,7 +300,5 @@ mod tests {
         let b_out = result_b.data.get("b/output").unwrap();
 
         assert_eq!(b_out[0].data, Primatives::Number(12.0));
-        
     }
-
 }

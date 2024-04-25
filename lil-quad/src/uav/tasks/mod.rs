@@ -13,28 +13,29 @@ pub struct TaskMetadata {
     pub refresh_rate: Timestamp,
 }
 #[derive(Debug, Clone, PartialEq)]
-pub struct TaskSubscription{
+pub struct TaskSubscription {
     pub name: String,
     pub ack: bool,
 }
 
-impl TaskSubscription{
-    pub fn new(name: String) -> TaskSubscription{
-        TaskSubscription{
-            name,
-            ack: false,
-        }
+impl TaskSubscription {
+    pub fn new(name: String) -> TaskSubscription {
+        TaskSubscription { name, ack: false }
     }
 
-    pub fn with_ack(mut self, ack: bool) -> TaskSubscription{
+    pub fn with_ack(mut self, ack: bool) -> TaskSubscription {
         self.ack = ack;
         self
     }
 
-    pub fn generate_latest_query(subs: &Vec<TaskSubscription>) -> GetLatestQuery{
+    pub fn generate_latest_query(subs: &Vec<TaskSubscription>) -> GetLatestQuery {
         let topics = subs.iter().map(|sub| sub.name.clone()).collect();
-        let acks = subs.iter().filter(|sub| sub.ack).map(|sub| sub.name.clone()).collect();
-        GetLatestQuery{
+        let acks = subs
+            .iter()
+            .filter(|sub| sub.ack)
+            .map(|sub| sub.name.clone())
+            .collect();
+        GetLatestQuery {
             topics,
             ack_topics: acks,
             tag_filters: Vec::new(),
@@ -42,14 +43,14 @@ impl TaskSubscription{
     }
 }
 
-impl From<String> for TaskSubscription{
-    fn from(name: String) -> Self{
+impl From<String> for TaskSubscription {
+    fn from(name: String) -> Self {
         TaskSubscription::new(name)
     }
 }
 
-impl From<&str> for TaskSubscription{
-    fn from(name: &str) -> Self{
+impl From<&str> for TaskSubscription {
+    fn from(name: &str) -> Self {
         TaskSubscription::new(name.into())
     }
 }
@@ -144,9 +145,7 @@ impl Task for MockTask {
         let debug_message = format!("topic_0={}", topic0_value);
         let debug_message_dp =
             DataPoint::new(t.clone(), lil_broker::Primatives::String(debug_message));
-        result
-            .data
-            .insert("/debug/0".into(), debug_message_dp);
+        result.data.insert("/debug/0".into(), debug_message_dp);
         Ok(result)
     }
 }
@@ -180,6 +179,9 @@ mod test {
 
         let debug_messages = result.data.get("/debug/0").unwrap();
         let debug_message = &debug_messages;
-        assert_eq!(debug_message.data, lil_broker::Primatives::String("topic_0=5".to_string()));
+        assert_eq!(
+            debug_message.data,
+            lil_broker::Primatives::String("topic_0=5".to_string())
+        );
     }
 }
