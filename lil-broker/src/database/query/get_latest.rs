@@ -1,7 +1,7 @@
 use crate::{Database, QueryCommand, QueryResponse};
 
 use super::tag_filter::TagFilter;
-use tracing::{debug, info};
+use tracing::{debug};
 #[derive(Debug, Clone)]
 pub struct GetLatestQuery {
     pub topics: Vec<String>,
@@ -126,6 +126,8 @@ mod tests {
     use crate::{Primatives, Tag, Timestamp, WriteQuery};
     use pretty_assertions::{assert_eq, assert_ne};
     use serde_json::json;
+    use crate::{Primatives, Timestamp, WriteQuery};
+    use pretty_assertions::{assert_eq};
 
     use super::*;
 

@@ -4,7 +4,7 @@ use std::{
 };
 
 use lil_broker::{DataPoint, Database, QueryCommand, Timestamp, WriteQuery};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 
 use crate::uav::TaskSubscription;
 
@@ -107,8 +107,13 @@ impl TaskManager {
             .map(|t| &mut t.task)
     }
 
-    pub fn tick(&mut self, timestamp: &Timestamp, database: &mut Database) -> Result<(), anyhow::Error> {
+    pub fn tick(
+        &mut self,
+        timestamp: &Timestamp,
+        database: Arc<Mutex<Database>>,
+    ) -> Result<(), anyhow::Error> {
         info!("TaskManager tick: {:?}", timestamp);
+        let mut db = database.lock().unwrap();
         for task in self.tasks.iter_mut() {
             // Get the metadat for the task
             if !self.active_tasks.contains(&task.metadata.name) {
@@ -130,7 +135,7 @@ impl TaskManager {
             let subscriptions = &metadata.subscriptions;
             let query = TaskSubscription::generate_latest_query(subscriptions);
 
-            let data = database.query_get_latest(query);
+            let data = db.query_get_latest(query);
 
             let data = match data {
                 Ok(data) => data,
@@ -167,7 +172,7 @@ impl TaskManager {
                         metadata.name,
                         write_queries.len()
                     );
-                    let _write_result = database.query_batch(write_queries);
+                    let _write_result = db.query_batch(write_queries);
                 }
                 Err(err) => {
                     error!("Task {} failed: {:?} ", metadata.name, err);
@@ -175,7 +180,7 @@ impl TaskManager {
             }
         }
 
-        debug!("Task Database after tick: {:#?}", database.buckets.keys());
+        debug!("Task Database after tick: {:#?}", db.buckets.keys());
 
         Ok(())
     }
@@ -264,37 +269,43 @@ mod tests {
         task_manager.add_task(task_b);
         task_manager.activate_all_tasks();
 
-        let mut db: Database = Database::new();
+        let db_arc = Arc::new(Mutex::new(Database::new()));
+
         let queries = vec![
             WriteQuery::new("a/input".into(), Primatives::Number(2.0), Timestamp::new(0)).into(),
             WriteQuery::new("b/input".into(), Primatives::Number(4.0), Timestamp::new(0)).into(),
         ];
-        db.query_batch(queries).expect("Failed to write queries");
-
-      
+        {
+            let mut db = db_arc.lock().unwrap();
+            db.query_batch(queries).expect("Failed to write queries");
+        }
 
         let timestamp = Timestamp::from_seconds(0.0);
 
         let max_t = Timestamp::from_seconds(1.0);
         let mut t = timestamp.clone();
+
         while t < max_t {
-            task_manager.tick(&t, &mut db);
+            let arc = db_arc.clone();
+            task_manager.tick(&t, arc).unwrap();
             t = t + Timestamp::from_seconds(1.0);
         }
+        {
+            let mut db = db_arc.lock().unwrap();
+            let result_a = db
+                .query_get_latest(vec!["a/output".to_string()].into())
+                .unwrap();
 
-        let result_a = db
-            .query_get_latest(vec!["a/output".to_string()].into())
-            .unwrap();
+            let a_out = result_a.data.get("a/output").unwrap();
+            assert_eq!(a_out[0].data, Primatives::Number(4.0));
 
-        let a_out = result_a.data.get("a/output").unwrap();
-        assert_eq!(a_out[0].data, Primatives::Number(4.0));
+            let result_b = db
+                .query_get_latest(vec!["b/output".to_string()].into())
+                .unwrap();
 
-        let result_b = db
-            .query_get_latest(vec!["b/output".to_string()].into())
-            .unwrap();
+            let b_out = result_b.data.get("b/output").unwrap();
 
-        let b_out = result_b.data.get("b/output").unwrap();
-
-        assert_eq!(b_out[0].data, Primatives::Number(12.0));
+            assert_eq!(b_out[0].data, Primatives::Number(12.0));
+        }
     }
 }

@@ -38,7 +38,7 @@ impl DataPoint {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::Tag;
+    
 
     #[test]
     fn test_datapoint_new() {

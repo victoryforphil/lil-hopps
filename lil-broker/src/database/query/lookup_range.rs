@@ -100,6 +100,7 @@ mod tests {
     use tracing::info;
 
     use crate::{Primatives, Tag, Timestamp, WriteQuery};
+    use crate::{Timestamp, WriteQuery};
 
     use super::*;
 

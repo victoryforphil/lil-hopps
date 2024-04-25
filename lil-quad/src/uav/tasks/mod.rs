@@ -3,7 +3,7 @@ mod task_utils;
 pub use manager::*;
 pub use task_utils::*;
 
-use std::{any, collections::BTreeMap};
+use std::{collections::BTreeMap};
 
 use lil_broker::{DataPoint, GetLatestQuery, Timestamp};
 #[derive(Debug, Clone, PartialEq)]

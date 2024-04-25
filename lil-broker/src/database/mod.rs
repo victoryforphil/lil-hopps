@@ -1,7 +1,7 @@
 mod query;
 pub use query::*;
 use std::collections::BTreeMap;
-use tracing::{debug, error, info};
+use tracing::{error, info};
 
 use crate::{Bucket, Tag};
 
