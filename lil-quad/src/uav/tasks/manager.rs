@@ -63,7 +63,6 @@ impl TaskEntry {
     }
 }
 pub struct TaskManager {
-    pub data: Database,
     pub tasks: Vec<TaskEntry>, // State tracking
     pub active_tasks: Vec<String>,
 }
@@ -72,7 +71,6 @@ impl TaskManager {
     pub fn new() -> Self {
         TaskManager {
             tasks: Vec::new(),
-            data: Database::new(),
             active_tasks: Vec::new(),
         }
     }
@@ -109,7 +107,7 @@ impl TaskManager {
             .map(|t| &mut t.task)
     }
 
-    pub fn tick(&mut self, timestamp: &Timestamp) -> Result<(), anyhow::Error> {
+    pub fn tick(&mut self, timestamp: &Timestamp, database: &mut Database) -> Result<(), anyhow::Error> {
         info!("TaskManager tick: {:?}", timestamp);
         for task in self.tasks.iter_mut() {
             // Get the metadat for the task
@@ -132,7 +130,7 @@ impl TaskManager {
             let subscriptions = &metadata.subscriptions;
             let query = TaskSubscription::generate_latest_query(subscriptions);
 
-            let data = self.data.query_get_latest(query);
+            let data = database.query_get_latest(query);
 
             let data = match data {
                 Ok(data) => data,
@@ -159,8 +157,8 @@ impl TaskManager {
                     let write_data = result.data;
                     let mut write_queries: Vec<QueryCommand> = vec![];
 
-                    for (topic, data) in write_data {
-                        let query = WriteQuery::new(topic, data.data, timestamp.clone());
+                    for (topic, dp) in write_data {
+                        let query = WriteQuery::new(topic, dp.data, timestamp.clone());
                         write_queries.push(query.into());
                     }
 
@@ -169,7 +167,7 @@ impl TaskManager {
                         metadata.name,
                         write_queries.len()
                     );
-                    let _write_result = self.data.query_batch(write_queries);
+                    let _write_result = database.query_batch(write_queries);
                 }
                 Err(err) => {
                     error!("Task {} failed: {:?} ", metadata.name, err);
@@ -177,7 +175,7 @@ impl TaskManager {
             }
         }
 
-        debug!("Task Database after tick: {:#?}", self.data.buckets.keys());
+        debug!("Task Database after tick: {:#?}", database.buckets.keys());
 
         Ok(())
     }
@@ -273,27 +271,25 @@ mod tests {
         ];
         db.query_batch(queries).expect("Failed to write queries");
 
-        task_manager.data = db;
+      
 
         let timestamp = Timestamp::from_seconds(0.0);
 
         let max_t = Timestamp::from_seconds(1.0);
         let mut t = timestamp.clone();
         while t < max_t {
-            task_manager.tick(&t);
+            task_manager.tick(&t, &mut db);
             t = t + Timestamp::from_seconds(1.0);
         }
 
-        let result_a = task_manager
-            .data
+        let result_a = db
             .query_get_latest(vec!["a/output".to_string()].into())
             .unwrap();
 
         let a_out = result_a.data.get("a/output").unwrap();
         assert_eq!(a_out[0].data, Primatives::Number(4.0));
 
-        let result_b = task_manager
-            .data
+        let result_b = db
             .query_get_latest(vec!["b/output".to_string()].into())
             .unwrap();
 

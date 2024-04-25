@@ -12,6 +12,7 @@ use self::{act::ActHardware, sense::SenseHardware};
 
 pub struct UAV {
     tasker: TaskManager,
+    pub data: Database,
     runtime: Arc<Mutex<dyn UAVRuntime>>,
 }
 
@@ -25,20 +26,22 @@ impl UAV {
     pub fn new(runtime_arc: Arc<Mutex<dyn UAVRuntime>>) -> Self {
         let mut task_manager = TaskManager::new();
         let mut runtime = runtime_arc.lock().unwrap();
+        let mut data =  Database::new();
         for task in runtime.get_tasks() {
             task_manager.add_task(task);
         }
-        runtime.inital_state(&mut task_manager.data);
+        runtime.inital_state(&mut data);
         UAV {
             tasker: task_manager,
             runtime: runtime_arc.clone(),
+            data: data
         }
     }
 
     pub fn tick(&mut self, timestamp: &Timestamp) -> Result<(), anyhow::Error> {
         let active_task = self.runtime.lock().unwrap().get_active_tasks();
         self.tasker.active_tasks = active_task;
-        self.tasker.tick(timestamp)
+        self.tasker.tick(timestamp, &mut self.data)
     }
 }
 
@@ -60,7 +63,6 @@ mod tests {
 
         // Check /math/output/echo for the result
         let dp = uav
-            .tasker
             .data
             .query_get_latest(vec!["/math/output/echo".to_string()].into())
             .unwrap();
