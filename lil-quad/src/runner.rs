@@ -10,10 +10,18 @@ pub struct RunnerOptions{
     pub max_time: Timestamp,
 }
 
-pub struct RunnerCommand{}
-
+pub enum RunnerCommand{
+    Start
+}
+#[derive(Clone, Debug, PartialEq)]
+pub enum RunnerStatus{
+    Idle,
+    Running,
+    Finished
+}
 
 pub struct RunnerState{
+    pub status: RunnerStatus,
     pub time: Timestamp,
 }
 pub struct RunnerChannels{
@@ -49,18 +57,23 @@ impl Runner{
         let channels = RunnerChannels::new(&uav);
         Runner{
             uav,
-            state: RunnerState{time: Timestamp::zero()},
+            state: RunnerState{time: Timestamp::zero(), status: RunnerStatus::Idle},
             channels: channels,
             options: opts,
         }
     }
 
-    pub fn run(&mut self, options: RunnerOptions) -> Result<(), anyhow::Error>{
-        let mut time = Timestamp::zero();
-        while time < options.max_time{
-            self.uav.tick(&options.dt)?;
-            time =  time + options.dt;
+    pub fn start_thread(&mut self, options: RunnerOptions){
+        self.state.status = RunnerStatus::Running;
+
+        while self.state.status == RunnerStatus::Running{
+            let runner_state = &self.state.status.clone();
+
+            
         }
-        Ok(())
+    }
+
+    pub fn step(&mut self, runner_tate: &RunnerState){
+        
     }
 }
