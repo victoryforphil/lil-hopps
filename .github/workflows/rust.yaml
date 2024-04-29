@@ -43,18 +43,18 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: taiki-e/install-action@nextest
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        run: rustup update stable
-      - name: Build docs
-        run: cargo doc --verbose --all-features --workspace
-      - name: Deploy docs
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./target/doc
+#  docs:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: taiki-e/install-action@nextest
+#      - uses: actions/checkout@v4
+#      - name: Install Rust
+#        run: rustup update stable
+#      - name: Build docs
+#        run: cargo doc --verbose --all-features --workspace
+#      - name: Deploy docs
+#        uses: peaceiris/actions-gh-pages@v3
+#        with:
+#            github_token: ${{ secrets.GITHUB_TOKEN }}
+#            publish_dir: ./target/doc
