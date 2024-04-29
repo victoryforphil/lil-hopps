@@ -2,6 +2,8 @@ name: Rust
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 env:
   CARGO_TERM_COLOR: always
@@ -28,7 +30,6 @@ jobs:
       - name: Install Rust
         run: |
           rustup update nightly 
-          cargo +nightly llvm-cov
       - name: Install cargo-llvm-cov
         run: rustup component add llvm-tools-preview --toolchain nightly
       - uses: taiki-e/install-action@cargo-llvm-cov
@@ -37,7 +38,7 @@ jobs:
         run: |
           cargo llvm-cov --no-report nextest --ignore-filename-regex calloop-0.10.6/*
           cargo llvm-cov --no-report --doc  --ignore-filename-regex calloop-0.10.6/*
-          cargo llvm-cov report --doctests --lcov --output-path lcov.info  --ignore-filename-regex calloop-0.10.6/*
+          cargo llvm-cov report --lcov --output-path lcov.info  --ignore-filename-regex calloop-0.10.6/*
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         with:
