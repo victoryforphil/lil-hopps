@@ -3,9 +3,10 @@ pub use query::*;
 use std::collections::BTreeMap;
 use tracing::{error, info};
 
-use crate::{Bucket, Tag};
+use crate::{Bucket, Primatives, Tag, Timestamp};
 
 pub struct Database {
+    pub current_t: Option<Timestamp>,
     pub buckets: BTreeMap<String, Bucket>,
 }
 
@@ -13,8 +14,14 @@ impl Database {
     pub fn new() -> Database {
         Database {
             buckets: BTreeMap::new(),
+            current_t: None,
         }
     }
+
+    pub fn set_time(&mut self, time: Timestamp) {
+        self.current_t = Some(time);
+    }
+
     pub fn get_keys(&self) -> Vec<String> {
         self.buckets.keys().cloned().collect()
     }
@@ -25,6 +32,12 @@ impl Database {
             QueryCommand::LookupRange(query) => self.query_lookup_range(query),
             _ => Err("Query not implemented".to_string()),
         }
+    }
+
+
+    pub fn quick_write(&mut self, topic: &str, data: Primatives) ->  Result<QueryResponse, String> {
+        let query = WriteQuery::new(topic.to_string(), data, self.current_t.unwrap());
+        self.query_write(query)
     }
 
     pub fn add_tag_to_bucket(&mut self, bucket_name: &str, tag: Tag) {

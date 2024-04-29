@@ -18,6 +18,13 @@ pub struct WorldActor{
     pub floor: ColliderHandle
 }
 
+impl WorldActor{
+    pub fn new() -> WorldActor{
+        WorldActor{
+            floor: ColliderHandle::invalid()
+        }
+    }
+}
 
 impl SimActor<WorldActorResult> for WorldActor{
     fn init(&mut self, context: crate::SimContextHandle, last_state: &crate::SimulationState) -> Result<WorldActorResult, anyhow::Error> {

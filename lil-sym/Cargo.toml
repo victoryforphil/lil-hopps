@@ -10,4 +10,7 @@ anyhow = "1.0.82"
 nalgebra = "0.32.5"
 rapier3d = "0.18.0"
 lil-broker = { path = "../lil-broker" }
+lil-helper = { path = "../lil-helper" }
+lil-quad = { path = "../lil-quad" }
+tracing = { version = "0.1.40", features = ["log", "log-always"] }
 [lib]

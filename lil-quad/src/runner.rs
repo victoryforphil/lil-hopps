@@ -4,6 +4,7 @@ use lil_broker::{Database, Timestamp};
 
 use crate::uav::UAV;
 
+pub type UAVRunnerHandle = Arc<Mutex<Runner>>;
 
 pub struct RunnerOptions{
     pub dt: Timestamp,

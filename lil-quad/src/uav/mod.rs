@@ -1,25 +1,20 @@
 mod hardware;
 mod quads;
 mod tasks;
+mod runtime;
 use std::sync::{Arc, Mutex};
 
 
 use lil_broker::{Database, Timestamp};
 
 pub use tasks::*;
-
+pub use runtime::*;
 
 
 pub struct UAV {
     tasker: TaskManager,
     pub data: Arc<Mutex<Database>>,
     runtime: Arc<Mutex<dyn UAVRuntime>>,
-}
-
-pub trait UAVRuntime {
-    fn get_tasks(&self) -> Vec<TaskHandle>;
-    fn get_active_tasks(&self) -> Vec<String>;
-    fn inital_state(&mut self, db: &mut Database);
 }
 
 impl UAV {

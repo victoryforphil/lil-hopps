@@ -1,0 +1,84 @@
+mod config;
+mod detached;
+mod state;
+use std::sync::mpsc::Sender;
+
+pub use config::*;
+pub use detached::*;
+
+pub use state::*;
+use tracing::info;
+use crate::{Simulation, SimulationState};
+
+pub struct SimRunner{
+    config: SimRunnerConfig,
+    pub simulation: Simulation,
+    pub state: SimulationState,
+    pub runner_state: SimRunnerState,
+}
+
+impl SimRunner{
+    pub fn new(config: SimRunnerConfig, simulation: Simulation) -> Self{
+        Self{
+            config,
+            simulation,
+            state: SimulationState::new(),
+            runner_state: SimRunnerState::default(),
+        }
+    }
+
+    pub fn init(&mut self) -> Result<(), anyhow::Error>{
+        self.simulation.init()?;
+        Ok(())
+    }
+
+    pub fn start(&mut self) -> Result<(), anyhow::Error>{
+        self.runner_state.state = SimRunnerStatus::Running;
+
+        while self.runner_state.state == SimRunnerStatus::Running{
+           let runner_state = &self.runner_state.clone();
+
+           self.step(runner_state)?;
+
+           self.runner_state.t = self.runner_state.t + self.config.dt;
+           if self.runner_state.t >= self.config.max_t{
+               self.runner_state.state = SimRunnerStatus::Completed;
+               info!("Simulation completed")
+           }
+
+        }
+
+        Ok(())
+    }
+
+
+    pub fn start_with_channel(&mut self, tx: Sender<SimRunnerUpdate>) -> Result<(), anyhow::Error>{
+        self.runner_state.state = SimRunnerStatus::Running;
+
+        while self.runner_state.state == SimRunnerStatus::Running{
+            let runner_state = &self.runner_state.clone();
+
+            self.step(runner_state)?;
+            self.runner_state.t = self.runner_state.t + self.config.dt;
+
+            if self.runner_state.t >= self.config.max_t{
+                self.runner_state.state = SimRunnerStatus::Completed;
+                info!("Simulation completed");
+                tx.send(SimRunnerUpdate{state: self.runner_state.clone()}).unwrap();
+            }
+
+            if self.runner_state.t.tick_ms % 500 == 0{
+                tx.send(SimRunnerUpdate{state: self.runner_state.clone()}).unwrap();
+            }
+        }
+        Ok(())
+    }
+
+    pub fn step(&mut self, runner_state: &SimRunnerState) -> Result<(), anyhow::Error>{
+        
+        self.simulation.step_physics(&runner_state.t, &self.config.dt)?;
+        self.simulation.step_uavs(&runner_state.t, &self.config.dt)?;
+
+        Ok(())
+    }
+}

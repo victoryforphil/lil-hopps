@@ -121,7 +121,7 @@ pub struct MockTask {}
 
 impl Task for MockTask {
     fn metadata(&self) -> TaskMetadata {
-        TaskMetadata::new("Mock Task".into())
+        TaskMetadata::new("MockTask".into())
             .with_refresh_rate(Timestamp::from_hz(100.0 as f32))
             .with_subscription("/topic/0".into())
     }
@@ -157,7 +157,7 @@ mod test {
     #[test]
     fn test_mock_task_metadata() {
         let metadata = MockTask {}.metadata();
-        assert_eq!(metadata.name, "Mock Task");
+        assert_eq!(metadata.name, "MockTask");
         assert_eq!(metadata.subscriptions.len(), 1);
         assert_eq!(metadata.subscriptions[0], "/topic/0".into());
         assert_eq!(metadata.refresh_rate, Timestamp::from_hz(100.0 as f32));
