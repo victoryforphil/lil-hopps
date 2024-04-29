@@ -37,7 +37,6 @@ jobs:
       - name: Collect coverage data (including doctests)
         run: |
           cargo llvm-cov --no-report nextest --ignore-filename-regex calloop-0.10.6/*
-          cargo llvm-cov --no-report --doc  --ignore-filename-regex calloop-0.10.6/*
           cargo llvm-cov report --lcov --output-path lcov.info  --ignore-filename-regex calloop-0.10.6/*
       - name: Upload coverage
         uses: codecov/codecov-action@v1
