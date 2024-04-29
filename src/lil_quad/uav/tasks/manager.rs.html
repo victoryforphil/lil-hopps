@@ -297,15 +297,27 @@
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     collections::BTreeMap,
     sync::{Arc, Mutex},
 };
 
 <span class="kw">use </span>lil_broker::{DataPoint, Database, QueryCommand, Timestamp, WriteQuery};
-<span class="kw">use </span>tracing::{debug, error, info, warn};
-
-
+<span class="kw">use </span>tracing::{debug, error, info};
 
 <span class="kw">use </span><span class="kw">crate</span>::uav::TaskSubscription;
 
@@ -364,15 +376,15 @@
     }
 }
 <span class="kw">pub struct </span>TaskManager {
-    <span class="kw">pub </span>data: Database,
     <span class="kw">pub </span>tasks: Vec&lt;TaskEntry&gt;, <span class="comment">// State tracking
-</span>}
+    </span><span class="kw">pub </span>active_tasks: Vec&lt;String&gt;,
+}
 
 <span class="kw">impl </span>TaskManager {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         TaskManager {
             tasks: Vec::new(),
-            data: Database::new(),
+            active_tasks: Vec::new(),
         }
     }
     <span class="kw">pub fn </span>add_task(<span class="kw-2">&amp;mut </span><span class="self">self</span>, task: TaskHandle) {
@@ -383,6 +395,13 @@
             <span class="macro">info!</span>(<span class="string">"  Sub: {:?}"</span>, sub);
         }
         <span class="self">self</span>.tasks.push(task);
+    }
+    <span class="kw">pub fn </span>activate_all_tasks(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>tasks: Vec&lt;String&gt; = <span class="self">self</span>.tasks.iter().map(|t| t.name.clone()).collect();
+        <span class="self">self</span>.active_tasks = tasks;
+    }
+    <span class="kw">pub fn </span>set_active_tasks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tasks: Vec&lt;String&gt;) {
+        <span class="self">self</span>.active_tasks = tasks;
     }
 
     <span class="kw">pub fn </span>get_task_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TaskEntry&gt; {
@@ -401,12 +420,19 @@
             .map(|t| <span class="kw-2">&amp;mut </span>t.task)
     }
 
-    <span class="kw">pub fn </span>tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timestamp: <span class="kw-2">&amp;</span>Timestamp) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt; {
+    <span class="kw">pub fn </span>tick(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        timestamp: <span class="kw-2">&amp;</span>Timestamp,
+        database: Arc&lt;Mutex&lt;Database&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt; {
         <span class="macro">info!</span>(<span class="string">"TaskManager tick: {:?}"</span>, timestamp);
+        <span class="kw">let </span><span class="kw-2">mut </span>db = database.lock().unwrap();
         <span class="kw">for </span>task <span class="kw">in </span><span class="self">self</span>.tasks.iter_mut() {
             <span class="comment">// Get the metadat for the task
-
-            </span><span class="kw">let </span>metadata = <span class="kw-2">&amp;</span>task.metadata;
+            </span><span class="kw">if </span>!<span class="self">self</span>.active_tasks.contains(<span class="kw-2">&amp;</span>task.metadata.name) {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">let </span>metadata = <span class="kw-2">&amp;</span>task.metadata;
             <span class="kw">let </span>state = <span class="kw-2">&amp;mut </span>task.state;
             <span class="kw">if </span>timestamp.tick_ms &gt; <span class="number">0 </span>{
                 <span class="kw">if </span>timestamp.tick_ms - state.last_run.tick_ms &lt; metadata.refresh_rate.tick_ms {
@@ -422,7 +448,7 @@
             <span class="kw">let </span>subscriptions = <span class="kw-2">&amp;</span>metadata.subscriptions;
             <span class="kw">let </span>query = TaskSubscription::generate_latest_query(subscriptions);
 
-            <span class="kw">let </span>data = <span class="self">self</span>.data.query_get_latest(query);
+            <span class="kw">let </span>data = db.query_get_latest(query);
 
             <span class="kw">let </span>data = <span class="kw">match </span>data {
                 <span class="prelude-val">Ok</span>(data) =&gt; data,
@@ -449,8 +475,8 @@
                     <span class="kw">let </span>write_data = result.data;
                     <span class="kw">let </span><span class="kw-2">mut </span>write_queries: Vec&lt;QueryCommand&gt; = <span class="macro">vec!</span>[];
 
-                    <span class="kw">for </span>(topic, data) <span class="kw">in </span>write_data {
-                        <span class="kw">let </span>query = WriteQuery::new(topic, data.data, timestamp.clone());
+                    <span class="kw">for </span>(topic, dp) <span class="kw">in </span>write_data {
+                        <span class="kw">let </span>query = WriteQuery::new(topic, dp.data, timestamp.clone());
                         write_queries.push(query.into());
                     }
 
@@ -459,7 +485,7 @@
                         metadata.name,
                         write_queries.len()
                     );
-                    <span class="kw">let </span>_write_result = <span class="self">self</span>.data.query_batch(write_queries);
+                    <span class="kw">let </span>_write_result = db.query_batch(write_queries);
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
                     <span class="macro">error!</span>(<span class="string">"Task {} failed: {:?} "</span>, metadata.name, err);
@@ -467,7 +493,7 @@
             }
         }
 
-        <span class="macro">debug!</span>(<span class="string">"Task Database after tick: {:#?}"</span>, <span class="self">self</span>.data.buckets.keys());
+        <span class="macro">debug!</span>(<span class="string">"Task Database after tick: {:#?}"</span>, db.buckets.keys());
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -477,7 +503,6 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span>lil_broker::{Primatives, WriteQuery};
 
-  
     <span class="kw">use </span><span class="kw">crate</span>::uav::TaskResult;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -555,43 +580,46 @@
 
         task_manager.add_task(task_a);
         task_manager.add_task(task_b);
+        task_manager.activate_all_tasks();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>db: Database = Database::new();
+        <span class="kw">let </span>db_arc = Arc::new(Mutex::new(Database::new()));
+
         <span class="kw">let </span>queries = <span class="macro">vec!</span>[
             WriteQuery::new(<span class="string">"a/input"</span>.into(), Primatives::Number(<span class="number">2.0</span>), Timestamp::new(<span class="number">0</span>)).into(),
             WriteQuery::new(<span class="string">"b/input"</span>.into(), Primatives::Number(<span class="number">4.0</span>), Timestamp::new(<span class="number">0</span>)).into(),
         ];
-        db.query_batch(queries).expect(<span class="string">"Failed to write queries"</span>);
-
-        task_manager.data = db;
+        {
+            <span class="kw">let </span><span class="kw-2">mut </span>db = db_arc.lock().unwrap();
+            db.query_batch(queries).expect(<span class="string">"Failed to write queries"</span>);
+        }
 
         <span class="kw">let </span>timestamp = Timestamp::from_seconds(<span class="number">0.0</span>);
 
         <span class="kw">let </span>max_t = Timestamp::from_seconds(<span class="number">1.0</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>t = timestamp.clone();
+
         <span class="kw">while </span>t &lt; max_t {
-            task_manager.tick(<span class="kw-2">&amp;</span>t);
+            <span class="kw">let </span>arc = db_arc.clone();
+            task_manager.tick(<span class="kw-2">&amp;</span>t, arc).unwrap();
             t = t + Timestamp::from_seconds(<span class="number">1.0</span>);
         }
+        {
+            <span class="kw">let </span><span class="kw-2">mut </span>db = db_arc.lock().unwrap();
+            <span class="kw">let </span>result_a = db
+                .query_get_latest(<span class="macro">vec!</span>[<span class="string">"a/output"</span>.to_string()].into())
+                .unwrap();
 
-        <span class="kw">let </span>result_a = task_manager
-            .data
-            .query_get_latest(<span class="macro">vec!</span>[<span class="string">"a/output"</span>.to_string()].into())
-            .unwrap();
-        
-        <span class="kw">let </span>a_out = result_a.data.get(<span class="string">"a/output"</span>).unwrap();
-        <span class="macro">assert_eq!</span>(a_out[<span class="number">0</span>].data, Primatives::Number(<span class="number">4.0</span>));
+            <span class="kw">let </span>a_out = result_a.data.get(<span class="string">"a/output"</span>).unwrap();
+            <span class="macro">assert_eq!</span>(a_out[<span class="number">0</span>].data, Primatives::Number(<span class="number">4.0</span>));
 
-        <span class="kw">let </span>result_b = task_manager
-            .data
-            .query_get_latest(<span class="macro">vec!</span>[<span class="string">"b/output"</span>.to_string()].into())
-            .unwrap();
+            <span class="kw">let </span>result_b = db
+                .query_get_latest(<span class="macro">vec!</span>[<span class="string">"b/output"</span>.to_string()].into())
+                .unwrap();
 
-        <span class="kw">let </span>b_out = result_b.data.get(<span class="string">"b/output"</span>).unwrap();
+            <span class="kw">let </span>b_out = result_b.data.get(<span class="string">"b/output"</span>).unwrap();
 
-        <span class="macro">assert_eq!</span>(b_out[<span class="number">0</span>].data, Primatives::Number(<span class="number">12.0</span>));
-        
+            <span class="macro">assert_eq!</span>(b_out[<span class="number">0</span>].data, Primatives::Number(<span class="number">12.0</span>));
+        }
     }
-
 }
 </code></pre></div></section></main></body></html>

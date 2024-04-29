@@ -44,53 +44,48 @@
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
 <a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a>
-<a href="#47" id="47">47</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
+</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{DataPoint, Primatives, Tag, Timestamp};
+<span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 <span class="kw">use </span>tracing::debug;
-<span class="kw">use crate</span>::{DataPoint, Primatives, Tag, Timestamp};
 
 <span class="kw">mod </span>querying;
 
-<span class="kw">pub struct </span>Bucket{
+<span class="kw">pub struct </span>Bucket {
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>bucket_tags: BTreeSet&lt;Tag&gt;,
-    <span class="kw">pub </span>values: BTreeMap&lt;Timestamp, DataPoint&gt;
+    <span class="kw">pub </span>values: BTreeMap&lt;Timestamp, DataPoint&gt;,
 }
 
-
-<span class="kw">impl </span>Bucket{
-    <span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span>str) -&gt; Bucket{
-        Bucket{
+<span class="kw">impl </span>Bucket {
+    <span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span>str) -&gt; Bucket {
+        Bucket {
             name: name.to_string(),
             bucket_tags: BTreeSet::new(),
-            values: BTreeMap::new()
+            values: BTreeMap::new(),
         }
     }
 
-    <span class="kw">pub fn </span>add_primative(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timestamp: Timestamp, value: Primatives) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>{
+    <span class="kw">pub fn </span>add_primative(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timestamp: Timestamp, value: Primatives) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">let </span>data_point = DataPoint::new(timestamp, value);
         <span class="self">self</span>.values.insert(timestamp, data_point);
         <span class="self">self
-    </span>} 
+    </span>}
 
-    <span class="kw">pub fn </span>add_tag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tag: Tag) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>{
+    <span class="kw">pub fn </span>add_tag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tag: Tag) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="macro">debug!</span>(<span class="string">"Adding tag: {:#?} to bucket: {}"</span>, tag, <span class="self">self</span>.name);
         <span class="self">self</span>.bucket_tags.insert(tag);
         <span class="self">self
-    </span>}  
+    </span>}
 
-    <span class="kw">pub fn </span>add_data_point(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data_point: DataPoint) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>{
+    <span class="kw">pub fn </span>add_data_point(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data_point: DataPoint) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.values.insert(data_point.timestamp, data_point);
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>apply_global_tags(<span class="kw-2">&amp;</span><span class="self">self</span>, data_point: <span class="kw-2">&amp;mut </span>DataPoint){
-        <span class="kw">for </span>tag <span class="kw">in </span><span class="self">self</span>.bucket_tags.iter(){
+    <span class="kw">fn </span>apply_global_tags(<span class="kw-2">&amp;</span><span class="self">self</span>, data_point: <span class="kw-2">&amp;mut </span>DataPoint) {
+        <span class="kw">for </span>tag <span class="kw">in </span><span class="self">self</span>.bucket_tags.iter() {
             data_point.add_tag(tag.clone());
         }
-
-
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

@@ -109,8 +109,18 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
-
 
 <span class="doccomment">/// MathTask - Performs basic operations based on given inputs
 /// Inputs:
@@ -119,24 +129,20 @@
 /// - `/math/operation`: [DataPoint::String]
 /// Outputs:
 /// - `/math/output`: [DataPoint::Number]
-</span><span class="kw">pub struct </span>MathTask{
+</span><span class="kw">pub struct </span>MathTask {
     <span class="kw">pub </span>topic_a: TaskSubscription,
     <span class="kw">pub </span>topic_b: TaskSubscription,
-
 }
 
-<span class="kw">impl </span>MathTask{
-    <span class="kw">pub fn </span>new(topic_a: TaskSubscription, topic_b: TaskSubscription) -&gt; MathTask{
-        MathTask{
-            topic_a,
-            topic_b,
-        }
+<span class="kw">impl </span>MathTask {
+    <span class="kw">pub fn </span>new(topic_a: TaskSubscription, topic_b: TaskSubscription) -&gt; MathTask {
+        MathTask { topic_a, topic_b }
     }
 }
 
-<span class="kw">impl </span>Task <span class="kw">for </span>MathTask{
-    <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TaskMetadata{
-        TaskMetadata::new(<span class="string">"Math Task"</span>.to_string())
+<span class="kw">impl </span>Task <span class="kw">for </span>MathTask {
+    <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TaskMetadata {
+        TaskMetadata::new(<span class="string">"MathTask"</span>.to_string())
             .with_subscriptions(<span class="macro">vec!</span>[
                 <span class="self">self</span>.topic_a.clone(),
                 <span class="self">self</span>.topic_b.clone(),
@@ -144,7 +150,7 @@
             ])
             .with_refresh_rate_hz(<span class="number">10.0</span>)
     }
-    
+
     <span class="kw">fn </span>run(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         t: <span class="kw-2">&amp;</span>lil_broker::Timestamp,
@@ -157,28 +163,29 @@
         <span class="kw">let </span>topic0_data = topic0.data.clone();
         <span class="kw">let </span>topic1_data = topic1.data.clone();
         <span class="kw">let </span>operation_data = operation.data.clone();
-        <span class="kw">let </span>topic0_value = <span class="kw">match </span>topic0_data{
+        <span class="kw">let </span>topic0_value = <span class="kw">match </span>topic0_data {
             lil_broker::Primatives::Number(n) =&gt; n,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">"Expected Number, got {:?}"</span>, topic0_data)),
         };
-        <span class="kw">let </span>topic1_value = <span class="kw">match </span>topic1_data{
+        <span class="kw">let </span>topic1_value = <span class="kw">match </span>topic1_data {
             lil_broker::Primatives::Number(n) =&gt; n,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">"Expected Number, got {:?}"</span>, topic1_data)),
         };
-        <span class="kw">let </span>operation_value = <span class="kw">match </span>operation_data{
+        <span class="kw">let </span>operation_value = <span class="kw">match </span>operation_data {
             lil_broker::Primatives::String(s) =&gt; s,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">"Expected String, got {:?}"</span>, operation_data)),
         };
-        <span class="kw">let </span>result = <span class="kw">match </span>operation_value.as_str(){
+        <span class="kw">let </span>result = <span class="kw">match </span>operation_value.as_str() {
             <span class="string">"+" </span>=&gt; topic0_value + topic1_value,
             <span class="string">"-" </span>=&gt; topic0_value - topic1_value,
             <span class="string">"*" </span>=&gt; topic0_value * topic1_value,
             <span class="string">"/" </span>=&gt; topic0_value / topic1_value,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">"Invalid operation: {}"</span>, operation_value)),
         };
-        <span class="kw">let </span>result_dp = lil_broker::DataPoint::new(t.clone(), lil_broker::Primatives::Number(result));
+        <span class="kw">let </span>result_dp =
+            lil_broker::DataPoint::new(t.clone(), lil_broker::Primatives::Number(result));
         data.insert(<span class="string">"/math/output"</span>.to_string(), result_dp);
-        <span class="prelude-val">Ok</span>(TaskResult{
+        <span class="prelude-val">Ok</span>(TaskResult {
             data,
             execution_time: t.clone(),
         })
@@ -186,35 +193,51 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test{
+</span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>pretty_assertions::assert_eq;
     <span class="kw">use </span>lil_broker::Primatives;
+    <span class="kw">use </span>pretty_assertions::assert_eq;
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_math_task_metadata(){
+    </span><span class="kw">fn </span>test_math_task_metadata() {
         <span class="kw">let </span>task = MathTask::new(<span class="string">"/math/0"</span>.into(), <span class="string">"/math/1"</span>.into());
         <span class="kw">let </span>metadata = task.metadata();
-        <span class="macro">assert_eq!</span>(metadata.name, <span class="string">"Math Task"</span>);
+        <span class="macro">assert_eq!</span>(metadata.name, <span class="string">"MathTask"</span>);
         <span class="macro">assert_eq!</span>(metadata.subscriptions.len(), <span class="number">3</span>);
         <span class="macro">assert_eq!</span>(metadata.subscriptions[<span class="number">0</span>].name, <span class="string">"/math/0"</span>.to_string());
         <span class="macro">assert_eq!</span>(metadata.subscriptions[<span class="number">1</span>].name, <span class="string">"/math/1"</span>.to_string());
-        <span class="macro">assert_eq!</span>(metadata.subscriptions[<span class="number">2</span>].name, <span class="string">"/math/operation"</span>.to_string());
+        <span class="macro">assert_eq!</span>(
+            metadata.subscriptions[<span class="number">2</span>].name,
+            <span class="string">"/math/operation"</span>.to_string()
+        );
         <span class="macro">assert_eq!</span>(metadata.refresh_rate, lil_broker::Timestamp::from_hz(<span class="number">10.0</span>));
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_math_task_run(){
+    </span><span class="kw">fn </span>test_math_task_run() {
         <span class="kw">let </span><span class="kw-2">mut </span>task = MathTask::new(<span class="string">"/math/0"</span>.into(), <span class="string">"/math/1"</span>.into());
         <span class="kw">let </span>t = lil_broker::Timestamp::new(<span class="number">0</span>);
         <span class="kw">let </span>inputs = {
             <span class="kw">let </span><span class="kw-2">mut </span>map = std::collections::BTreeMap::new();
-            map.insert(<span class="string">"/math/0"</span>.into(), lil_broker::DataPoint::new(t.clone(), Primatives::Number(<span class="number">5.0</span>)));
-            map.insert(<span class="string">"/math/1"</span>.into(), lil_broker::DataPoint::new(t.clone(), Primatives::Number(<span class="number">3.0</span>)));
-            map.insert(<span class="string">"/math/operation"</span>.into(), lil_broker::DataPoint::new(t.clone(), Primatives::String(<span class="string">"+"</span>.to_string())));
+            map.insert(
+                <span class="string">"/math/0"</span>.into(),
+                lil_broker::DataPoint::new(t.clone(), Primatives::Number(<span class="number">5.0</span>)),
+            );
+            map.insert(
+                <span class="string">"/math/1"</span>.into(),
+                lil_broker::DataPoint::new(t.clone(), Primatives::Number(<span class="number">3.0</span>)),
+            );
+            map.insert(
+                <span class="string">"/math/operation"</span>.into(),
+                lil_broker::DataPoint::new(t.clone(), Primatives::String(<span class="string">"+"</span>.to_string())),
+            );
             map
         };
         <span class="kw">let </span>result = task.run(<span class="kw-2">&amp;</span>t, <span class="kw-2">&amp;</span>inputs).unwrap();
         <span class="macro">assert_eq!</span>(result.data.len(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(result.data.get(<span class="string">"/math/output"</span>).unwrap().data, Primatives::Number(<span class="number">8.0</span>));
+        <span class="macro">assert_eq!</span>(
+            result.data.get(<span class="string">"/math/output"</span>).unwrap().data,
+            Primatives::Number(<span class="number">8.0</span>)
+        );
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

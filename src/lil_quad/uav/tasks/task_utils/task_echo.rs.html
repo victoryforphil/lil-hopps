@@ -73,56 +73,74 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>lil_broker::Database;
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+</pre></div><pre class="rust"><code>
 
 <span class="kw">use </span><span class="kw">crate</span>::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
 
-<span class="kw">pub struct </span>EchoTask{
+<span class="kw">pub struct </span>EchoTask {
     <span class="kw">pub </span>echo_topics: Vec&lt;String&gt;,
 }
 
-<span class="kw">impl </span>EchoTask{
-    <span class="kw">pub fn </span>new(echo_topics: Vec&lt;String&gt;) -&gt; EchoTask{
-        EchoTask{
-            echo_topics,
-        }
+<span class="kw">impl </span>EchoTask {
+    <span class="kw">pub fn </span>new(echo_topics: Vec&lt;String&gt;) -&gt; EchoTask {
+        EchoTask { echo_topics }
     }
 }
 
-<span class="kw">impl </span>Task <span class="kw">for </span>EchoTask{
-    <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TaskMetadata{
-        TaskMetadata::new(<span class="string">"Echo Task"</span>.to_string())
-            .with_subscriptions(<span class="self">self</span>.echo_topics.iter().map(|topic| TaskSubscription::from(topic.clone())).collect())
+<span class="kw">impl </span>Task <span class="kw">for </span>EchoTask {
+    <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TaskMetadata {
+        TaskMetadata::new(<span class="string">"EchoTask"</span>.to_string())
+            .with_subscriptions(
+                <span class="self">self</span>.echo_topics
+                    .iter()
+                    .map(|topic| TaskSubscription::from(topic.clone()))
+                    .collect(),
+            )
             .with_refresh_rate_hz(<span class="number">10.0</span>)
     }
-    
+
     <span class="kw">fn </span>run(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         t: <span class="kw-2">&amp;</span>lil_broker::Timestamp,
         inputs: <span class="kw-2">&amp;</span>std::collections::BTreeMap&lt;String, lil_broker::DataPoint&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;TaskResult, anyhow::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>data = std::collections::BTreeMap::new();
-        <span class="kw">for </span>(topic, dp) <span class="kw">in </span>inputs.iter(){
+        <span class="kw">for </span>(topic, dp) <span class="kw">in </span>inputs.iter() {
             data.insert(topic.clone() + <span class="string">"/echo"</span>, dp.clone());
         }
-        <span class="prelude-val">Ok</span>(TaskResult{
+        <span class="prelude-val">Ok</span>(TaskResult {
             data,
             execution_time: t.clone(),
         })
-    }  
+    }
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test{
+</span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>pretty_assertions::assert_eq;
     <span class="kw">use </span>lil_broker::Primatives;
+    <span class="kw">use </span>pretty_assertions::assert_eq;
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_echo_task_metadata(){
+    </span><span class="kw">fn </span>test_echo_task_metadata() {
         <span class="kw">let </span>echo_topics = <span class="macro">vec!</span>[<span class="string">"/topic/0"</span>.to_string(), <span class="string">"/topic/1"</span>.to_string()];
         <span class="kw">let </span>task = EchoTask::new(echo_topics);
         <span class="kw">let </span>metadata = task.metadata();
-        <span class="macro">assert_eq!</span>(metadata.name, <span class="string">"Echo Task"</span>);
+        <span class="macro">assert_eq!</span>(metadata.name, <span class="string">"EchoTask"</span>);
         <span class="macro">assert_eq!</span>(metadata.subscriptions.len(), <span class="number">2</span>);
         <span class="macro">assert_eq!</span>(metadata.subscriptions[<span class="number">0</span>].name, <span class="string">"/topic/0"</span>.to_string());
         <span class="macro">assert_eq!</span>(metadata.subscriptions[<span class="number">1</span>].name, <span class="string">"/topic/1"</span>.to_string());
@@ -130,19 +148,32 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_echo_task_run(){
+    </span><span class="kw">fn </span>test_echo_task_run() {
         <span class="kw">let </span>echo_topics = <span class="macro">vec!</span>[<span class="string">"/topic/0"</span>.to_string(), <span class="string">"/topic/1"</span>.to_string()];
         <span class="kw">let </span><span class="kw-2">mut </span>task = EchoTask::new(echo_topics);
         <span class="kw">let </span>t = lil_broker::Timestamp::new(<span class="number">0</span>);
         <span class="kw">let </span>inputs = {
             <span class="kw">let </span><span class="kw-2">mut </span>map = std::collections::BTreeMap::new();
-            map.insert(<span class="string">"/topic/0"</span>.into(), lil_broker::DataPoint::new(t.clone(), Primatives::Number(<span class="number">5.0</span>)));
-            map.insert(<span class="string">"/topic/1"</span>.into(), lil_broker::DataPoint::new(t.clone(), Primatives::String(<span class="string">"lil-hopps"</span>.to_string())));
+            map.insert(
+                <span class="string">"/topic/0"</span>.into(),
+                lil_broker::DataPoint::new(t.clone(), Primatives::Number(<span class="number">5.0</span>)),
+            );
+            map.insert(
+                <span class="string">"/topic/1"</span>.into(),
+                lil_broker::DataPoint::new(t.clone(), Primatives::String(<span class="string">"lil-hopps"</span>.to_string())),
+            );
             map
         };
         <span class="kw">let </span>result = task.run(<span class="kw-2">&amp;</span>t, <span class="kw-2">&amp;</span>inputs).unwrap();
         <span class="macro">assert_eq!</span>(result.data.len(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(result.data.get(<span class="string">"/topic/0/echo"</span>).unwrap().data, Primatives::Number(<span class="number">5.0</span>));
-        <span class="macro">assert_eq!</span>(result.data.get(<span class="string">"/topic/1/echo"</span>).unwrap().data, Primatives::String(<span class="string">"lil-hopps"</span>.to_string()));
+        <span class="macro">assert_eq!</span>(
+            result.data.get(<span class="string">"/topic/0/echo"</span>).unwrap().data,
+            Primatives::Number(<span class="number">5.0</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            result.data.get(<span class="string">"/topic/1/echo"</span>).unwrap().data,
+            Primatives::String(<span class="string">"lil-hopps"</span>.to_string())
+        );
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

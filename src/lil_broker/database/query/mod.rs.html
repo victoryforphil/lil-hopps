@@ -51,58 +51,55 @@
 <a href="#49" id="49">49</a>
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="kw">use </span><span class="kw">crate</span>::DataPoint;
 
-
-
-<span class="kw">mod </span>tag_filter;
+<span class="kw">mod </span>get_latest;
 <span class="kw">mod </span>lookup;
 <span class="kw">mod </span>lookup_range;
-<span class="kw">mod </span>get_latest;
+<span class="kw">mod </span>tag_filter;
 <span class="kw">mod </span>write;
 
-<span class="kw">pub use </span>tag_filter::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>get_latest::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>lookup::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>lookup_range::<span class="kw-2">*</span>;
-<span class="kw">pub use </span>get_latest::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>tag_filter::<span class="kw-2">*</span>;
 
 <span class="kw">pub use </span>write::<span class="kw-2">*</span>;
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub enum </span>QueryCommand{
+</span><span class="kw">pub enum </span>QueryCommand {
     GetLatest(GetLatestQuery),
     Lookup(LookupQuery),
     LookupRange(LookupRangeQuery),
     Write(WriteQuery),
 }
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>QueryResponseMetadata{
+</span><span class="kw">pub struct </span>QueryResponseMetadata {
     <span class="kw">pub </span>n_results: usize,
     <span class="kw">pub </span>was_successful: bool,
 }
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>QueryResponse{
+</span><span class="kw">pub struct </span>QueryResponse {
     <span class="kw">pub </span>data: BTreeMap&lt;String, Vec&lt;DataPoint&gt;&gt;,
     <span class="kw">pub </span>metadata: QueryResponseMetadata,
 }
 
-<span class="kw">impl </span>QueryResponse{
-    <span class="kw">pub fn </span>new() -&gt; QueryResponse{
-        QueryResponse{
+<span class="kw">impl </span>QueryResponse {
+    <span class="kw">pub fn </span>new() -&gt; QueryResponse {
+        QueryResponse {
             data: BTreeMap::new(),
-            metadata: QueryResponseMetadata{
+            metadata: QueryResponseMetadata {
                 n_results: <span class="number">0</span>,
                 was_successful: <span class="bool-val">false</span>,
-            }
+            },
         }
     }
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>QueryResponse{
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self</span>{
+<span class="kw">impl </span>Default <span class="kw">for </span>QueryResponse {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         QueryResponse::new()
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

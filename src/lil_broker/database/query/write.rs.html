@@ -84,64 +84,68 @@
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
-</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{ Bucket, DataPoint, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
-
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{Bucket, DataPoint, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
 
 <span class="kw">use </span>tracing::info;
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>WriteQuery{
+</span><span class="kw">pub struct </span>WriteQuery {
     <span class="kw">pub </span>topic: String,
     <span class="kw">pub </span>data: Primatives,
     <span class="kw">pub </span>timestamp: Timestamp,
     <span class="kw">pub </span>tags: Vec&lt;Tag&gt;,
 }
 
-<span class="kw">impl </span>WriteQuery{
-    <span class="kw">pub fn </span>new(topic: String, data: Primatives, timestamp: Timestamp) -&gt; WriteQuery{
-        WriteQuery{
+<span class="kw">impl </span>WriteQuery {
+    <span class="kw">pub fn </span>new(topic: String, data: Primatives, timestamp: Timestamp) -&gt; WriteQuery {
+        WriteQuery {
             topic,
             data,
             timestamp,
             tags: Vec::new(),
         }
     }
-
 }
 <span class="comment">// Conversion from WriteQuery to QueryCommands::Write(WriteQuery)
-</span><span class="kw">impl </span>From&lt;WriteQuery&gt; <span class="kw">for </span>QueryCommand{
-    <span class="kw">fn </span>from(query: WriteQuery) -&gt; QueryCommand{
+</span><span class="kw">impl </span>From&lt;WriteQuery&gt; <span class="kw">for </span>QueryCommand {
+    <span class="kw">fn </span>from(query: WriteQuery) -&gt; QueryCommand {
         QueryCommand::Write(query)
     }
 }
 
-<span class="kw">impl </span>From&lt;QueryCommand&gt; <span class="kw">for </span>WriteQuery{
-    <span class="kw">fn </span>from(query: QueryCommand) -&gt; WriteQuery{
-        <span class="kw">match </span>query{
+<span class="kw">impl </span>From&lt;QueryCommand&gt; <span class="kw">for </span>WriteQuery {
+    <span class="kw">fn </span>from(query: QueryCommand) -&gt; WriteQuery {
+        <span class="kw">match </span>query {
             QueryCommand::Write(query) =&gt; query,
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Not a WriteQuery"</span>),
         }
     }
 }
 
-<span class="kw">impl </span>Database{
-    <span class="kw">pub fn </span>query_write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: WriteQuery) -&gt; <span class="prelude-ty">Result</span>&lt;QueryResponse, String&gt;{
+
+
+
+<span class="kw">impl </span>Database {
+    <span class="kw">pub fn </span>query_write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: WriteQuery) -&gt; <span class="prelude-ty">Result</span>&lt;QueryResponse, String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>response = QueryResponse::default();
 
-        <span class="comment">// If no bucket exists create one 
-        </span><span class="kw">if </span>!<span class="self">self</span>.buckets.contains_key(<span class="kw-2">&amp;</span>query.topic){
-            <span class="self">self</span>.buckets.insert(query.topic.clone(), Bucket::new(<span class="kw-2">&amp;</span>query.topic));
+        <span class="comment">// If no bucket exists create one
+        </span><span class="kw">if </span>!<span class="self">self</span>.buckets.contains_key(<span class="kw-2">&amp;</span>query.topic) {
+            <span class="self">self</span>.buckets
+                .insert(query.topic.clone(), Bucket::new(<span class="kw-2">&amp;</span>query.topic));
             <span class="macro">info!</span>(<span class="string">"Created new bucket for topic: {}"</span>, query.topic);
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = <span class="self">self</span>.buckets.get_mut(<span class="kw-2">&amp;</span>query.topic){
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = <span class="self">self</span>.buckets.get_mut(<span class="kw-2">&amp;</span>query.topic) {
             <span class="kw">let </span>datapoint = DataPoint::new(query.timestamp, query.data);
             bucket.add_data_point(datapoint.clone());
-            <span class="kw">if </span>response.data.contains_key(<span class="kw-2">&amp;</span>query.topic){
+            <span class="kw">if </span>response.data.contains_key(<span class="kw-2">&amp;</span>query.topic) {
                 response.data.get_mut(<span class="kw-2">&amp;</span>query.topic).unwrap().push(datapoint);
-            }<span class="kw">else</span>{ 
+            } <span class="kw">else </span>{
                 response.data.insert(query.topic.clone(), <span class="macro">vec!</span>[datapoint]);
             }
-         
+
             response.metadata.n_results += <span class="number">1</span>;
         }
 
@@ -150,11 +154,11 @@
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests{
+</span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_write_query_basic(){
+    </span><span class="kw">fn </span>test_write_query_basic() {
         <span class="kw">let </span><span class="kw-2">mut </span>db = Database::new();
         <span class="kw">let </span>query = WriteQuery::new(<span class="string">"test"</span>.into(), Primatives::Number(<span class="number">7.0</span>), Timestamp::new(<span class="number">0</span>));
 
@@ -162,9 +166,10 @@
 
         <span class="macro">assert_eq!</span>(response.metadata.n_results, <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(response.data.len(), <span class="number">1</span>);
-      
+
         <span class="kw">let </span>bucket = db.buckets.get(<span class="string">"test"</span>).unwrap();
         <span class="kw">let </span>data = bucket.get_latest();
         <span class="macro">assert_eq!</span>(data.unwrap().data, Primatives::Number(<span class="number">7.0</span>));
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

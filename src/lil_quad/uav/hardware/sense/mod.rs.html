@@ -81,19 +81,21 @@
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="kw">use </span>lil_broker::{DataPoint, Timestamp};
 
-
-<span class="attr">#[derive(Debug,Clone)]
-</span><span class="kw">pub struct </span>SenseHardwareOutputs{
+<span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SenseHardwareOutputs {
     <span class="kw">pub </span>nav_messages: BTreeMap&lt;String, Vec&lt;DataPoint&gt;&gt;,
     <span class="kw">pub </span>telemetry_messages: BTreeMap&lt;String, Vec&lt;DataPoint&gt;&gt;,
     <span class="kw">pub </span>debug_messages: BTreeMap&lt;String, Vec&lt;DataPoint&gt;&gt;,
 }
 
-<span class="kw">pub trait </span>SenseHardware{
+<span class="kw">pub trait </span>SenseHardware {
     <span class="kw">fn </span>sense(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SenseHardwareOutputs, anyhow::Error&gt;;
 }
 
@@ -106,40 +108,44 @@
 ///   - `/telemetry/0`: [DataPoint::Number]
 /// - debug_messages: A map of debug messages to a list of DataPoints
 ///  - `/debug/0`: [DataPoint::String]
-/// 
-</span><span class="kw">pub struct </span>MockSenseHardware{
-    
-}
+///
+</span><span class="kw">pub struct </span>MockSenseHardware {}
 
-<span class="kw">impl </span>SenseHardware <span class="kw">for </span>MockSenseHardware{
-    <span class="kw">fn </span>sense(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SenseHardwareOutputs, anyhow::Error&gt;{
-        <span class="kw">let </span><span class="kw-2">mut </span>outputs = SenseHardwareOutputs{
+<span class="kw">impl </span>SenseHardware <span class="kw">for </span>MockSenseHardware {
+    <span class="kw">fn </span>sense(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SenseHardwareOutputs, anyhow::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>outputs = SenseHardwareOutputs {
             nav_messages: BTreeMap::new(),
             telemetry_messages: BTreeMap::new(),
             debug_messages: BTreeMap::new(),
         };
 
         <span class="kw">let </span>nav_message = DataPoint::new(Timestamp::zero(), <span class="number">1.0</span>.into());
-        outputs.nav_messages.insert(<span class="string">"/nav/0"</span>.into(), <span class="macro">vec!</span>[nav_message]);
+        outputs
+            .nav_messages
+            .insert(<span class="string">"/nav/0"</span>.into(), <span class="macro">vec!</span>[nav_message]);
 
         <span class="kw">let </span>telemetry_message = DataPoint::new(Timestamp::zero(), <span class="number">20.0</span>.into());
-        outputs.telemetry_messages.insert(<span class="string">"/telemetry/0"</span>.into(), <span class="macro">vec!</span>[telemetry_message]);
+        outputs
+            .telemetry_messages
+            .insert(<span class="string">"/telemetry/0"</span>.into(), <span class="macro">vec!</span>[telemetry_message]);
 
         <span class="kw">let </span>debug_message = DataPoint::new(Timestamp::zero(), <span class="string">"lil-hopps"</span>.to_string().into());
-        outputs.debug_messages.insert(<span class="string">"/debug/0"</span>.into(), <span class="macro">vec!</span>[debug_message]);
+        outputs
+            .debug_messages
+            .insert(<span class="string">"/debug/0"</span>.into(), <span class="macro">vec!</span>[debug_message]);
 
         <span class="prelude-val">Ok</span>(outputs)
     }
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test{
+</span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>lil_broker::Primatives;
-    <span class="kw">use </span>pretty_assertions::{assert_eq};
+    <span class="kw">use </span>pretty_assertions::assert_eq;
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_mock_sense_hardware(){
-        <span class="kw">let </span>mock = MockSenseHardware{};
+    </span><span class="kw">fn </span>test_mock_sense_hardware() {
+        <span class="kw">let </span>mock = MockSenseHardware {};
         <span class="kw">let </span>outputs = mock.sense().unwrap();
 
         <span class="macro">assert_eq!</span>(outputs.nav_messages.len(), <span class="number">1</span>);
@@ -150,7 +156,7 @@
         <span class="macro">assert_eq!</span>(nav_messages.len(), <span class="number">1</span>);
         <span class="kw">let </span>nav_message = <span class="kw-2">&amp;</span>nav_messages[<span class="number">0</span>];
         <span class="macro">assert_eq!</span>(nav_message.data, Primatives::Number(<span class="number">1.0</span>));
-        
+
         <span class="kw">let </span>telemetry_messages = outputs.telemetry_messages.get(<span class="string">"/telemetry/0"</span>).unwrap();
         <span class="macro">assert_eq!</span>(telemetry_messages.len(), <span class="number">1</span>);
         <span class="kw">let </span>telemetry_message = <span class="kw-2">&amp;</span>telemetry_messages[<span class="number">0</span>];

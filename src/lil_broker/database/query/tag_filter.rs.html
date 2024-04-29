@@ -53,49 +53,49 @@
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{DataPoint, Tag};
-<span class="attr">#[derive(Debug,Clone)]
-</span><span class="kw">pub enum </span>TagFilterMode{
+<span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub enum </span>TagFilterMode {
     Include,
     Exclude,
     ExcludeWithValue,
-    IncludeWithValue
+    IncludeWithValue,
 }
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>TagFilter{
+</span><span class="kw">pub struct </span>TagFilter {
     <span class="kw">pub </span>tag: Tag,
-    <span class="kw">pub </span>mode: TagFilterMode
+    <span class="kw">pub </span>mode: TagFilterMode,
 }
 
-<span class="kw">impl </span>TagFilter{
-    <span class="kw">pub fn </span>new(tag: Tag) -&gt; TagFilter{
-        TagFilter{
+<span class="kw">impl </span>TagFilter {
+    <span class="kw">pub fn </span>new(tag: Tag) -&gt; TagFilter {
+        TagFilter {
             tag,
-            mode: TagFilterMode::Include
+            mode: TagFilterMode::Include,
         }
     }
 
-    <span class="kw">pub fn </span>exclude(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>exclude(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.mode = TagFilterMode::Exclude;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>exclude_with_value(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>exclude_with_value(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.mode = TagFilterMode::ExcludeWithValue;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>include(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>include(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.mode = TagFilterMode::Include;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>include_with_value(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>include_with_value(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.mode = TagFilterMode::IncludeWithValue;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>, datapoint: <span class="kw-2">&amp;</span>DataPoint) -&gt; bool{
-        <span class="kw">match </span><span class="self">self</span>.mode{
+    <span class="kw">pub fn </span>is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>, datapoint: <span class="kw-2">&amp;</span>DataPoint) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.mode {
             TagFilterMode::Include =&gt; datapoint.tags.contains(<span class="kw-2">&amp;</span><span class="self">self</span>.tag),
             TagFilterMode::Exclude =&gt; !datapoint.tags.contains(<span class="kw-2">&amp;</span><span class="self">self</span>.tag),
             <span class="comment">// TODO: Implement value checking [vfp//2021-09-29]
@@ -103,4 +103,5 @@
             TagFilterMode::ExcludeWithValue =&gt; !datapoint.tags.contains(<span class="kw-2">&amp;</span><span class="self">self</span>.tag),
         }
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

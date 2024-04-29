@@ -185,12 +185,14 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>manager;
 <span class="kw">mod </span>task_utils;
 <span class="kw">pub use </span>manager::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>task_utils::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>std::{any, collections::BTreeMap};
+<span class="kw">use </span>std::{collections::BTreeMap};
 
 <span class="kw">use </span>lil_broker::{DataPoint, GetLatestQuery, Timestamp};
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
@@ -200,28 +202,29 @@
     <span class="kw">pub </span>refresh_rate: Timestamp,
 }
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
-</span><span class="kw">pub struct </span>TaskSubscription{
+</span><span class="kw">pub struct </span>TaskSubscription {
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>ack: bool,
 }
 
-<span class="kw">impl </span>TaskSubscription{
-    <span class="kw">pub fn </span>new(name: String) -&gt; TaskSubscription{
-        TaskSubscription{
-            name,
-            ack: <span class="bool-val">false</span>,
-        }
+<span class="kw">impl </span>TaskSubscription {
+    <span class="kw">pub fn </span>new(name: String) -&gt; TaskSubscription {
+        TaskSubscription { name, ack: <span class="bool-val">false </span>}
     }
 
-    <span class="kw">pub fn </span>with_ack(<span class="kw-2">mut </span><span class="self">self</span>, ack: bool) -&gt; TaskSubscription{
+    <span class="kw">pub fn </span>with_ack(<span class="kw-2">mut </span><span class="self">self</span>, ack: bool) -&gt; TaskSubscription {
         <span class="self">self</span>.ack = ack;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>generate_latest_query(subs: <span class="kw-2">&amp;</span>Vec&lt;TaskSubscription&gt;) -&gt; GetLatestQuery{
+    <span class="kw">pub fn </span>generate_latest_query(subs: <span class="kw-2">&amp;</span>Vec&lt;TaskSubscription&gt;) -&gt; GetLatestQuery {
         <span class="kw">let </span>topics = subs.iter().map(|sub| sub.name.clone()).collect();
-        <span class="kw">let </span>acks = subs.iter().filter(|sub| sub.ack).map(|sub| sub.name.clone()).collect();
-        GetLatestQuery{
+        <span class="kw">let </span>acks = subs
+            .iter()
+            .filter(|sub| sub.ack)
+            .map(|sub| sub.name.clone())
+            .collect();
+        GetLatestQuery {
             topics,
             ack_topics: acks,
             tag_filters: Vec::new(),
@@ -229,14 +232,14 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>TaskSubscription{
-    <span class="kw">fn </span>from(name: String) -&gt; <span class="self">Self</span>{
+<span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>TaskSubscription {
+    <span class="kw">fn </span>from(name: String) -&gt; <span class="self">Self </span>{
         TaskSubscription::new(name)
     }
 }
 
-<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>TaskSubscription{
-    <span class="kw">fn </span>from(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self</span>{
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>TaskSubscription {
+    <span class="kw">fn </span>from(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         TaskSubscription::new(name.into())
     }
 }
@@ -307,7 +310,7 @@
 
 <span class="kw">impl </span>Task <span class="kw">for </span>MockTask {
     <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TaskMetadata {
-        TaskMetadata::new(<span class="string">"Mock Task"</span>.into())
+        TaskMetadata::new(<span class="string">"MockTask"</span>.into())
             .with_refresh_rate(Timestamp::from_hz(<span class="number">100.0 </span><span class="kw">as </span>f32))
             .with_subscription(<span class="string">"/topic/0"</span>.into())
     }
@@ -331,9 +334,7 @@
         <span class="kw">let </span>debug_message = <span class="macro">format!</span>(<span class="string">"topic_0={}"</span>, topic0_value);
         <span class="kw">let </span>debug_message_dp =
             DataPoint::new(t.clone(), lil_broker::Primatives::String(debug_message));
-        result
-            .data
-            .insert(<span class="string">"/debug/0"</span>.into(), debug_message_dp);
+        result.data.insert(<span class="string">"/debug/0"</span>.into(), debug_message_dp);
         <span class="prelude-val">Ok</span>(result)
     }
 }
@@ -345,7 +346,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_mock_task_metadata() {
         <span class="kw">let </span>metadata = MockTask {}.metadata();
-        <span class="macro">assert_eq!</span>(metadata.name, <span class="string">"Mock Task"</span>);
+        <span class="macro">assert_eq!</span>(metadata.name, <span class="string">"MockTask"</span>);
         <span class="macro">assert_eq!</span>(metadata.subscriptions.len(), <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(metadata.subscriptions[<span class="number">0</span>], <span class="string">"/topic/0"</span>.into());
         <span class="macro">assert_eq!</span>(metadata.refresh_rate, Timestamp::from_hz(<span class="number">100.0 </span><span class="kw">as </span>f32));
@@ -367,6 +368,10 @@
 
         <span class="kw">let </span>debug_messages = result.data.get(<span class="string">"/debug/0"</span>).unwrap();
         <span class="kw">let </span>debug_message = <span class="kw-2">&amp;</span>debug_messages;
-        <span class="macro">assert_eq!</span>(debug_message.data, lil_broker::Primatives::String(<span class="string">"topic_0=5"</span>.to_string()));
+        <span class="macro">assert_eq!</span>(
+            debug_message.data,
+            lil_broker::Primatives::String(<span class="string">"topic_0=5"</span>.to_string())
+        );
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

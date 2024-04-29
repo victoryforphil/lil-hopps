@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"]};
+window.SIDEBAR_ITEMS = {"enum":["SimRunnerStatus"],"struct":["DefaultScenario","SimRunner","SimRunnerConfig","SimRunnerResult","SimRunnerState","SimRunnerUpdate","SimThreadedRunner","Simulation","SimulationContext","SimulationState","UAVActor","UAVActorState","WorldActor","WorldActorResult"],"trait":["Scenario","SimActor"],"type":["SimContextHandle"]};
