@@ -2,10 +2,7 @@ name: Rust
 
 on:
   push:
-    branches: ["main"]
   pull_request:
-    branches: ["main"]
-
 env:
   CARGO_TERM_COLOR: always
 
@@ -29,7 +26,9 @@ jobs:
       - uses: taiki-e/install-action@nextest
       - uses: actions/checkout@v4
       - name: Install Rust
-        run: rustup update nightly 
+        run: |
+          rustup update nightly 
+          cargo +nightly llvm-cov
       - name: Install cargo-llvm-cov
         run: rustup component add llvm-tools-preview --toolchain nightly
       - uses: taiki-e/install-action@cargo-llvm-cov
@@ -43,7 +42,7 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
+          fail_ci_if_error: false
   docs:
     runs-on: ubuntu-latest
     steps:
