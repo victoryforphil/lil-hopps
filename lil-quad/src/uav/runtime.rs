@@ -7,10 +7,17 @@ use crate::uav::MockTask;
 use super::TaskHandle;
 
 
-pub trait UAVRuntime {
+pub trait UAVRuntime: Send + Sync{
     fn get_tasks(&self) -> Vec<TaskHandle>;
     fn get_active_tasks(&self) -> Vec<String>;
     fn inital_state(&mut self, db: &mut Database);
+
+    fn as_arc_mutex(self) -> Arc<Mutex<Self>>
+    where
+        Self: Sized,
+    {
+        Arc::new(Mutex::new(self))
+    }
 }
 
 

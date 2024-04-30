@@ -99,7 +99,7 @@ pub struct TaskResult {
     pub execution_time: Timestamp,
 }
 
-pub trait Task {
+pub trait Task: Send+ Sync{
     fn metadata(&self) -> TaskMetadata;
     fn run(
         &mut self,

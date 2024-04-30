@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use lil_quad::{runner::{Runner, UAVRunnerHandle}, uav::{UAVRuntime, UAV}};
+use lil_quad::{runner::{UAVRunner}, uav::{UAVRuntime, UAV}};
 
 use crate::SimActor;
 
@@ -18,11 +18,11 @@ impl UAVActorState{
 
 
 pub struct UAVActor{
-    pub uav_runner: UAVRunnerHandle
+    pub uav_runner: UAVRunner
 }
 
 impl UAVActor{
-    pub fn new(runner_handle: UAVRunnerHandle) -> Self{
+    pub fn new(runner_handle: UAVRunner) -> Self{
         UAVActor{
             uav_runner: runner_handle
         }

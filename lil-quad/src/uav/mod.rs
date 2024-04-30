@@ -10,7 +10,7 @@ use lil_broker::{Database, Timestamp};
 pub use tasks::*;
 pub use runtime::*;
 
-
+#[derive(Clone)]
 pub struct UAV {
     tasker: TaskManager,
     pub data: Arc<Mutex<Database>>,

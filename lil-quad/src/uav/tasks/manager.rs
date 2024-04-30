@@ -15,7 +15,7 @@ pub enum TaskStatus {
     Skipping,
     Running,
 }
-
+#[derive(Debug, Clone)]
 pub struct TaskState {
     pub name: String,
     pub last_run: Timestamp,
@@ -42,7 +42,7 @@ impl Default for TaskState {
 }
 
 pub type TaskHandle = Arc<Mutex<dyn Task>>;
-
+#[derive(Clone)]
 pub struct TaskEntry {
     pub name: String,
     pub task: TaskHandle,
@@ -62,6 +62,7 @@ impl TaskEntry {
         }
     }
 }
+#[derive(Clone)]
 pub struct TaskManager {
     pub tasks: Vec<TaskEntry>, // State tracking
     pub active_tasks: Vec<String>,
@@ -112,7 +113,7 @@ impl TaskManager {
         timestamp: &Timestamp,
         database: Arc<Mutex<Database>>,
     ) -> Result<(), anyhow::Error> {
-        info!("TaskManager tick: {:?}", timestamp);
+        debug!("TaskManager tick: {:?}", timestamp);
         let mut db = database.lock().unwrap();
         for task in self.tasks.iter_mut() {
             // Get the metadat for the task
