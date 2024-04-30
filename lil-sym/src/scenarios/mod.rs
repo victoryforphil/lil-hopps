@@ -5,7 +5,7 @@ use std::{
 
 use lil_broker::Timestamp;
 use lil_quad::{
-    runner::{UAVRunner, UAVRunnerConfig},
+    runner::{UAVRunner, UAVRunnerConfig, UAVThreadedRunner},
     uav::{MockUAVRuntime, UAV},
 };
 
@@ -27,15 +27,14 @@ impl Scenario for DefaultScenario {
         let uav_runtime = MockUAVRuntime::new();
         let uav_runtime = Arc::new(Mutex::new(uav_runtime));
         let uav = UAV::new(uav_runtime);
-        let runner = UAVRunner::new(
-        
+        let runner = UAVThreadedRunner::new(
+            uav,
             UAVRunnerConfig {
                 dt: Timestamp::from_hz(100.0),
                 max_t: Timestamp::from_seconds(30.0),
                 external_tick: true,
-                wait: true
+                wait: true,
             },
-            uav
         );
 
         uavs.insert(0, UAVActor::new(runner));
@@ -43,5 +42,3 @@ impl Scenario for DefaultScenario {
         uavs
     }
 }
-
-

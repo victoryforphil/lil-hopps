@@ -2,7 +2,6 @@ mod channels;
 mod config;
 mod detached;
 mod state;
-use std::sync::mpsc::Sender;
 
 pub use channels::*;
 pub use config::*;
@@ -78,16 +77,17 @@ impl UAVRunner {
                     .unwrap();
             }
 
-            if self.runner_state.t >= self.config.max_t ||(!self.config.wait && self.runner_state.state == UAVRunnerStatus::Init) {
+            if self.runner_state.t >= self.config.max_t
+                || (!self.config.wait && self.runner_state.state == UAVRunnerStatus::Init)
+            {
                 self.runner_state.state = UAVRunnerStatus::Completed;
                 info!("UAV Runner completed")
             }
-
         }
 
         Ok(self.runner_state.clone())
     }
-    #[instrument(skip(self,runner_state))]
+    #[instrument(skip(self, runner_state))]
     pub fn step(&mut self, runner_state: &UAVRunnerState) -> Result<UAVRunnerState, anyhow::Error> {
         self.uav.tick(&runner_state.t)?;
         debug!("UAV ticked at t: {:?}", runner_state.t);

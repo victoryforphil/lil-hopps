@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use tracing::{error, info};
 
 use crate::{Bucket, Primatives, Tag, Timestamp};
-
+#[derive(Debug)]
 pub struct Database {
     pub current_t: Option<Timestamp>,
     pub buckets: BTreeMap<String, Bucket>,
@@ -34,8 +34,7 @@ impl Database {
         }
     }
 
-
-    pub fn quick_write(&mut self, topic: &str, data: Primatives) ->  Result<QueryResponse, String> {
+    pub fn quick_write(&mut self, topic: &str, data: Primatives) -> Result<QueryResponse, String> {
         let query = WriteQuery::new(topic.to_string(), data, self.current_t.unwrap());
         self.query_write(query)
     }
