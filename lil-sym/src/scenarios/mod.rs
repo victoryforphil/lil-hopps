@@ -24,20 +24,22 @@ impl Scenario for DefaultScenario {
     fn generate_uavs(&self) -> HashMap<u32, UAVActor> {
         let mut uavs = HashMap::new();
 
-        let uav_runtime = MockUAVRuntime::new();
-        let uav_runtime = Arc::new(Mutex::new(uav_runtime));
-        let uav = UAV::new(uav_runtime);
-        let runner = UAVThreadedRunner::new(
-            uav,
-            UAVRunnerConfig {
-                dt: Timestamp::from_hz(100.0),
-                max_t: Timestamp::from_seconds(30.0),
-                external_tick: true,
-                wait: true,
-            },
-        );
-
-        uavs.insert(0, UAVActor::new(runner));
+        for i in 0..10 {
+            let uav_runtime = MockUAVRuntime::new();
+            let uav_runtime = Arc::new(Mutex::new(uav_runtime));
+            let uav = UAV::new(uav_runtime);
+            let runner = UAVThreadedRunner::new(
+                uav,
+                UAVRunnerConfig {
+                    dt: Timestamp::from_hz(100.0),
+                    max_t: Timestamp::from_seconds(5000.0),
+                    external_tick: true,
+                    wait: true,
+                },
+            );
+    
+            uavs.insert(i, UAVActor::new(runner));
+        }
 
         uavs
     }

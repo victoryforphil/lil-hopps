@@ -33,7 +33,7 @@ fn main() {
             let mut db = db.lock().unwrap();
             
             let value = db.query_get_latest(vec!["".to_string()].into()).unwrap();
-            info!("Latest value: {:#?}", value);
+            info!("Latest value: {:?}", value);
         }
          
     }else{

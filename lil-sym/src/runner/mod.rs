@@ -30,6 +30,7 @@ impl SimRunner{
 
     pub fn init(&mut self) -> Result<(), anyhow::Error>{
         self.runner_state.uav_dbs = self.simulation.get_uav_databases();
+        
         self.simulation.init()?;
         Ok(())
     }
@@ -64,8 +65,7 @@ impl SimRunner{
             self.runner_state.t = self.runner_state.t + self.config.dt;
 
             if self.runner_state.t >= self.config.max_t{
-                self.runner_state.state = SimRunnerStatus::Completed;
-                info!("Simulation completed");
+                self.shutdown()?;                
                 tx.send(SimRunnerUpdate{state: self.runner_state.clone()}).unwrap();
             }
 
@@ -82,6 +82,13 @@ impl SimRunner{
         self.simulation.step_physics(&runner_state.t, &self.config.dt)?;
         self.simulation.step_uavs(&runner_state.t, &self.config.dt)?;
 
+        Ok(())
+    }
+
+    pub fn shutdown(&mut self) -> Result<(), anyhow::Error>{
+        self.runner_state.state = SimRunnerStatus::Completed;
+        self.simulation.shutdown()?;
+        info!("Simulation completed");
         Ok(())
     }
 

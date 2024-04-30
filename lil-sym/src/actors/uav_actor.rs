@@ -5,6 +5,7 @@ use lil_quad::{
     runner::{UAVRunner, UAVRunnerClientChannels, UAVRunnerCommand, UAVThreadedRunner},
     uav::{UAVRuntime, UAV},
 };
+use rerun::Time;
 
 use crate::SimActor;
 
@@ -31,6 +32,15 @@ impl UAVActor {
             state: UAVActorState::new(),
         }
     }
+
+    pub fn shutdown(&mut self) {
+        if let Some(channels) = &self.state.uav_channels {
+            channels
+                .command_channel
+                .send(UAVRunnerCommand::Stop)
+                .unwrap();
+        }
+    }
 }
 
 impl SimActor<UAVActorState> for UAVActor {
@@ -42,7 +52,7 @@ impl SimActor<UAVActorState> for UAVActor {
         let mut channels = self.uav_runner.start()?;
         channels
             .command_channel
-            .send(UAVRunnerCommand::Start(Timestamp::from_seconds(50.0)))
+            .send(UAVRunnerCommand::Start(Timestamp::from_seconds(10000.0)))
             .unwrap();
         self.state = UAVActorState {
             uav_channels: Some(channels),

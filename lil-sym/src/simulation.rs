@@ -86,4 +86,13 @@ impl Simulation{
         }
         dbs
     }
+
+    pub fn shutdown(&mut self) -> Result<(), anyhow::Error>{
+        self.state.running = false;
+        for (id, uav) in self.uavs.iter_mut(){
+            uav.shutdown();
+            info!("Shutting down UAV: {}", id);
+        }
+        Ok(())
+    }
 }
