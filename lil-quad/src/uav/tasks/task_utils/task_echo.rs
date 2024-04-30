@@ -1,5 +1,7 @@
 
 
+use tracing::instrument;
+
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
 
 pub struct EchoTask {
@@ -23,7 +25,7 @@ impl Task for EchoTask {
             )
             .with_refresh_rate_hz(10.0)
     }
-
+    #[instrument(skip_all)]
     fn run(
         &mut self,
         t: &lil_broker::Timestamp,

@@ -3,9 +3,15 @@ use lil_quad::{runner::{UAVRunner, UAVRunnerCommand, UAVRunnerConfig, UAVRunnerS
 use tracing::info;
 
 
+use tracing_subscriber::layer::SubscriberExt;
+
+
 
 fn main() {
     env_logger::init();
+    tracing::subscriber::set_global_default(
+        tracing_subscriber::registry().with(tracing_tracy::TracyLayer::default())
+    ).expect("setup tracy layer");
     let uav_runtime = MockUAVRuntime::new().as_arc_mutex();
     let uav = UAV::new(uav_runtime);
     let config = UAVRunnerConfig::default().set_wait();
@@ -15,7 +21,7 @@ fn main() {
 
     client_channels
         .command_channel
-        .send(UAVRunnerCommand::Start(Timestamp::from_seconds(10000.0)))
+        .send(UAVRunnerCommand::Start(Timestamp::from_seconds(100.0)))
         .unwrap();
     
     let mut state = client_channels.state_channel.recv().unwrap();

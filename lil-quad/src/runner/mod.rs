@@ -8,7 +8,7 @@ pub use channels::*;
 pub use config::*;
 pub use detached::*;
 pub use state::*;
-use tracing::{debug, info};
+use tracing::{debug, info, instrument};
 
 use crate::uav::UAV;
 
@@ -29,13 +29,13 @@ impl UAVRunner {
             channels: chans,
         }
     }
-
+    #[instrument(skip(self))]
     pub fn init(&mut self) -> Result<(), anyhow::Error> {
         self.channels.database_arc = self.uav.data.clone();
         self.runner_state.state = UAVRunnerStatus::Init;
         Ok(())
     }
-
+    #[instrument(skip(self))]
     pub fn start(&mut self) -> Result<UAVRunnerState, anyhow::Error> {
         while self.runner_state.state != UAVRunnerStatus::Completed {
             let incoming_command = self.channels.command_channel.1.try_recv();
@@ -87,7 +87,7 @@ impl UAVRunner {
 
         Ok(self.runner_state.clone())
     }
-
+    #[instrument(skip(self,runner_state))]
     pub fn step(&mut self, runner_state: &UAVRunnerState) -> Result<UAVRunnerState, anyhow::Error> {
         self.uav.tick(&runner_state.t)?;
         debug!("UAV ticked at t: {:?}", runner_state.t);

@@ -4,7 +4,7 @@ use std::{
 };
 
 use lil_broker::{DataPoint, Database, QueryCommand, Timestamp, WriteQuery};
-use tracing::{debug, error, info};
+use tracing::{debug, error, info, instrument};
 
 use crate::uav::TaskSubscription;
 
@@ -107,7 +107,7 @@ impl TaskManager {
             .find(|t| t.name == name)
             .map(|t| &mut t.task)
     }
-
+    #[instrument(skip(self, database))]
     pub fn tick(
         &mut self,
         timestamp: &Timestamp,
