@@ -107,7 +107,7 @@ impl TaskManager {
             .find(|t| t.name == name)
             .map(|t| &mut t.task)
     }
-    #[instrument(skip(self, database))]
+    //#[instrument(skip(self, database))]
     pub fn tick(
         &mut self,
         timestamp: &Timestamp,

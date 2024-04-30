@@ -1,11 +1,12 @@
 mod config;
 mod detached;
 mod state;
-use std::sync::mpsc::Sender;
+use std::{collections::HashMap, sync::{mpsc::Sender, Arc, Mutex}};
 
 pub use config::*;
 pub use detached::*;
 
+use lil_broker::Database;
 pub use state::*;
 use tracing::info;
 use crate::{Simulation, SimulationState};
@@ -28,6 +29,7 @@ impl SimRunner{
     }
 
     pub fn init(&mut self) -> Result<(), anyhow::Error>{
+        self.runner_state.uav_dbs = self.simulation.get_uav_databases();
         self.simulation.init()?;
         Ok(())
     }
@@ -54,7 +56,7 @@ impl SimRunner{
 
     pub fn start_with_channel(&mut self, tx: Sender<SimRunnerUpdate>) -> Result<(), anyhow::Error>{
         self.runner_state.state = SimRunnerStatus::Running;
-
+        info!("Starting simulation with channel");
         while self.runner_state.state == SimRunnerStatus::Running{
             let runner_state = &self.runner_state.clone();
 
@@ -67,7 +69,8 @@ impl SimRunner{
                 tx.send(SimRunnerUpdate{state: self.runner_state.clone()}).unwrap();
             }
 
-            if self.runner_state.t.tick_ms % 500 == 0{
+            if self.runner_state.t.tick_ms % 1000 == 0{
+
                 tx.send(SimRunnerUpdate{state: self.runner_state.clone()}).unwrap();
             }
         }
@@ -81,4 +84,5 @@ impl SimRunner{
 
         Ok(())
     }
+
 }

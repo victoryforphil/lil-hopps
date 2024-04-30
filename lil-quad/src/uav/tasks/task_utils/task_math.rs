@@ -30,7 +30,7 @@ impl Task for MathTask {
             ])
             .with_refresh_rate_hz(10.0)
     }
-    #[instrument(skip_all)]
+    //#[instrument(skip_all)]
     fn run(
         &mut self,
         t: &lil_broker::Timestamp,

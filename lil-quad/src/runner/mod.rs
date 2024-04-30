@@ -87,7 +87,7 @@ impl UAVRunner {
 
         Ok(self.runner_state.clone())
     }
-    #[instrument(skip(self, runner_state))]
+    //#[instrument(skip(self, runner_state))]
     pub fn step(&mut self, runner_state: &UAVRunnerState) -> Result<UAVRunnerState, anyhow::Error> {
         self.uav.tick(&runner_state.t)?;
         debug!("UAV ticked at t: {:?}", runner_state.t);

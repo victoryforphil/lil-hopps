@@ -13,6 +13,6 @@ env_logger = "0.11.3"
 lil-broker = { path = "../lil-broker" }
 pretty_assertions = "1.4.0"
 serde = {version = "1.0.197", features = ["derive"]}
-tracing = {version = "0.1.40", features = ["log"]}
+tracing = {version = "0.1.40"}
 tracing-subscriber = "0.3.18"
-tracing-tracy = { version = "0.11.0", features = ["enable", "broadcast", "code-transfer", "delayed-init", "system-tracing"] }
+tracing-tracy = { version = "0.11.0", features = [] }

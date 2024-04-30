@@ -13,14 +13,14 @@ pub enum UAVRunnerCommand {
     TickStart(Timestamp),
     TickFinished(Timestamp),
 }
-
+#[derive(Clone)]
 pub struct UAVRunnerChannels {
     pub database_arc: Arc<Mutex<Database>>,
     pub command_channel: (Sender<UAVRunnerCommand>, Receiver<UAVRunnerCommand>),
     pub state_channel: (Sender<UAVRunnerState>, Receiver<UAVRunnerState>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UAVRunnerClientChannels {
     pub command_channel: Sender<UAVRunnerCommand>,
     pub state_channel: Receiver<UAVRunnerState>,

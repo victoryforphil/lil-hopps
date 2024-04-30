@@ -21,12 +21,14 @@ impl UAVActorState {
 
 pub struct UAVActor {
     pub uav_runner: UAVThreadedRunner,
+    pub state: UAVActorState,
 }
 
 impl UAVActor {
     pub fn new(runner_handle: UAVThreadedRunner) -> Self {
         UAVActor {
             uav_runner: runner_handle,
+            state: UAVActorState::new(),
         }
     }
 }
@@ -42,9 +44,10 @@ impl SimActor<UAVActorState> for UAVActor {
             .command_channel
             .send(UAVRunnerCommand::Start(Timestamp::from_seconds(50.0)))
             .unwrap();
-        Ok(UAVActorState {
+        self.state = UAVActorState {
             uav_channels: Some(channels),
-        })
+        };
+        Ok(self.state.clone())
     }
 
     fn step(
@@ -54,12 +57,16 @@ impl SimActor<UAVActorState> for UAVActor {
         t: &lil_broker::Timestamp,
         dt: &lil_broker::Timestamp,
     ) -> Result<UAVActorState, anyhow::Error> {
-        self.st
+        if self.state.uav_channels.is_none() {
+            return Ok(self.state.clone());
+        }
+
+        let mut channels = self.state.uav_channels.as_ref().unwrap().clone();
+        channels
             .command_channel
-            .0
             .send(UAVRunnerCommand::TickStart(t.clone()))
             .unwrap();
 
-        Ok(UAVActorState::new())
+        Ok(self.state.clone())
     }
 }

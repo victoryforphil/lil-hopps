@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
-use lil_broker::Timestamp;
+use lil_broker::{Database, Timestamp};
 use tracing::info;
 
 use crate::{Scenario, SimActor, SimulationContext, SimulationState, UAVActor, WorldActor};
@@ -77,5 +77,13 @@ impl Simulation{
             self.state.uavs.insert(*id, uav_res);
         }
         Ok(())
+    }
+
+    pub fn get_uav_databases(&self) -> HashMap<u32, Arc<Mutex<Database>>>{
+        let mut dbs = HashMap::new();
+        for (id, uav) in self.uavs.iter(){
+            dbs.insert(*id, uav.uav_runner.uav.data.clone());
+        }
+        dbs
     }
 }
