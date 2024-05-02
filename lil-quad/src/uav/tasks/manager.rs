@@ -114,7 +114,7 @@ impl TaskManager {
         database: Arc<Mutex<Database>>,
     ) -> Result<(), anyhow::Error> {
         debug!("TaskManager tick: {:?}", timestamp);
-        let mut db = database.lock().unwrap();
+        
         for task in self.tasks.iter_mut() {
             // Get the metadat for the task
             if !self.active_tasks.contains(&task.metadata.name) {
@@ -134,26 +134,29 @@ impl TaskManager {
             state.status = TaskStatus::Running;
 
             let subscriptions = &metadata.subscriptions;
-            let query = TaskSubscription::generate_latest_query(subscriptions);
-
-            let data = db.query_get_latest(query);
-
-            let data = match data {
-                Ok(data) => data,
-                Err(err) => {
-                    error!("Failed to get data for task: {} {:?}", metadata.name, err);
-                    continue;
-                }
-            };
-            // Select last
-            let inputs: BTreeMap<String, DataPoint> = data
-                .data
-                .into_iter()
-                .map(|(k, v)| {
-                    let last = v.last().unwrap();
-                    (k, last.clone())
-                })
-                .collect();
+            let inputs: BTreeMap<String, DataPoint>;
+            {
+                let query = TaskSubscription::generate_latest_query(subscriptions);
+                let mut db = database.lock().unwrap();
+                let data = db.query_get_latest(query);
+                
+                let data = match data {
+                    Ok(data) => data,
+                    Err(err) => {
+                        error!("Failed to get data for task: {} {:?}", metadata.name, err);
+                        continue;
+                    }
+                };
+                // Select last
+                inputs = data
+                    .data
+                    .into_iter()
+                    .map(|(k, v)| {
+                        let last = v.last().unwrap();
+                        (k, last.clone())
+                    })
+                    .collect();
+            }
 
             let mut task_lock: std::sync::MutexGuard<'_, dyn Task> = task.task.lock().unwrap();
             let result = task_lock.run(timestamp, &inputs);
@@ -173,6 +176,7 @@ impl TaskManager {
                         metadata.name,
                         write_queries.len()
                     );
+                     let mut db = database.lock().unwrap();
                     let _write_result = db.query_batch(write_queries);
                 }
                 Err(err) => {
@@ -181,7 +185,7 @@ impl TaskManager {
             }
         }
 
-        debug!("Task Database after tick: {:#?}", db.buckets.keys());
+      
 
         Ok(())
     }

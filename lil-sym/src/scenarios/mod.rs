@@ -24,7 +24,7 @@ impl Scenario for DefaultScenario {
     fn generate_uavs(&self) -> HashMap<u32, UAVActor> {
         let mut uavs = HashMap::new();
 
-        for i in 0..10 {
+        for i in 0..100 {
             let uav_runtime = MockUAVRuntime::new();
             let uav_runtime = Arc::new(Mutex::new(uav_runtime));
             let uav = UAV::new(uav_runtime);

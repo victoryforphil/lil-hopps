@@ -1,4 +1,6 @@
-use std::sync::mpsc::{Receiver, Sender};
+
+
+use crossbeam_channel::{Receiver, Sender};
 
 use super::{ActHardware, ActHardwareInputs, ActHardwareOutput};
 
@@ -10,7 +12,7 @@ pub struct ChannelAct{
 
 impl ChannelAct{
     pub fn new() -> Self{
-        let (tx, rx) = std::sync::mpsc::channel();
+        let (tx, rx) = crossbeam_channel::unbounded();
         Self{
             rx,
             tx

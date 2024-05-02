@@ -14,3 +14,5 @@ serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.117"
 tracing = {version = "0.1.40", features = ["log"]}
 json-unflattening = "0.1.2"
+lil-helper = { path = "../lil-helper" }
+anyhow = "1.0.82"
