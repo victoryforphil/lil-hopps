@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["TaskStatus"],"struct":["EchoTask","MathTask","MockTask","MockUAVRuntime","TaskEntry","TaskManager","TaskMetadata","TaskResult","TaskState","TaskSubscription","UAV"],"trait":["Task","UAVRuntime"],"type":["TaskHandle"]};
+window.SIDEBAR_ITEMS = {"enum":["TaskStatus"],"mod":["act","sense"],"struct":["EchoTask","MathTask","MockTask","TaskEntry","TaskManager","TaskMetadata","TaskResult","TaskState","TaskSubscription","TestQuadRuntime","UAV"],"trait":["Task","UAVRuntime"],"type":["TaskHandle"]};
