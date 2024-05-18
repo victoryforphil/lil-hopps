@@ -1,3 +1,5 @@
+use serde_json::Value;
+
 #[derive(Debug, PartialEq,Clone)]
 pub enum Primatives{
     Number(f64),
@@ -8,7 +10,36 @@ pub enum Primatives{
     BooleanArray(Vec<bool>),
     ArrayRef(Vec<String>)
 }
-
+impl Primatives{
+    pub(crate) fn from_value(val: Value) -> Option<Primatives> {
+        match val {
+            Value::String(s) => Some(Primatives::String(s)),
+            Value::Number(n) => n.as_f64().map(|f| Primatives::Number(f as f64)),
+            Value::Bool(b) => Some(Primatives::Boolean(b)),
+            Value::Array(arr) => {
+                // Here we check the first element to guess the array type
+                if let Some(first) = arr.first() {
+                    if first.is_string() {
+                        let maybe_string_array: Option<Vec<String>> = arr.into_iter().map(|v| v.as_str().map(String::from)).collect();
+                        maybe_string_array.map(Primatives::StringArray)
+                    } else if first.is_number() {
+                        let maybe_number_array: Option<Vec<f64>> = arr.into_iter().map(|v| v.as_f64().map(|n| n as f64)).collect();
+                        maybe_number_array.map(Primatives::NumberArray)
+                    } else if first.is_boolean() {
+                        let maybe_boolean_array: Option<Vec<bool>> = arr.into_iter().map(|v| v.as_bool()).collect();
+                        maybe_boolean_array.map(Primatives::BooleanArray)
+                    } else {
+                        None
+                    }
+                } else {
+                    None // Empty array case or mixed types case
+                }
+            },
+            Value::Null => None,
+            _ => None, // Covers other cases such as Object, which you might want to handle differently
+        }
+    }
+}
 ///Concversion Function from Primative to f64
 impl From<Primatives> for f64 {
     fn from(p: Primatives) -> f64 {
