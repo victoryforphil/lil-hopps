@@ -1,10 +1,10 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, fmt};
 
 use serde::{de::value::Error, ser, Serialize};
 
 use crate::Primatives;
 
-pub struct PrimativeSerializer {
+pub struct PrimitiveSerializer {
     // This string starts empty and JSON is appended as values are serialized.
     output: BTreeMap<String, Primatives>,
 }
@@ -14,7 +14,7 @@ pub fn to_string<T>(value: &T) -> Result<String, Error>
 where
     T: Serialize,
 {
-    let mut serializer = PrimativeSerializer {
+    let mut serializer = PrimitiveSerializer {
         output: BTreeMap::new(),
     };
 
@@ -29,7 +29,7 @@ where
     Ok(output)
 }
 
-impl<'a> ser::Serializer for &'a mut PrimativeSerializer {
+impl<'a> ser::Serializer for &'a mut PrimitiveSerializer {
      // The output type produced by this `Serializer` during successful
     // serialization. Most serializers that produce text or binary output should
     // set `Ok = ()` and serialize into an `io::Write` or buffer contained
@@ -205,5 +205,179 @@ impl<'a> ser::Serializer for &'a mut PrimativeSerializer {
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
         todo!()
+    }
+}
+
+
+// Some `Serialize` types are not able to hold a key and value in memory at the
+// same time so `SerializeMap` implementations are required to support
+// `serialize_key` and `serialize_value` individually.
+//
+// There is a third optional method on the `SerializeMap` trait. The
+// `serialize_entry` method allows serializers to optimize for the case where
+// key and value are both available simultaneously. In JSON it doesn't make a
+// difference so the default behavior for `serialize_entry` is fine.
+impl<'a> ser::SerializeMap for &'a mut PrimitiveSerializer {
+    type Ok = ();
+    type Error = Error;
+
+    
+
+    fn end(self) -> Result<(), Error> {
+        Ok(())
+    }
+    
+    fn serialize_key<T: ?Sized>(&mut self, key: &T) -> Result<(), Self::Error>
+    where
+        T: Serialize {
+        Ok(())
+    }
+    
+    fn serialize_value<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: Serialize {
+        Ok(())
+    }
+    fn serialize_entry<K: ?Sized, V: ?Sized>(
+            &mut self,
+            key: &K,
+            value: &V,
+        ) -> Result<(), Self::Error>
+        where
+            K: Serialize,
+            V: Serialize, {
+        let key = key.serialize(&mut **self)?;
+        let key_str = match key{
+            Primatives::String(s) => s,
+            _ => {"default_key".to_string()}
+        };
+        let value = value.serialize(&mut **self)?;
+        self.output.insert(key_str, value);
+        Ok(())
+    }
+
+
+}
+
+// Structs are like maps in which the keys are constrained to be compile-time
+// constant strings.
+impl<'a> ser::SerializeStruct for &'a mut PrimitiveSerializer {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Error>
+    where
+        T: ?Sized + Serialize,
+    {
+
+        let key = key.to_string();
+        
+        let value = value.serialize(&mut **self)?;
+        self.output.insert(key, value);
+        Ok(())
+    }
+    
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        Ok(())
+    }
+
+    
+}
+
+// The following 7 impls deal with the serialization of compound types like
+// sequences and maps. Serialization of such types is begun by a Serializer
+// method and followed by zero or more calls to serialize individual elements of
+// the compound type and one call to end the compound type.
+//
+// This impl is SerializeSeq so these methods are called after `serialize_seq`
+// is called on the Serializer.
+impl<'a> ser::SerializeSeq for &'a mut Serializer {
+    // Must match the `Ok` type of the serializer.
+    type Ok = ();
+    // Must match the `Error` type of the serializer.
+    type Error = Error;
+
+    // Serialize a single element of the sequence.
+    fn serialize_element<T>(&mut self, value: &T) -> Result<()>
+    where
+        T: ?Sized + Serialize,
+    {
+        if !self.output.ends_with('[') {
+            self.output += ",";
+        }
+        value.serialize(&mut **self)
+    }
+
+    // Close the sequence.
+    fn end(self) -> Result<()> {
+        self.output += "]";
+        Ok(())
+    }
+}
+
+// Same thing but for tuples.
+impl<'a> ser::SerializeTuple for &'a mut PrimitiveSerializer {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Error>
+    where
+        T: ?Sized + Serialize,
+    {
+        
+    }
+
+    fn end(self) -> Result<(),Error> {
+        Ok(())
+    }
+}
+
+// Same thing but for tuple structs.
+impl<'a> ser::SerializeTupleStruct for &'a mut PrimitiveSerializer {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Error>
+    where
+        T: ?Sized + Serialize,
+    {
+        if !self.output.ends_with('[') {
+            self.output += ",";
+        }
+        value.serialize(&mut **self)
+    }
+
+    fn end(self) -> Result<(), Error> {
+
+        Ok(())
+    }
+}
+
+// Tuple variants are a little different. Refer back to the
+// `serialize_tuple_variant` method above:
+//
+//    self.output += "{";
+//    variant.serialize(&mut *self)?;
+//    self.output += ":[";
+//
+// So the `end` method in this impl is responsible for closing both the `]` and
+// the `}`.
+impl<'a> ser::SerializeTupleVariant for &'a mut PrimitiveSerializer {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Error>
+    where
+        T: ?Sized + Serialize,
+    {
+        if !self.output.ends_with('[') {
+            self.output += ",";
+        }
+        value.serialize(&mut **self)
+    }
+
+    fn end(self) -> Result<()> {
+        self.output += "]}";
+        Ok(())
     }
 }
