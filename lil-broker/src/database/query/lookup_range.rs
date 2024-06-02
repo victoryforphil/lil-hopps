@@ -75,9 +75,15 @@ impl Database {
                     if passed_filters {
                         // Insert if not found else add to the existing data
                         if response.data.contains_key(&bucket_key) {
-                            response.data.get_mut(&bucket_key).unwrap().push(data_point.clone());
+                            response
+                                .data
+                                .get_mut(&bucket_key)
+                                .unwrap()
+                                .push(data_point.clone());
                         } else {
-                            response.data.insert(bucket_key.clone(), vec![data_point.clone()]);
+                            response
+                                .data
+                                .insert(bucket_key.clone(), vec![data_point.clone()]);
                         }
                         response.metadata.n_results += 1;
                     }
@@ -90,6 +96,9 @@ impl Database {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+    use tracing::info;
+
     use crate::{Primatives, Tag, Timestamp, WriteQuery};
 
     use super::*;
@@ -97,7 +106,11 @@ mod tests {
     pub fn generate_time_data(name: &str) -> Vec<QueryCommand> {
         let mut queries = Vec::new();
         for i in 0..50 {
-            let query = WriteQuery::new(name.into(), (i as f64).into(), Timestamp::from_seconds(i as f32));
+            let query = WriteQuery::new(
+                name.into(),
+                (i as f64).into(),
+                Timestamp::from_seconds(i as f32),
+            );
             queries.push(query.into());
         }
         queries
@@ -110,8 +123,7 @@ mod tests {
 
         let all = vec![topic_a_queries, topic_b_queries].concat();
 
-        db.query_batch(all)
-            .unwrap();
+        db.query_batch(all).unwrap();
 
         db
     }
@@ -133,8 +145,70 @@ mod tests {
         assert_eq!(read_res.metadata.n_results, 4);
         let topic_a = read_res.data.get("test/a").unwrap();
         assert_eq!(topic_a.len(), 4);
-        
+    }
 
+    #[test]
+    fn test_get_latest_json_struct() {
+        env_logger::init();
+        let mut db = Database::new();
+
+        #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
+        struct TestData2 {
+            d: f64,
+            e: bool,
+            f: String,
+        }
+        #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
+        struct TestData {
+            a: f64,
+            b: bool,
+            c: String,
+            //#[serde(flatten)]
+            d: TestData2,
+        }
+
+        let mut data = TestData {
+            a: 7.0,
+            b: true,
+            c: "test".to_string(),
+            d: TestData2 {
+                d: 7.0,
+                e: true,
+                f: "test".to_string(),
+            },
+        };
+
+        let queries = WriteQuery::from_json_batch(
+            json!(data),
+            Timestamp::from_seconds(5.0),
+            "test".to_string(),
+        );
+
+        let _write_res = db.query_batch(queries).unwrap();
+        data.a = 8.0;
+        let queries = WriteQuery::from_json_batch(
+            json!(data),
+            Timestamp::from_seconds(6.0),
+            "test".to_string(),
+        );
+
+        let _write_res = db.query_batch(queries).unwrap();
+
+        let read_query = LookupRangeQuery {
+            topics: vec!["test".into()],
+            ack_topics: Vec::new(),
+            tag_filters: Vec::new(),
+            timestamp_start: Timestamp::from_seconds(3.0),
+            timestamp_end: Timestamp::from_seconds(7.0),
+            direction_before: true,
+        };
+        let read_res = db.query(read_query.into()).unwrap();
+
+        let json_out = read_res.to_json_timestamped("test/");
+        info!(
+            "Json Out: {}",
+            serde_json::to_string_pretty(&json_out).unwrap()
+        );
     }
 
     #[test]
@@ -157,7 +231,6 @@ mod tests {
         let topic_a = read_res.data.get("test/a").unwrap();
         assert_eq!(topic_a.len(), 4);
         let topic_b = read_res.data.get("test/b").unwrap();
-        assert_eq!(topic_b.len(), 4);        
-
+        assert_eq!(topic_b.len(), 4);
     }
 }

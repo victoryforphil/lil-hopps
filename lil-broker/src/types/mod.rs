@@ -1,4 +1,4 @@
-mod timestamp;
 mod tag;
-pub use timestamp::*;
+mod timestamp;
 pub use tag::*;
+pub use timestamp::*;
