@@ -5,17 +5,10 @@ use lil_quad::{
 };
 use tracing::info;
 
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_tracy::client::ProfiledAllocator;
-#[global_allocator]
-static GLOBAL: ProfiledAllocator<std::alloc::System> =
-    ProfiledAllocator::new(std::alloc::System, 100);
+
 fn main() {
     env_logger::init();
-    tracing::subscriber::set_global_default(
-        tracing_subscriber::registry().with(tracing_tracy::TracyLayer::default()),
-    )
-    .expect("setup tracy layer");
+  
     // wait 5s
     std::thread::sleep(std::time::Duration::from_secs(5));
     let uav_runtime = MockUAVRuntime::new().as_arc_mutex();
