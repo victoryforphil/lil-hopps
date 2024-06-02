@@ -179,7 +179,7 @@ mod tests {
 
     #[test]
     fn test_get_latest_json_struct() {
-        env_logger::init();
+      
         let mut db = Database::new();
 
         #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_ack() {
-        env_logger::init();
+     
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
         let _write_res = db.query_batch(vec![query1.into()]).unwrap();
@@ -296,7 +296,7 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_bucket_tags() {
-        env_logger::init();
+       
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
         db.add_tag_to_bucket("test/a/1", "user/test_tag".into());
@@ -318,7 +318,7 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_additonial() {
-        env_logger::init();
+       
         let mut db = Database::new();
 
         let queries = vec![

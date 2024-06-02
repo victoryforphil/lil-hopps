@@ -129,7 +129,7 @@ mod tests {
     }
     #[test]
     fn test_lookup_range_basic() {
-        env_logger::init();
+       
         let mut db = generate_data();
 
         let read_query = LookupRangeQuery {
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn test_get_latest_json_struct() {
-        env_logger::init();
+       
         let mut db = Database::new();
 
         #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -213,7 +213,7 @@ mod tests {
 
     #[test]
     fn test_lookup_range_wild_card() {
-        env_logger::init();
+       
         let mut db = generate_data();
 
         let read_query = LookupRangeQuery {
