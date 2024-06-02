@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "_type")]
 pub struct Pose {
     pub position: nalgebra::Vector3<f32>,
     pub orientation: nalgebra::UnitQuaternion<f32>,

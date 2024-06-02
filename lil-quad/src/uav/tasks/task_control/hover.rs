@@ -80,6 +80,7 @@ mod test {
     
     use lil_broker::Timestamp;
     use pretty_assertions::assert_eq;
+    use tracing::info;
     
     #[test]
     fn test_hover_task_metadata() {
@@ -118,7 +119,9 @@ mod test {
             .unwrap();
 
         let result_out = result_out.to_json("hover/");
+        info!("Desired pose: {:?}", result_out);
         let value = serde_json::from_value::<HoverOutputs>(result_out).unwrap();
+
         assert_eq!(value.error, 0.0);
         assert_eq!(value.desired_pose, pose);
     }

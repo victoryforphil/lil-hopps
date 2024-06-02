@@ -119,6 +119,29 @@ impl Database {
 
         Ok(response)
     }
+
+    pub fn query_get_latest_stripped(&mut self, query: GetLatestQuery) -> Result<QueryResponse, String> {
+        let mut response = QueryResponse::default();
+        debug!("Querying for latest data: {:?}", query);
+        let all_bucket_keys = self.get_keys().into_iter();
+        let matching_keys = all_bucket_keys.filter(|key| {
+            for topic in &query.topics {
+                if key.starts_with(topic) {
+                    return true;
+                }
+            }
+            false
+        });
+        // Read the matching keys
+        let addtional_keys = self.read_bucket(matching_keys.collect(), &query, &mut response);
+
+        if let Some(addtional_keys) = addtional_keys {
+            debug!("Additional keys to read: {:?}", addtional_keys);
+            self.read_bucket(addtional_keys, &query, &mut response);
+        }
+
+        Ok(response)
+    }
 }
 
 #[cfg(test)]
