@@ -78,6 +78,7 @@ mod test {
 
     use super::*;
     
+    use lil_broker::Timestamp;
     use pretty_assertions::assert_eq;
     
     #[test]

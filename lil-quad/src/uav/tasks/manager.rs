@@ -181,7 +181,7 @@ impl TaskManager {
 
 #[cfg(test)]
 mod tests {
-    use lil_broker::{Primatives, WriteQuery};
+    use lil_broker::{DataPoint, Primatives, WriteQuery};
 
     use crate::uav::TaskResult;
 
