@@ -1,7 +1,9 @@
 mod manager;
+mod task_control;
 mod task_utils;
 pub use manager::*;
 pub use task_utils::*;
+pub use task_control::*;
 
 use std::{collections::BTreeMap};
 

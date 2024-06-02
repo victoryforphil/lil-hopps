@@ -11,6 +11,7 @@ crossbeam = "0.8.4"
 crossbeam-channel = "0.5.12"
 env_logger = "0.11.3"
 lil-broker = { path = "../lil-broker" }
+lil-helper = { path = "../lil-helper" }
 pretty_assertions = "1.4.0"
 serde = {version = "1.0.197", features = ["derive"]}
 tracing = {version = "0.1.40"}

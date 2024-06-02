@@ -87,7 +87,7 @@ impl QueryResponse {
         // Strip Prefix
         debug!("{:?}", values);
 
-        let unflattened_json = unflatten(&values).unwrap();
+        let unflattened_json = unflatten(&values).unwrap_or_default();
         unflattened_json
     }
 
