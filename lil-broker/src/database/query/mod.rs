@@ -11,9 +11,9 @@ mod write;
 pub use get_latest::*;
 use json_unflattening::unflattening::unflatten;
 pub use lookup::*;
-pub use lookup::*;
+
 pub use lookup_range::*;
-pub use lookup_range::*;
+
 use serde_json::{json, Value};
 pub use tag_filter::*;
 

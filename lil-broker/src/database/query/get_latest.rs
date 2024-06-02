@@ -123,8 +123,8 @@ impl Database {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Primatives, Tag, Timestamp, WriteQuery};
-    use pretty_assertions::{assert_eq, assert_ne};
+    use crate::{Primatives, Timestamp, WriteQuery};
+    use pretty_assertions::{assert_eq};
     use serde_json::json;
 
     use tracing::info;

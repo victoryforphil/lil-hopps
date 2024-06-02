@@ -1,9 +1,8 @@
 use std::{
-    sync::{Arc, Mutex},
     thread::JoinHandle,
 };
 
-use crate::uav::{UAVRuntime, UAV};
+use crate::uav::{UAV};
 
 use super::{UAVRunner, UAVRunnerClientChannels, UAVRunnerConfig};
 

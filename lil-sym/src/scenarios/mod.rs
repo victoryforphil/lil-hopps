@@ -5,7 +5,7 @@ use std::{
 
 use lil_broker::Timestamp;
 use lil_quad::{
-    runner::{UAVRunner, UAVRunnerConfig, UAVThreadedRunner},
+    runner::{UAVRunnerConfig, UAVThreadedRunner},
     uav::{MockUAVRuntime, UAV},
 };
 

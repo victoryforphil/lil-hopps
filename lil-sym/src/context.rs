@@ -5,7 +5,7 @@ use rapier3d::{
         RigidBodySet,
     },
     geometry::{BroadPhase, ColliderSet, NarrowPhase},
-    pipeline::{PhysicsHooks, PhysicsPipeline, QueryPipeline},
+    pipeline::{PhysicsPipeline, QueryPipeline},
 };
 
 pub type SimContextHandle<'a> = &'a mut SimulationContext;

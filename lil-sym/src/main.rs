@@ -6,7 +6,7 @@ use tracing::{error, info};
 
 fn main() {
     env_logger::init();
-    let mut scenario = DefaultScenario {};
+    let scenario = DefaultScenario {};
 
     let mut sim_config = SimRunnerConfig::default();
     sim_config.max_t = Timestamp::from_seconds(100.0);

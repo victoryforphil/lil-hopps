@@ -27,7 +27,7 @@ impl SimActor<WorldActorResult> for WorldActor {
     fn init(
         &mut self,
         context: crate::SimContextHandle,
-        last_state: &crate::SimulationState,
+        _last_state: &crate::SimulationState,
     ) -> Result<WorldActorResult, anyhow::Error> {
         let floor_collider = ColliderBuilder::cuboid(100.0, 100.0, 0.1);
 
@@ -40,9 +40,9 @@ impl SimActor<WorldActorResult> for WorldActor {
     fn step(
         &mut self,
         context: crate::SimContextHandle,
-        state: &crate::SimulationState,
-        t: &lil_broker::Timestamp,
-        dt: &lil_broker::Timestamp,
+        _state: &crate::SimulationState,
+        _t: &lil_broker::Timestamp,
+        _dt: &lil_broker::Timestamp,
     ) -> Result<WorldActorResult, anyhow::Error> {
         let floor_collider = context.colliders.get_mut(self.floor).unwrap();
         floor_collider.set_position([0.0, 0.0, -0.05].into());

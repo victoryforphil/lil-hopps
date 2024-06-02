@@ -19,7 +19,7 @@ impl BrokerKey {
     }
 
     pub fn prefix_batch(
-        mut batch: BTreeMap<String, Primatives>,
+        batch: BTreeMap<String, Primatives>,
         prefix: &str,
     ) -> BTreeMap<String, Primatives> {
         let mut new_batch = BTreeMap::new();

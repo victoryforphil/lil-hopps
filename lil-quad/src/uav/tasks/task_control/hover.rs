@@ -1,8 +1,8 @@
-use lil_broker::{DataPoint, QueryResponse, Timestamp};
+use lil_broker::{DataPoint, QueryResponse};
 use lil_helper::types::Pose;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tracing::{info, instrument};
+
 
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
 pub struct HoverTask {
@@ -73,14 +73,13 @@ mod test {
     };
 
     use crate::{
-        runner::{FixtureRunner, UAVRunner, UAVRunnerConfig},
-        uav::{quads::FixtureQuadRuntime, TaskManager, UAV},
+        runner::{FixtureRunner, UAVRunnerConfig},
     };
 
     use super::*;
-    use lil_broker::{Database, Primatives, WriteQuery};
+    
     use pretty_assertions::assert_eq;
-    use tracing::{info, warn};
+    
     #[test]
     fn test_hover_task_metadata() {
         let task = HoverTask::new();

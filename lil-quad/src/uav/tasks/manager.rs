@@ -3,8 +3,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use lil_broker::{DataPoint, Database, QueryCommand, QueryResponse, Timestamp, WriteQuery};
-use tracing::{debug, error, info, instrument};
+use lil_broker::{Database, QueryCommand, QueryResponse, Timestamp, WriteQuery};
+use tracing::{debug, error, info};
 
 use crate::uav::TaskSubscription;
 
@@ -143,7 +143,7 @@ impl TaskManager {
                     Ok(result) => {
                         inputs.insert(topic.clone(), result);
                     }
-                    Err(err) => {
+                    Err(_err) => {
                         error!("Failed to get latest data for topic: {}", topic);
                     }
                 }

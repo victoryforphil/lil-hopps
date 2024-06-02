@@ -1,10 +1,10 @@
 use crate::{Bucket, DataPoint, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
 
-use flatten_json_object::{ArrayFormatting, Flattener};
+
 use json_unflattening::flattening::flatten;
-use serde::de::value;
+
 use serde_json::Value;
-use tracing::{error, info};
+use tracing::{info};
 
 #[derive(Debug, Clone)]
 pub struct WriteQuery {

@@ -4,10 +4,10 @@ use std::{
     vec,
 };
 
-use lil_broker::Timestamp;
-use serde_json::{json, Value};
 
-use crate::uav::{FixtureQuadRuntime, Task, TaskEntry, TaskHandle, UAV};
+use serde_json::{Value};
+
+use crate::uav::{FixtureQuadRuntime, TaskHandle, UAV};
 
 use super::{UAVRunner, UAVRunnerConfig};
 

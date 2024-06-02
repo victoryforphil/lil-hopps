@@ -99,7 +99,7 @@ mod tests {
     use serde_json::json;
     use tracing::info;
 
-    use crate::{Primatives, Tag, Timestamp, WriteQuery};
+    use crate::{Timestamp, WriteQuery};
 
     use super::*;
 

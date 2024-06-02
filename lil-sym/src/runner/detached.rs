@@ -1,5 +1,4 @@
 use std::{
-    collections::BTreeMap,
     sync::{
         mpsc::{self, Receiver, Sender},
         Arc,
@@ -7,7 +6,7 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-use lil_broker::Database;
+
 use tracing::info;
 
 use crate::{Scenario, SimRunner, SimRunnerConfig, SimRunnerState, Simulation};
