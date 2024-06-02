@@ -3,7 +3,7 @@ use crate::Timestamp;
 use super::tag_filter::TagFilter;
 
 #[derive(Debug, Clone)]
-pub struct LookupQuery{
+pub struct LookupQuery {
     pub topics: Vec<String>,
     pub timestamp: Timestamp,
     pub ack_topics: Vec<String>,
@@ -11,9 +11,9 @@ pub struct LookupQuery{
     pub direction_before: bool,
 }
 
-impl Default for LookupQuery{
-    fn default() -> Self{
-        LookupQuery{
+impl Default for LookupQuery {
+    fn default() -> Self {
+        LookupQuery {
             topics: Vec::new(),
             timestamp: Timestamp::zero(),
             ack_topics: Vec::new(),
