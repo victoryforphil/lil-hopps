@@ -59,6 +59,14 @@ impl UAVRunnerConfig {
     pub fn set_wait(self) -> Self {
         UAVRunnerConfig { wait: true, ..self }
     }
+
+    pub fn set_max_t(self, max_t: Timestamp) -> Self {
+        UAVRunnerConfig { max_t, ..self }
+    }
+
+    pub fn set_dt(self, dt: Timestamp) -> Self {
+        UAVRunnerConfig { dt, ..self }
+    }
 }
 
 #[cfg(test)]

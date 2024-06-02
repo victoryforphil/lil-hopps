@@ -2,11 +2,13 @@ mod channels;
 mod config;
 mod detached;
 mod state;
+mod fixture;
 
 pub use channels::*;
 pub use config::*;
 pub use detached::*;
 pub use state::*;
+pub use fixture::*;
 use tracing::{debug, info, instrument};
 
 use crate::uav::UAV;
@@ -33,6 +35,15 @@ impl UAVRunner {
         self.channels.database_arc = self.uav.data.clone();
         self.runner_state.state = UAVRunnerStatus::Init;
         Ok(())
+    }
+
+    pub fn send_start(&self) {
+        let max_t = self.config.max_t;
+        self.channels
+            .command_channel
+            .0
+            .send(UAVRunnerCommand::Start(max_t))
+            .unwrap();
     }
     #[instrument(skip(self))]
     pub fn start(&mut self) -> Result<UAVRunnerState, anyhow::Error> {
