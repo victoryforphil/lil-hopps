@@ -12,7 +12,7 @@ fn main() {
     sim_config.max_t = Timestamp::from_seconds(10.0);
 
     let mut sim_runner = SimThreadedRunner::new(Arc::new(scenario), sim_config);
-  
+
     let channels = sim_runner.start();
 
     let mut db = HashMap::new();
@@ -25,14 +25,11 @@ fn main() {
             info!("Simulation update: {:?}", update.state.t.seconds());
             db = update.state.uav_dbs;
             sim_update = sim_updates_rx.recv();
-                    // Wait 100ms
+            // Wait 100ms
             std::thread::sleep(std::time::Duration::from_millis(10));
-           
         }
 
-    
         info!("Simulation completed");
-
     } else {
         error!("Error starting simulation")
     }
@@ -40,8 +37,8 @@ fn main() {
     info!("Sleeping for 5s to allow logger to flush");
     std::thread::sleep(std::time::Duration::from_secs(5));
     for (uav_id, uav_db) in db.iter() {
-        // Print DB 
-     
+        // Print DB
+
         let mut rerun = RerunDataview::new(
             format!("uav-{uav_id}"),
             "lil-sym/main".to_string(),

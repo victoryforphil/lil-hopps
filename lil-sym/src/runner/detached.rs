@@ -6,7 +6,6 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-
 use tracing::info;
 
 use crate::{Scenario, SimRunner, SimRunnerConfig, SimRunnerState, Simulation};

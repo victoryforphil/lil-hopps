@@ -1,10 +1,7 @@
-use std::{
-    collections::BTreeMap,
-    vec,
-};
+use std::{collections::BTreeMap, vec};
 
 use lil_broker::{Timestamp, WriteQuery};
-use serde_json::{Value};
+use serde_json::Value;
 
 use crate::uav::{TaskHandle, UAVRuntime};
 
@@ -71,8 +68,6 @@ impl UAVRuntime for FixtureQuadRuntime {
 
 #[cfg(test)]
 mod tests {
-    
-    
 
     #[test]
     fn test_test_quad_runtime() {}

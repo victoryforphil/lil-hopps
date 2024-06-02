@@ -1,6 +1,5 @@
 mod act_channel;
 
-
 use std::collections::BTreeMap;
 
 use lil_broker::{DataPoint, Primatives, Timestamp};

@@ -1,9 +1,12 @@
-use std::{path::{Path, PathBuf}, sync::{Arc, Mutex}};
+use std::{
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
 
 use lil_broker::{Database, Primatives};
+use rerun::{external::re_log::ResultExt, RecordingStream, RecordingStreamBuilder};
 use serde_json::{json, Map, Value};
 use tracing::{debug, info};
-use rerun::{external::re_log::ResultExt, RecordingStream, RecordingStreamBuilder};
 #[derive(Debug, Clone, PartialEq)]
 pub enum RerunMode {
     Save,
@@ -79,35 +82,28 @@ impl RerunDataview {
         path
     }
 
-    pub fn update(&mut self) -> Result<(), anyhow::Error>{
+    pub fn update(&mut self) -> Result<(), anyhow::Error> {
         let mut db = self.db.lock().unwrap();
         let mut rec = self.rerun.as_mut().unwrap();
         let mut type_detected = None;
         let mut json_map: Map<String, Value> = Map::new();
         for (key, bucket) in &db.buckets {
-
-          
             // if key ends with _type
             if key.ends_with("_type") {
-                
                 for (time, value) in &bucket.values {
-                    match &value.data{
+                    match &value.data {
                         Primatives::String(string) => {
                             let key_stripped = key.replace("_type", "");
-                            info!("Type detected: {:?}::{:?}", key_stripped,string);
-                            type_detected = Some((key_stripped.clone(),string.clone()));
+                            info!("Type detected: {:?}::{:?}", key_stripped, string);
+                            type_detected = Some((key_stripped.clone(), string.clone()));
                             continue;
                         }
-                        _ => {
-                        }
+                        _ => {}
                     }
                 }
-
-              
             }
 
             if type_detected.is_some() {
-               
                 // Compare if key is part of type_detected.0
                 let (topic, value_typ_str) = type_detected.clone().unwrap();
                 // Check to see if key is a child of topic
@@ -118,47 +114,45 @@ impl RerunDataview {
                     info!("------{}-------", key);
                     type_detected = None;
                     json_map.clear();
-                    
+
                     continue;
                 }
                 let key = key.replace(&topic, "");
 
                 info!("\t - {:?}::{:?}", key, value_typ_str);
                 //json_map.insert(key.clone(), json!());
-            }else{
+            } else {
                 for (time, value) in &bucket.values {
                     rec.set_time_seconds("time", time.seconds());
-                   match value.data{
-                         Primatives::Number(float) => {
+                    match value.data {
+                        Primatives::Number(float) => {
                             rec.log(
                                 self.name.clone() + "/" + key.as_str() + "/float",
                                 &rerun::Scalar::new(float as f64),
                             )?;
-                         }
-                         _ => {
-                         }
-                   }
-               }
+                        }
+                        _ => {}
+                    }
+                }
             }
-
-
-           
         }
-        
-        Ok(())
 
+        Ok(())
     }
- 
 
     pub fn logging_start(&mut self) {
         let app_id = format!("{}/{}", self.group, self.name);
         let rerun_mode = self.get_rerun_mode();
         let path = self.get_rerun_save_path(&self.group);
         let rec = match rerun_mode {
-            RerunMode::Save => RecordingStreamBuilder::new(app_id).recording_id(self.run_id.clone())
+            RerunMode::Save => RecordingStreamBuilder::new(app_id)
+                .recording_id(self.run_id.clone())
                 .save(path.join(format!("{}.rrd", self.name)))
                 .unwrap(),
-            RerunMode::Live => RecordingStreamBuilder::new(app_id).recording_id(self.run_id.clone()).spawn().unwrap(),
+            RerunMode::Live => RecordingStreamBuilder::new(app_id)
+                .recording_id(self.run_id.clone())
+                .spawn()
+                .unwrap(),
             _ => RecordingStreamBuilder::new(app_id)
                 .save(path.join(format!("{}.rrd", self.name)))
                 .unwrap(),

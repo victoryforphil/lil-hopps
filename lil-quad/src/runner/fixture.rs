@@ -4,8 +4,7 @@ use std::{
     vec,
 };
 
-
-use serde_json::{Value};
+use serde_json::Value;
 
 use crate::uav::{FixtureQuadRuntime, TaskHandle, UAV};
 

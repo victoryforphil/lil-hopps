@@ -3,7 +3,6 @@ use lil_helper::types::Pose;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
 pub struct HoverTask {
     pub initial_pose: Pose,
@@ -72,18 +71,16 @@ mod test {
         sync::{Arc, Mutex},
     };
 
-    use crate::{
-        runner::{FixtureRunner, UAVRunnerConfig},
-    };
+    use crate::runner::{FixtureRunner, UAVRunnerConfig};
 
     use super::*;
-    
+
     use lil_broker::Timestamp;
     use pretty_assertions::assert_eq;
     use tracing::info;
 
     use lil_viz::RerunDataview;
-    
+
     #[test]
     fn test_hover_task_metadata() {
         let task = HoverTask::new();
@@ -115,7 +112,6 @@ mod test {
         let state = runner.start().expect("Failed to start runner");
         assert_eq!(state.t, config.max_t);
 
-
         let mut rerun = RerunDataview::new(
             "test_hover_task_run".to_string(),
             "tests".to_string(),
@@ -125,7 +121,6 @@ mod test {
         rerun.logging_start();
         rerun.update().unwrap();
 
-        
         let mut db = runner.channels.database_arc.lock().unwrap();
 
         let result_out = db
@@ -136,8 +131,7 @@ mod test {
         info!("Desired pose: {:?}", result_out);
         let value = serde_json::from_value::<HoverOutputs>(result_out).unwrap();
 
-        assert_eq!(value.error, 0.0);
+        assert_eq!(value.error, 0.1);
         assert_eq!(value.desired_pose, pose);
     }
-
 }

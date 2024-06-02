@@ -7,7 +7,7 @@ mod simulation;
 mod state;
 pub use actors::*;
 pub use context::*;
-pub use lil_viz::*;    
+pub use lil_viz::*;
 pub use runner::*;
 pub use scenarios::*;
 pub use simulation::*;

@@ -1,5 +1,5 @@
-use lil_broker::{QueryResponse};
-use tracing::{info};
+use lil_broker::QueryResponse;
+use tracing::info;
 
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
 

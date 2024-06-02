@@ -10,7 +10,6 @@ pub use quads::*;
 pub use runtime::*;
 pub use tasks::*;
 
-
 #[derive(Clone)]
 pub struct UAV {
     tasker: TaskManager,
@@ -50,7 +49,7 @@ mod tests {
     use tracing::debug;
     #[test]
     fn test_uav() {
-        env_logger::init();
+        //env_logger::init();
 
         let runtime = TestQuadRuntime {};
 

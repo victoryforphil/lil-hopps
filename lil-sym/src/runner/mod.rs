@@ -1,9 +1,7 @@
 mod config;
 mod detached;
 mod state;
-use std::{
-    sync::{mpsc::Sender},
-};
+use std::sync::mpsc::Sender;
 
 pub use config::*;
 pub use detached::*;
@@ -32,7 +30,10 @@ impl SimRunner {
 
     pub fn init(&mut self) -> Result<(), anyhow::Error> {
         self.runner_state.uav_dbs = self.simulation.get_uav_databases();
-        info!("Initializing simulation with uav dbs: {:?}", self.runner_state.uav_dbs.keys());
+        info!(
+            "Initializing simulation with uav dbs: {:?}",
+            self.runner_state.uav_dbs.keys()
+        );
         self.simulation.init()?;
         Ok(())
     }

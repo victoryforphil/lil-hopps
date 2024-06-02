@@ -1,8 +1,6 @@
-use std::{
-    thread::JoinHandle,
-};
+use std::thread::JoinHandle;
 
-use crate::uav::{UAV};
+use crate::uav::UAV;
 
 use super::{UAVRunner, UAVRunnerClientChannels, UAVRunnerConfig};
 

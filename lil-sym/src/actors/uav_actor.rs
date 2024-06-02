@@ -1,10 +1,5 @@
-
-
 use lil_broker::Timestamp;
-use lil_quad::{
-    runner::{UAVRunnerClientChannels, UAVRunnerCommand, UAVThreadedRunner},
-};
-
+use lil_quad::runner::{UAVRunnerClientChannels, UAVRunnerCommand, UAVThreadedRunner};
 
 use crate::SimActor;
 

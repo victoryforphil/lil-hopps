@@ -120,7 +120,10 @@ impl Database {
         Ok(response)
     }
 
-    pub fn query_get_latest_stripped(&mut self, query: GetLatestQuery) -> Result<QueryResponse, String> {
+    pub fn query_get_latest_stripped(
+        &mut self,
+        query: GetLatestQuery,
+    ) -> Result<QueryResponse, String> {
         let mut response = QueryResponse::default();
         debug!("Querying for latest data: {:?}", query);
         let all_bucket_keys = self.get_keys().into_iter();
@@ -147,7 +150,7 @@ impl Database {
 #[cfg(test)]
 mod tests {
     use crate::{Primatives, Timestamp, WriteQuery};
-    use pretty_assertions::{assert_eq};
+    use pretty_assertions::assert_eq;
     use serde_json::json;
 
     use tracing::info;
@@ -179,7 +182,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_json_struct() {
-      
         let mut db = Database::new();
 
         #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -264,7 +266,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_ack() {
-     
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
         let _write_res = db.query_batch(vec![query1.into()]).unwrap();
@@ -296,7 +297,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_bucket_tags() {
-       
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
         db.add_tag_to_bucket("test/a/1", "user/test_tag".into());
@@ -318,7 +318,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_additonial() {
-       
         let mut db = Database::new();
 
         let queries = vec![
