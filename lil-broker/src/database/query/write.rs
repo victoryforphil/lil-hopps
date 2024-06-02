@@ -5,7 +5,7 @@ use json_unflattening::flattening::flatten;
 use serde::de::value;
 use serde_json::Value;
 use tracing::{error, info};
-use tracing::info;
+
 #[derive(Debug, Clone)]
 pub struct WriteQuery {
     pub topic: String,

@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-#[derive(Debug, PartialEq, Clone)]
 pub enum Primatives {
     Number(f64),
     String(String),
