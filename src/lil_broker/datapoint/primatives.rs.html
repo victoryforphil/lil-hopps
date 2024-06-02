@@ -142,19 +142,48 @@
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>serde_json::Value;
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>serde_json::{json, Value};
 
-<span class="attr">#[derive(Debug, PartialEq,Clone)]
-</span><span class="kw">pub enum </span>Primatives{
+<span class="attr">#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>Primatives {
     Number(f64),
     String(String),
     Boolean(bool),
     StringArray(Vec&lt;String&gt;),
     NumberArray(Vec&lt;f64&gt;),
     BooleanArray(Vec&lt;bool&gt;),
-    ArrayRef(Vec&lt;String&gt;)
+    ArrayRef(Vec&lt;String&gt;),
 }
-<span class="kw">impl </span>Primatives{
+<span class="kw">impl </span>Primatives {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_value(val: Value) -&gt; <span class="prelude-ty">Option</span>&lt;Primatives&gt; {
         <span class="kw">match </span>val {
             Value::String(s) =&gt; <span class="prelude-val">Some</span>(Primatives::String(s)),
@@ -163,14 +192,23 @@
             Value::Array(arr) =&gt; {
                 <span class="comment">// Here we check the first element to guess the array type
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(first) = arr.first() {
-                    <span class="kw">if </span>first.is_string() {
-                        <span class="kw">let </span>maybe_string_array: <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt; = arr.into_iter().map(|v| v.as_str().map(String::from)).collect();
+                    <span class="comment">// Check if first can be a float
+
+                    </span><span class="kw">if </span>first.is_string() {
+                        <span class="kw">let </span>maybe_string_array: <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt; = arr
+                            .into_iter()
+                            .map(|v| v.as_str().map(String::from))
+                            .collect();
                         maybe_string_array.map(Primatives::StringArray)
                     } <span class="kw">else if </span>first.is_number() {
-                        <span class="kw">let </span>maybe_number_array: <span class="prelude-ty">Option</span>&lt;Vec&lt;f64&gt;&gt; = arr.into_iter().map(|v| v.as_f64().map(|n| n <span class="kw">as </span>f64)).collect();
+                        <span class="kw">let </span>maybe_number_array: <span class="prelude-ty">Option</span>&lt;Vec&lt;f64&gt;&gt; = arr
+                            .into_iter()
+                            .map(|v| v.as_f64().map(|n| n <span class="kw">as </span>f64))
+                            .collect();
                         maybe_number_array.map(Primatives::NumberArray)
                     } <span class="kw">else if </span>first.is_boolean() {
-                        <span class="kw">let </span>maybe_boolean_array: <span class="prelude-ty">Option</span>&lt;Vec&lt;bool&gt;&gt; = arr.into_iter().map(|v| v.as_bool()).collect();
+                        <span class="kw">let </span>maybe_boolean_array: <span class="prelude-ty">Option</span>&lt;Vec&lt;bool&gt;&gt; =
+                            arr.into_iter().map(|v| v.as_bool()).collect();
                         maybe_boolean_array.map(Primatives::BooleanArray)
                     } <span class="kw">else </span>{
                         <span class="prelude-val">None
@@ -178,10 +216,28 @@
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None </span><span class="comment">// Empty array case or mixed types case
                 </span>}
-            },
+            }
             Value::Null =&gt; <span class="prelude-val">None</span>,
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>, <span class="comment">// Covers other cases such as Object, which you might want to handle differently
         </span>}
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Value {
+        <span class="kw">match </span><span class="self">self </span>{
+            Primatives::Number(n) =&gt; <span class="macro">json!</span>(<span class="kw-2">*</span>n),
+            Primatives::String(s) =&gt; Value::String(s.clone()),
+            Primatives::Boolean(b) =&gt; Value::Bool(<span class="kw-2">*</span>b),
+            Primatives::StringArray(arr) =&gt; {
+                Value::Array(arr.iter().map(|s| Value::String(s.clone())).collect())
+            }
+            Primatives::NumberArray(arr) =&gt; Value::Array(arr.iter().map(|n| <span class="macro">json!</span>(n)).collect()),
+            Primatives::BooleanArray(arr) =&gt; {
+                Value::Array(arr.iter().map(|b| Value::Bool(<span class="kw-2">*</span>b)).collect())
+            }
+            Primatives::ArrayRef(arr) =&gt; {
+                Value::Array(arr.iter().map(|s| Value::String(s.clone())).collect())
+            }
+        }
     }
 }
 <span class="doccomment">///Concversion Function from Primative to f64
@@ -193,7 +249,7 @@
         }
     }
 }
-<span class="doccomment">/// Conversion Function from Primative to String 
+<span class="doccomment">/// Conversion Function from Primative to String
 </span><span class="kw">impl </span>From&lt;Primatives&gt; <span class="kw">for </span>String {
     <span class="kw">fn </span>from(p: Primatives) -&gt; String {
         <span class="kw">match </span>p {
@@ -283,4 +339,5 @@
     <span class="kw">fn </span>from(b: Vec&lt;bool&gt;) -&gt; Primatives {
         Primatives::BooleanArray(b)
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

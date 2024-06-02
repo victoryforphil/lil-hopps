@@ -142,9 +142,15 @@
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{Bucket, DataPoint, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
 
 <span class="kw">use </span>flatten_json_object::{ArrayFormatting, Flattener};
+<span class="kw">use </span>json_unflattening::flattening::flatten;
+<span class="kw">use </span>serde::de::value;
 <span class="kw">use </span>serde_json::Value;
 <span class="kw">use </span>tracing::{error, info};
 <span class="attr">#[derive(Debug, Clone)]
@@ -165,31 +171,18 @@
         }
     }
 
-    <span class="kw">pub fn </span>from_json_batch(
-        json_str: String,
-        timestamp: Timestamp,
-        prefix: String,
-    ) -&gt; Vec&lt;WriteQuery&gt; {
+    <span class="kw">pub fn </span>from_json_batch(json: Value, timestamp: Timestamp, prefix: String) -&gt; Vec&lt;QueryCommand&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>queries = Vec::new();
-        <span class="kw">let </span>v: Value = serde_json::from_str(json_str.as_str()).unwrap();
-        <span class="kw">let </span>out = Flattener::new()
-            .set_key_separator(<span class="string">"/"</span>)
-            .set_preserve_empty_arrays(<span class="bool-val">false</span>)
-            .set_preserve_empty_objects(<span class="bool-val">false</span>)
-            .flatten(<span class="kw-2">&amp;</span>v)
-            .unwrap();
 
-        <span class="kw">if let </span>serde_json::Value::Object(out) = out {
-            <span class="kw">for </span>(key, val) <span class="kw">in </span>out.iter() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(supported_type) = Primatives::from_value(val.clone()) {
-                    <span class="comment">// can only be 1 unique item per mapped value.
-                    </span><span class="kw">let </span>write_query =
-                        WriteQuery::new(<span class="macro">format!</span>(<span class="string">"{}/{}"</span>, prefix, key), supported_type, timestamp);
-                    queries.push(write_query);
-                }
+        <span class="kw">let </span>out = flatten(<span class="kw-2">&amp;</span>json).unwrap();
+
+        <span class="kw">for </span>(key, val) <span class="kw">in </span>out.iter() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(supported_type) = Primatives::from_value(val.clone()) {
+                <span class="comment">// can only be 1 unique item per mapped value.
+                </span><span class="kw">let </span>write_query =
+                    WriteQuery::new(<span class="macro">format!</span>(<span class="string">"{}/{}"</span>, prefix, key), supported_type, timestamp);
+                queries.push(write_query.into());
             }
-        } <span class="kw">else </span>{
-            <span class="macro">error!</span>(<span class="string">"Failed to parse JSON"</span>);
         }
         queries
     }
@@ -241,6 +234,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>pretty_assertions::assert_eq;
+    <span class="kw">use </span>serde_json::json;
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_query_basic() {
         <span class="kw">let </span><span class="kw-2">mut </span>db = Database::new();
@@ -258,30 +252,44 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_query_from_json_simple() {
-        <span class="kw">let </span>json = <span class="string">r#"{"test": 7.0}"#</span>.to_string();
+        <span class="kw">let </span>json = <span class="macro">json!</span>({
+            <span class="string">"test"</span>: <span class="number">7.0
+        </span>});
         <span class="kw">let </span>queries = WriteQuery::from_json_batch(json, Timestamp::new(<span class="number">0</span>), <span class="string">"test"</span>.to_string());
         <span class="macro">assert_eq!</span>(queries.len(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(queries[<span class="number">0</span>].topic, <span class="string">"test/test"</span>);
-        <span class="macro">assert_eq!</span>(queries[<span class="number">0</span>].data, Primatives::Number(<span class="number">7.0</span>));
+        <span class="kw">match </span><span class="kw-2">&amp;</span>queries[<span class="number">0</span>] {
+            QueryCommand::Write(query) =&gt; {
+                <span class="macro">assert_eq!</span>(query.topic, <span class="string">"test/test"</span>);
+                <span class="macro">assert_eq!</span>(query.data, Primatives::Number(<span class="number">7.0</span>));
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Not a WriteQuery"</span>),
+        }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_query_from_json_complex() {
         env_logger::init();
-        <span class="kw">let </span>json = <span class="string">r#"
-        {"test": 7.0, 
-        "test2": "test", 
-        "test3": [1,2,3], 
-        "test4": [1.0, 2.0, 3.0], 
-        "test5": [true, false, true],
-        "test_nested": {"test6": 7.0, "test7": "test"}
-    }"#</span>.to_string();
+
+        <span class="kw">let </span>json = <span class="macro">json!</span>(
+        {
+            <span class="string">"test"</span>: <span class="number">7.0</span>,
+            <span class="string">"test2"</span>: <span class="string">"test"</span>,
+            <span class="string">"test3"</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],
+            <span class="string">"test4"</span>: [<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>],
+            <span class="string">"test5"</span>: [<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>],
+            <span class="string">"test_nested"</span>: {<span class="string">"test6"</span>: <span class="number">7.0</span>, <span class="string">"test7"</span>: <span class="string">"test"</span>}
+        });
         <span class="kw">let </span>queries = WriteQuery::from_json_batch(json, Timestamp::new(<span class="number">0</span>), <span class="string">"test"</span>.to_string());
         <span class="macro">info!</span>(<span class="string">"{:#?}"</span>, queries);
         <span class="macro">assert_eq!</span>(queries.len(), <span class="number">13</span>);
-     
-        <span class="macro">assert_eq!</span>(queries[<span class="number">0</span>].topic, <span class="string">"test/test"</span>);
-        <span class="macro">assert_eq!</span>(queries[<span class="number">0</span>].data, Primatives::Number(<span class="number">7.0</span>));
+
+        <span class="kw">match </span><span class="kw-2">&amp;</span>queries[<span class="number">0</span>] {
+            QueryCommand::Write(query) =&gt; {
+                <span class="macro">assert_eq!</span>(query.topic, <span class="string">"test/test"</span>);
+                <span class="macro">assert_eq!</span>(query.data, Primatives::Number(<span class="number">7.0</span>));
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Not a WriteQuery"</span>),
+        }
     }
 }
 </code></pre></div></section></main></body></html>

@@ -29,7 +29,7 @@
 <span class="kw">use </span><span class="kw">super</span>::tag_filter::TagFilter;
 
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>LookupQuery{
+</span><span class="kw">pub struct </span>LookupQuery {
     <span class="kw">pub </span>topics: Vec&lt;String&gt;,
     <span class="kw">pub </span>timestamp: Timestamp,
     <span class="kw">pub </span>ack_topics: Vec&lt;String&gt;,
@@ -37,9 +37,9 @@
     <span class="kw">pub </span>direction_before: bool,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>LookupQuery{
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self</span>{
-        LookupQuery{
+<span class="kw">impl </span>Default <span class="kw">for </span>LookupQuery {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        LookupQuery {
             topics: Vec::new(),
             timestamp: Timestamp::zero(),
             ack_topics: Vec::new(),
@@ -47,4 +47,5 @@
             direction_before: <span class="bool-val">true</span>,
         }
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

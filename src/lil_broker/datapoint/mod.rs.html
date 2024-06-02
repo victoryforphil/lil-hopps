@@ -66,7 +66,6 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>primatives;
 <span class="kw">use </span>std::collections::BTreeSet;
 
@@ -79,38 +78,38 @@
 /// - timestamp: The time the data point was recorded
 /// - data: The data point itself
 /// - tags: A set of tags associated with the data point
-</span><span class="kw">pub struct </span>DataPoint{
+</span><span class="kw">pub struct </span>DataPoint {
     <span class="kw">pub </span>timestamp: Timestamp,
     <span class="kw">pub </span>data: Primatives,
-    <span class="kw">pub </span>tags: BTreeSet&lt;Tag&gt; <span class="comment">// Set of tags hashed by name (value is not checked and should only be read from the tag)
+    <span class="kw">pub </span>tags: BTreeSet&lt;Tag&gt;, <span class="comment">// Set of tags hashed by name (value is not checked and should only be read from the tag)
 </span>}
 
-<span class="kw">impl </span>DataPoint{
-    <span class="kw">pub fn </span>new(timestamp: Timestamp, data: Primatives) -&gt; DataPoint{
-        DataPoint{
+<span class="kw">impl </span>DataPoint {
+    <span class="kw">pub fn </span>new(timestamp: Timestamp, data: Primatives) -&gt; DataPoint {
+        DataPoint {
             timestamp,
             data,
-            tags: BTreeSet::new()
+            tags: BTreeSet::new(),
         }
     }
     <span class="doccomment">///Builder function to add a tag to the DataPoint
-    </span><span class="kw">pub fn </span>tag(<span class="kw-2">mut </span><span class="self">self</span>, tag: Tag) -&gt; <span class="self">Self</span>{
+    </span><span class="kw">pub fn </span>tag(<span class="kw-2">mut </span><span class="self">self</span>, tag: Tag) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.tags.insert(tag);
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>add_tag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tag: Tag){
+    <span class="kw">pub fn </span>add_tag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tag: Tag) {
         <span class="self">self</span>.tags.insert(tag);
     }
 }
 
 <span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests{
+</span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::types::Tag;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_datapoint_new(){
+    </span><span class="kw">fn </span>test_datapoint_new() {
         <span class="kw">let </span>timestamp = Timestamp::new(<span class="number">0</span>);
         <span class="kw">let </span>data = Primatives::Number(<span class="number">0.0</span>);
         <span class="kw">let </span>dp = DataPoint::new(timestamp, data.clone());
@@ -121,7 +120,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_datapoint_new_with_tags(){
+    </span><span class="kw">fn </span>test_datapoint_new_with_tags() {
         <span class="kw">let </span>timestamp = Timestamp::new(<span class="number">0</span>);
         <span class="kw">let </span>data = Primatives::Number(<span class="number">0.0</span>);
         <span class="kw">let </span>dp = DataPoint::new(timestamp, data.clone()).tag(<span class="string">"test"</span>.into());
@@ -132,5 +131,5 @@
         <span class="macro">assert_eq!</span>(dp.tags.iter().next().unwrap().name, <span class="string">"test"</span>);
         <span class="macro">assert_eq!</span>(dp.tags.iter().next().unwrap().value, <span class="prelude-val">None</span>);
     }
-    
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>
