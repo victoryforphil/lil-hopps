@@ -1,5 +1,5 @@
 [package]
-name = "lil-sym"
+name = "lil-viz"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,14 +7,10 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.82"
-nalgebra = "0.32.5"
-rapier3d = "0.18.0"
-lil-broker = { path = "../lil-broker" }
-lil-helper = { path = "../lil-helper" }
-lil-quad = { path = "../lil-quad" }
-lil-viz = { path = "../lil-viz" }
+nalgebra = {version = "0.27.0", features = ["serde-serialize"]}
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = "1.0.117"
 tracing = { version = "0.1.40", features = [] }
 env_logger = "0.11.3"
 rerun = "0.15.1"
-
-[lib]
+lil-broker = { path = "../lil-broker"}

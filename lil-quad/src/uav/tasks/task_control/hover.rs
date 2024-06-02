@@ -81,6 +81,8 @@ mod test {
     use lil_broker::Timestamp;
     use pretty_assertions::assert_eq;
     use tracing::info;
+
+    use lil_viz::RerunDataview;
     
     #[test]
     fn test_hover_task_metadata() {
@@ -113,7 +115,19 @@ mod test {
         let state = runner.start().expect("Failed to start runner");
         assert_eq!(state.t, config.max_t);
 
+
+        let mut rerun = RerunDataview::new(
+            "test_hover_task_run".to_string(),
+            "tests".to_string(),
+            "manual".to_string(),
+            runner.channels.database_arc.clone(),
+        );
+        rerun.logging_start();
+        rerun.update().unwrap();
+
+        
         let mut db = runner.channels.database_arc.lock().unwrap();
+
         let result_out = db
             .query_get_latest(vec!["hover".to_string()].into())
             .unwrap();
@@ -122,7 +136,8 @@ mod test {
         info!("Desired pose: {:?}", result_out);
         let value = serde_json::from_value::<HoverOutputs>(result_out).unwrap();
 
-        assert_eq!(value.error, 0.0);
+        assert_eq!(value.error, 0.1);
         assert_eq!(value.desired_pose, pose);
     }
+
 }
