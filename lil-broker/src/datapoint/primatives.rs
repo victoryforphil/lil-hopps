@@ -1,16 +1,17 @@
-use serde_json::Value;
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 
-#[derive(Debug, PartialEq,Clone)]
-pub enum Primatives{
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub enum Primatives {
     Number(f64),
     String(String),
     Boolean(bool),
     StringArray(Vec<String>),
     NumberArray(Vec<f64>),
     BooleanArray(Vec<bool>),
-    ArrayRef(Vec<String>)
+    ArrayRef(Vec<String>),
 }
-impl Primatives{
+impl Primatives {
     pub(crate) fn from_value(val: Value) -> Option<Primatives> {
         match val {
             Value::String(s) => Some(Primatives::String(s)),
@@ -19,14 +20,23 @@ impl Primatives{
             Value::Array(arr) => {
                 // Here we check the first element to guess the array type
                 if let Some(first) = arr.first() {
+                    // Check if first can be a float
+
                     if first.is_string() {
-                        let maybe_string_array: Option<Vec<String>> = arr.into_iter().map(|v| v.as_str().map(String::from)).collect();
+                        let maybe_string_array: Option<Vec<String>> = arr
+                            .into_iter()
+                            .map(|v| v.as_str().map(String::from))
+                            .collect();
                         maybe_string_array.map(Primatives::StringArray)
                     } else if first.is_number() {
-                        let maybe_number_array: Option<Vec<f64>> = arr.into_iter().map(|v| v.as_f64().map(|n| n as f64)).collect();
+                        let maybe_number_array: Option<Vec<f64>> = arr
+                            .into_iter()
+                            .map(|v| v.as_f64().map(|n| n as f64))
+                            .collect();
                         maybe_number_array.map(Primatives::NumberArray)
                     } else if first.is_boolean() {
-                        let maybe_boolean_array: Option<Vec<bool>> = arr.into_iter().map(|v| v.as_bool()).collect();
+                        let maybe_boolean_array: Option<Vec<bool>> =
+                            arr.into_iter().map(|v| v.as_bool()).collect();
                         maybe_boolean_array.map(Primatives::BooleanArray)
                     } else {
                         None
@@ -34,9 +44,27 @@ impl Primatives{
                 } else {
                     None // Empty array case or mixed types case
                 }
-            },
+            }
             Value::Null => None,
             _ => None, // Covers other cases such as Object, which you might want to handle differently
+        }
+    }
+
+    pub(crate) fn to_value(&self) -> Value {
+        match self {
+            Primatives::Number(n) => json!(*n),
+            Primatives::String(s) => Value::String(s.clone()),
+            Primatives::Boolean(b) => Value::Bool(*b),
+            Primatives::StringArray(arr) => {
+                Value::Array(arr.iter().map(|s| Value::String(s.clone())).collect())
+            }
+            Primatives::NumberArray(arr) => Value::Array(arr.iter().map(|n| json!(n)).collect()),
+            Primatives::BooleanArray(arr) => {
+                Value::Array(arr.iter().map(|b| Value::Bool(*b)).collect())
+            }
+            Primatives::ArrayRef(arr) => {
+                Value::Array(arr.iter().map(|s| Value::String(s.clone())).collect())
+            }
         }
     }
 }
@@ -49,7 +77,7 @@ impl From<Primatives> for f64 {
         }
     }
 }
-/// Conversion Function from Primative to String 
+/// Conversion Function from Primative to String
 impl From<Primatives> for String {
     fn from(p: Primatives) -> String {
         match p {

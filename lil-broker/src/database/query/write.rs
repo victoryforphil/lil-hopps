@@ -1,6 +1,8 @@
 use crate::{Bucket, DataPoint, Database, Primatives, QueryCommand, QueryResponse, Tag, Timestamp};
 
 use flatten_json_object::{ArrayFormatting, Flattener};
+use json_unflattening::flattening::flatten;
+use serde::de::value;
 use serde_json::Value;
 use tracing::{error, info};
 #[derive(Debug, Clone)]
@@ -21,31 +23,18 @@ impl WriteQuery {
         }
     }
 
-    pub fn from_json_batch(
-        json_str: String,
-        timestamp: Timestamp,
-        prefix: String,
-    ) -> Vec<WriteQuery> {
+    pub fn from_json_batch(json: Value, timestamp: Timestamp, prefix: String) -> Vec<QueryCommand> {
         let mut queries = Vec::new();
-        let v: Value = serde_json::from_str(json_str.as_str()).unwrap();
-        let out = Flattener::new()
-            .set_key_separator("/")
-            .set_preserve_empty_arrays(false)
-            .set_preserve_empty_objects(false)
-            .flatten(&v)
-            .unwrap();
 
-        if let serde_json::Value::Object(out) = out {
-            for (key, val) in out.iter() {
-                if let Some(supported_type) = Primatives::from_value(val.clone()) {
-                    // can only be 1 unique item per mapped value.
-                    let write_query =
-                        WriteQuery::new(format!("{}/{}", prefix, key), supported_type, timestamp);
-                    queries.push(write_query);
-                }
+        let out = flatten(&json).unwrap();
+
+        for (key, val) in out.iter() {
+            if let Some(supported_type) = Primatives::from_value(val.clone()) {
+                // can only be 1 unique item per mapped value.
+                let write_query =
+                    WriteQuery::new(format!("{}/{}", prefix, key), supported_type, timestamp);
+                queries.push(write_query.into());
             }
-        } else {
-            error!("Failed to parse JSON");
         }
         queries
     }
@@ -97,6 +86,7 @@ impl Database {
 mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
+    use serde_json::json;
     #[test]
     fn test_write_query_basic() {
         let mut db = Database::new();
@@ -114,29 +104,43 @@ mod tests {
 
     #[test]
     fn test_write_query_from_json_simple() {
-        let json = r#"{"test": 7.0}"#.to_string();
+        let json = json!({
+            "test": 7.0
+        });
         let queries = WriteQuery::from_json_batch(json, Timestamp::new(0), "test".to_string());
         assert_eq!(queries.len(), 1);
-        assert_eq!(queries[0].topic, "test/test");
-        assert_eq!(queries[0].data, Primatives::Number(7.0));
+        match &queries[0] {
+            QueryCommand::Write(query) => {
+                assert_eq!(query.topic, "test/test");
+                assert_eq!(query.data, Primatives::Number(7.0));
+            }
+            _ => panic!("Not a WriteQuery"),
+        }
     }
 
     #[test]
     fn test_write_query_from_json_complex() {
         env_logger::init();
-        let json = r#"
-        {"test": 7.0, 
-        "test2": "test", 
-        "test3": [1,2,3], 
-        "test4": [1.0, 2.0, 3.0], 
-        "test5": [true, false, true],
-        "test_nested": {"test6": 7.0, "test7": "test"}
-    }"#.to_string();
+
+        let json = json!(
+        {
+            "test": 7.0,
+            "test2": "test",
+            "test3": [1,2,3],
+            "test4": [1.0, 2.0, 3.0],
+            "test5": [true, false, true],
+            "test_nested": {"test6": 7.0, "test7": "test"}
+        });
         let queries = WriteQuery::from_json_batch(json, Timestamp::new(0), "test".to_string());
         info!("{:#?}", queries);
         assert_eq!(queries.len(), 13);
-     
-        assert_eq!(queries[0].topic, "test/test");
-        assert_eq!(queries[0].data, Primatives::Number(7.0));
+
+        match &queries[0] {
+            QueryCommand::Write(query) => {
+                assert_eq!(query.topic, "test/test");
+                assert_eq!(query.data, Primatives::Number(7.0));
+            }
+            _ => panic!("Not a WriteQuery"),
+        }
     }
 }

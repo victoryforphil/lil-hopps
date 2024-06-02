@@ -26,7 +26,6 @@ impl From<Vec<String>> for GetLatestQuery {
     }
 }
 
-
 impl From<QueryCommand> for GetLatestQuery {
     fn from(command: QueryCommand) -> GetLatestQuery {
         match command {
@@ -126,6 +125,7 @@ impl Database {
 mod tests {
     use crate::{Primatives, Tag, Timestamp, WriteQuery};
     use pretty_assertions::{assert_eq, assert_ne};
+    use serde_json::json;
 
     use super::*;
 
@@ -150,6 +150,58 @@ mod tests {
         let bucket = db.buckets.get("test").unwrap();
         let data = bucket.get_latest();
         assert_eq!(data.unwrap().data, Primatives::Number(7.0));
+    }
+
+    #[test]
+    fn test_get_latest_json_struct() {
+        env_logger::init();
+        let mut db = Database::new();
+
+        #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
+        struct TestData2 {
+            d: f64,
+            e: bool,
+            f: String,
+        }
+        #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
+        struct TestData {
+            a: f64,
+            b: bool,
+            c: String,
+            //#[serde(flatten)]
+            d: TestData2,
+        }
+
+        let data = TestData {
+            a: 7.0,
+            b: true,
+            c: "test".to_string(),
+            d: TestData2 {
+                d: 7.0,
+                e: true,
+                f: "test".to_string(),
+            },
+        };
+
+        let queries =
+            WriteQuery::from_json_batch(json!(data), Timestamp::new(0), "test".to_string());
+
+        let _write_res = db.query_batch(queries).unwrap();
+
+        let read_query = GetLatestQuery {
+            topics: vec!["test".into()],
+            ack_topics: Vec::new(),
+            tag_filters: Vec::new(),
+        };
+        let read_res = db.query(read_query.into()).unwrap();
+
+        let json_out = read_res.to_json("test/");
+        info!(
+            "Json Out: {}",
+            serde_json::to_string_pretty(&json_out).unwrap()
+        );
+        let struct_out = serde_json::from_value::<TestData>(json_out).unwrap();
+        assert_eq!(struct_out, data);
     }
 
     #[test]
@@ -249,22 +301,26 @@ mod tests {
                 "test/a/element_1".into(),
                 1.0.into(),
                 Timestamp::from_seconds(1.0),
-            ).into(),
+            )
+            .into(),
             WriteQuery::new(
                 "test/a/element_2".into(),
                 2.0.into(),
                 Timestamp::from_seconds(1.0),
-            ).into(),
+            )
+            .into(),
             WriteQuery::new(
                 "test/a/element_3".into(),
                 3.0.into(),
                 Timestamp::from_seconds(1.0),
-            ).into(),
+            )
+            .into(),
             WriteQuery::new(
                 "test/a/element_4".into(),
                 4.0.into(),
                 Timestamp::from_seconds(1.0),
-            ).into(),
+            )
+            .into(),
             WriteQuery::new(
                 "test/a/parent".into(),
                 Primatives::ArrayRef(vec![
@@ -285,8 +341,8 @@ mod tests {
         };
         let read_res = db.query(read_query.into()).unwrap();
         debug!("Read Response 1: {:#?}", read_res);
-       // assert_eq!(read_res.metadata.n_results, 4);
-       // assert_eq!(read_res.data.len(), 4);
+        // assert_eq!(read_res.metadata.n_results, 4);
+        // assert_eq!(read_res.data.len(), 4);
         assert_eq!(
             vec![
                 "test/a/element_1",
