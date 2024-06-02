@@ -8,7 +8,7 @@ pub enum UAVRunnerStatus {
     Error,
 }
 #[derive(Debug, Clone, Copy)]
-pub struct  UAVRunnerState {
+pub struct UAVRunnerState {
     pub t: Timestamp,
     pub state: UAVRunnerStatus,
     pub ticks: u64,

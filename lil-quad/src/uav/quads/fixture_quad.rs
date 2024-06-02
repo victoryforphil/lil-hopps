@@ -76,7 +76,5 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_test_quad_runtime() {
-        
-    }
+    fn test_test_quad_runtime() {}
 }

@@ -37,7 +37,7 @@ impl Scenario for DefaultScenario {
                     wait: true,
                 },
             );
-    
+
             uavs.insert(i, UAVActor::new(runner));
         }
 

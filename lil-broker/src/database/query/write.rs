@@ -56,9 +56,6 @@ impl From<QueryCommand> for WriteQuery {
     }
 }
 
-
-
-
 impl Database {
     pub fn query_write(&mut self, query: WriteQuery) -> Result<QueryResponse, String> {
         let mut response = QueryResponse::default();

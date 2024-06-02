@@ -1,16 +1,15 @@
 mod hardware;
 mod quads;
-mod tasks;
 mod runtime;
+mod tasks;
 use std::sync::{Arc, Mutex};
-
 
 use lil_broker::{Database, Timestamp};
 
-pub use tasks::*;
+pub use quads::*;
 pub use runtime::*;
 pub use tasks::*;
-pub use quads::*;
+pub use tasks::*;
 
 #[derive(Clone)]
 pub struct UAV {
@@ -63,7 +62,9 @@ mod tests {
 
         // Check /math/output/echo for the result
         let dp = uav
-            .data.lock().unwrap()
+            .data
+            .lock()
+            .unwrap()
             .query_get_latest(vec!["/math/output/echo".to_string()].into())
             .unwrap();
         debug!("{:?}", dp);

@@ -1,4 +1,7 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use lil_broker::{Database, Timestamp};
 
@@ -28,6 +31,10 @@ impl Default for SimRunnerState {
 
 impl SimRunnerState {
     pub fn new(t: Timestamp, state: SimRunnerStatus) -> Self {
-        SimRunnerState { t, state, uav_dbs: HashMap::new() }
+        SimRunnerState {
+            t,
+            state,
+            uav_dbs: HashMap::new(),
+        }
     }
 }

@@ -10,7 +10,6 @@ use std::{
 use lil_broker::Database;
 use tracing::info;
 
-
 use crate::{Scenario, SimRunner, SimRunnerConfig, SimRunnerState, Simulation};
 
 #[derive(Debug, Clone)]
@@ -43,7 +42,7 @@ impl SimThreadedRunner {
         let config = self.config.clone();
 
         let (tx, rx): (Sender<SimRunnerUpdate>, Receiver<SimRunnerUpdate>) = mpsc::channel();
-        
+
         let thread = thread::spawn(move || {
             info!("Starting simulation in thread");
             let sim = Simulation::new(scenario.as_ref());
@@ -55,7 +54,7 @@ impl SimThreadedRunner {
             }
         });
         self.thread = Some(thread);
-      
+
         Ok(rx)
     }
 }

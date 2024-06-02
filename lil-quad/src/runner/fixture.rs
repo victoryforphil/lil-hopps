@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, sync::{Arc, Mutex}, vec};
+use std::{
+    collections::BTreeMap,
+    sync::{Arc, Mutex},
+    vec,
+};
 
 use lil_broker::Timestamp;
 use serde_json::{json, Value};
@@ -7,15 +11,16 @@ use crate::uav::{FixtureQuadRuntime, Task, TaskEntry, TaskHandle, UAV};
 
 use super::{UAVRunner, UAVRunnerConfig};
 
-pub struct FixtureRunner{
+pub struct FixtureRunner {}
 
-
-}
-
-impl FixtureRunner{
-    pub fn new(config: UAVRunnerConfig, task: TaskHandle, state: BTreeMap<String, Value>) -> Result<UAVRunner, anyhow::Error>{
+impl FixtureRunner {
+    pub fn new(
+        config: UAVRunnerConfig,
+        task: TaskHandle,
+        state: BTreeMap<String, Value>,
+    ) -> Result<UAVRunner, anyhow::Error> {
         let runtime = FixtureQuadRuntime::new(vec![task], state);
-           
+
         let runtime = Arc::new(Mutex::new(runtime));
         let uav = UAV::new(runtime);
         let mut runner = UAVRunner::new(config.clone(), uav);

@@ -1,9 +1,15 @@
 use nalgebra::Vector3;
-use rapier3d::{dynamics::{CCDSolver, ImpulseJointSet, IntegrationParameters, IslandManager, MultibodyJointSet, RigidBodySet}, geometry::{BroadPhase, ColliderSet, NarrowPhase}, pipeline::{PhysicsHooks, PhysicsPipeline, QueryPipeline}};
-
+use rapier3d::{
+    dynamics::{
+        CCDSolver, ImpulseJointSet, IntegrationParameters, IslandManager, MultibodyJointSet,
+        RigidBodySet,
+    },
+    geometry::{BroadPhase, ColliderSet, NarrowPhase},
+    pipeline::{PhysicsHooks, PhysicsPipeline, QueryPipeline},
+};
 
 pub type SimContextHandle<'a> = &'a mut SimulationContext;
-pub struct SimulationContext{
+pub struct SimulationContext {
     pub rigid_bodies: RigidBodySet,
     pub colliders: ColliderSet,
     pub gravity: Vector3<f32>,
@@ -20,8 +26,8 @@ pub struct SimulationContext{
     pub ev: (),
 }
 
-impl SimulationContext{
-    pub fn new() -> Self{
+impl SimulationContext {
+    pub fn new() -> Self {
         let gravity = Vector3::new(0.0, 0.0, -9.81);
         let integration_params = IntegrationParameters::default();
         let physics_pipeline = PhysicsPipeline::new();
@@ -35,7 +41,7 @@ impl SimulationContext{
         let physics_hooks = ();
         let ev = ();
 
-        Self{
+        Self {
             rigid_bodies: RigidBodySet::new(),
             colliders: ColliderSet::new(),
             gravity,

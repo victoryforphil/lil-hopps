@@ -52,7 +52,10 @@ impl UAVRunnerConfig {
 
     /// Set the UAV to use external tick
     pub fn set_external_tick(self) -> Self {
-        UAVRunnerConfig { external_tick: true, ..self }
+        UAVRunnerConfig {
+            external_tick: true,
+            ..self
+        }
     }
 
     /// Set the UAV to wait for external tick

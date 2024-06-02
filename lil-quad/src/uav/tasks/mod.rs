@@ -2,10 +2,10 @@ mod manager;
 mod task_control;
 mod task_utils;
 pub use manager::*;
-pub use task_utils::*;
 pub use task_control::*;
+pub use task_utils::*;
 
-use std::{collections::BTreeMap};
+use std::collections::BTreeMap;
 
 use lil_broker::{DataPoint, GetLatestQuery, QueryResponse, Timestamp};
 #[derive(Debug, Clone, PartialEq)]
@@ -101,8 +101,7 @@ pub struct TaskResult {
     pub execution_time: Timestamp,
 }
 
-
-pub trait Task: Send+ Sync{
+pub trait Task: Send + Sync {
     fn metadata(&self) -> TaskMetadata;
     fn run(
         &mut self,
@@ -169,13 +168,15 @@ mod test {
         let t = Timestamp::new(0);
         let inputs = {
             let mut map = BTreeMap::new();
-            map.insert("/topic/0".into(), QueryResponse::from_json(json!({"/topic/0": {"0": 5.0}})));
+            map.insert(
+                "/topic/0".into(),
+                QueryResponse::from_json(json!({"/topic/0": {"0": 5.0}})),
+            );
             map
         };
         let result = task.run(&t, &inputs).unwrap();
 
         assert_eq!(result.data.len(), 1);
         assert_eq!(result.execution_time, Timestamp::zero());
-
     }
 }

@@ -1,7 +1,7 @@
 use crate::{Database, QueryCommand, QueryResponse};
 
 use super::tag_filter::TagFilter;
-use tracing::{debug};
+use tracing::debug;
 #[derive(Debug, Clone)]
 pub struct GetLatestQuery {
     pub topics: Vec<String>,

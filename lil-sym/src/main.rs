@@ -16,7 +16,7 @@ fn main() {
     let mut db = HashMap::new();
 
     if let Ok(sim_updates_rx) = channels {
-        let mut sim_update  = sim_updates_rx.recv();
+        let mut sim_update = sim_updates_rx.recv();
 
         while sim_update.is_ok() {
             let update = sim_update.unwrap();
@@ -24,20 +24,16 @@ fn main() {
             sim_update = sim_updates_rx.recv();
         }
 
-
-
-      info!("Simulation completed");
+        info!("Simulation completed");
 
         for (id, db) in db.iter() {
             info!("UAV Data base: {}", id);
             let mut db = db.lock().unwrap();
-            
+
             let value = db.query_get_latest(vec!["".to_string()].into()).unwrap();
             info!("Latest value: {:?}", value);
         }
-         
-    }else{
+    } else {
         error!("Error starting simulation")
     }
-
 }

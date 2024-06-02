@@ -1,7 +1,7 @@
 use nalgebra::Vector3;
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct MotorConfig{
+pub struct MotorConfig {
     pub motor_force_n: f32,
     pub arm_length_m: f32,
 }
@@ -137,7 +137,7 @@ mod tests {
     fn test_new() {
         let config = MotorConfig {
             motor_force_n: 1000.0,
-            arm_length_m: 125.0
+            arm_length_m: 125.0,
         };
         let motor = Motor::new(1, &config);
         assert_eq!(motor.motor_force_n, 1000.0);
@@ -172,7 +172,7 @@ mod tests {
     fn test_get_force_vector() {
         let config = MotorConfig {
             motor_force_n: 1000.0,
-            arm_length_m: 125.0
+            arm_length_m: 125.0,
         };
         let mut motor = Motor::new(1, &config);
         motor.set_input_scalar(0.5);

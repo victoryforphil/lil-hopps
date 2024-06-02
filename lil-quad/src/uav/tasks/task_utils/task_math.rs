@@ -38,14 +38,28 @@ impl Task for MathTask {
         inputs: &std::collections::BTreeMap<String, QueryResponse>,
     ) -> Result<TaskResult, anyhow::Error> {
         let mut data = std::collections::BTreeMap::new();
-        let topic0 = inputs.get(&self.topic_a.name).unwrap().to_json(&self.topic_a.name);
-        let topic1 = inputs.get(&self.topic_b.name).unwrap().to_json(&self.topic_b.name);
-        let operation = inputs.get("/math/operation").unwrap().to_json("/math/operation");
-     
+        let topic0 = inputs
+            .get(&self.topic_a.name)
+            .unwrap()
+            .to_json(&self.topic_a.name);
+        let topic1 = inputs
+            .get(&self.topic_b.name)
+            .unwrap()
+            .to_json(&self.topic_b.name);
+        let operation = inputs
+            .get("/math/operation")
+            .unwrap()
+            .to_json("/math/operation");
+
         let topic0_value = topic0.as_f64().unwrap();
         let topic1_value = match topic1.as_f64() {
             Some(value) => value,
-            None => return Err(anyhow::anyhow!("Invalid value for topic 1,got {:?}", topic1)),
+            None => {
+                return Err(anyhow::anyhow!(
+                    "Invalid value for topic 1,got {:?}",
+                    topic1
+                ))
+            }
         };
         let operation_value = operation.as_str().unwrap();
         let result = match operation_value {

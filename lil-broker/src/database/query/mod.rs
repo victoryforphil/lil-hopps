@@ -11,10 +11,10 @@ mod write;
 pub use get_latest::*;
 use json_unflattening::unflattening::unflatten;
 pub use lookup::*;
-pub use lookup_range::*;
-use serde_json::{json, Value};
 pub use lookup::*;
 pub use lookup_range::*;
+pub use lookup_range::*;
+use serde_json::{json, Value};
 pub use tag_filter::*;
 
 use tracing::debug;
@@ -53,7 +53,7 @@ impl QueryResponse {
         QueryResponse {
             data,
             metadata: QueryResponseMetadata {
-                n_results:len,
+                n_results: len,
                 was_successful: true,
             },
         }

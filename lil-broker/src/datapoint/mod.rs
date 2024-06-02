@@ -26,7 +26,10 @@ impl DataPoint {
             tags: BTreeSet::new(),
         }
     }
-    pub fn json_to_datapoints(timestamp: Timestamp, json: serde_json::Value) -> BTreeMap<String, DataPoint> {
+    pub fn json_to_datapoints(
+        timestamp: Timestamp,
+        json: serde_json::Value,
+    ) -> BTreeMap<String, DataPoint> {
         let mut map = BTreeMap::new();
         // Flatten JSON
         let json = flatten(&json).unwrap();
@@ -34,7 +37,7 @@ impl DataPoint {
             if let Some(supported_type) = Primatives::from_value(val.clone()) {
                 let dp = DataPoint::new(timestamp.clone(), supported_type);
                 map.insert(key, dp);
-            }else{
+            } else {
                 warn!("Unsupported type for datapoint: {}", val);
             }
         }
@@ -55,7 +58,6 @@ impl DataPoint {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
 
     #[test]
     fn test_datapoint_new() {

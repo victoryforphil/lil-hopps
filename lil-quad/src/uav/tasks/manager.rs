@@ -114,7 +114,7 @@ impl TaskManager {
         database: Arc<Mutex<Database>>,
     ) -> Result<(), anyhow::Error> {
         debug!("TaskManager tick: {:?}", timestamp);
-        
+
         for task in self.tasks.iter_mut() {
             // Get the metadat for the task
             if !self.active_tasks.contains(&task.metadata.name) {
@@ -145,7 +145,6 @@ impl TaskManager {
                     }
                     Err(err) => {
                         error!("Failed to get latest data for topic: {}", topic);
-                        
                     }
                 }
             }
@@ -167,7 +166,7 @@ impl TaskManager {
                         metadata.name,
                         write_queries.len()
                     );
-                     let mut db = database.lock().unwrap();
+                    let mut db = database.lock().unwrap();
                     let _write_result = db.query_batch(write_queries);
                 }
                 Err(err) => {
@@ -175,8 +174,6 @@ impl TaskManager {
                 }
             }
         }
-
-      
 
         Ok(())
     }
@@ -211,7 +208,6 @@ mod tests {
             };
             let topic0 = inputs.get("a/input").unwrap();
             let topic0_data = topic0.to_json("a/input").as_f64().unwrap();
-            
 
             let new_value = topic0_data * 2.0;
             let new_dp = DataPoint::new(t.clone(), Primatives::Number(new_value));

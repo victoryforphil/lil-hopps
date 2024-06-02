@@ -1,5 +1,3 @@
-
-
 use lil_broker::{DataPoint, QueryResponse};
 use tracing::{debug, info, instrument};
 
@@ -26,11 +24,11 @@ impl Task for EchoTask {
             )
             .with_refresh_rate_hz(10.0)
     }
-   // #[instrument(skip_all)]
+    // #[instrument(skip_all)]
     fn run(
         &mut self,
         t: &lil_broker::Timestamp,
-        inputs: &std::collections::BTreeMap<String,QueryResponse>,
+        inputs: &std::collections::BTreeMap<String, QueryResponse>,
     ) -> Result<TaskResult, anyhow::Error> {
         let mut data = std::collections::BTreeMap::new();
         for (topic, response) in inputs.iter() {
@@ -78,10 +76,6 @@ mod test {
             "/topic/1".into(),
             lil_broker::QueryResponse::from_json(json!({"/topic/1": {"0": "lil-hopps"}})),
         );
-
-
-
-
 
         let result = task.run(&t, &inputs).unwrap();
         assert_eq!(result.data.len(), 2);

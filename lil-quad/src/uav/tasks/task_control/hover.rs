@@ -67,9 +67,15 @@ impl Task for HoverTask {
 
 #[cfg(test)]
 mod test {
-    use std::{collections::BTreeMap, sync::{Arc, Mutex}};
+    use std::{
+        collections::BTreeMap,
+        sync::{Arc, Mutex},
+    };
 
-    use crate::{runner::{FixtureRunner, UAVRunner, UAVRunnerConfig}, uav::{quads::FixtureQuadRuntime, TaskManager, UAV}};
+    use crate::{
+        runner::{FixtureRunner, UAVRunner, UAVRunnerConfig},
+        uav::{quads::FixtureQuadRuntime, TaskManager, UAV},
+    };
 
     use super::*;
     use lil_broker::{Database, Primatives, WriteQuery};
@@ -101,10 +107,11 @@ mod test {
         let task = Arc::new(Mutex::new(HoverTask::new()));
         let config = UAVRunnerConfig::default().set_max_t(Timestamp::from_seconds(5.0));
 
-        let mut runner = FixtureRunner::new(config.clone(), task, init_state).expect("Failed to create runner");
+        let mut runner =
+            FixtureRunner::new(config.clone(), task, init_state).expect("Failed to create runner");
         let state = runner.start().expect("Failed to start runner");
         assert_eq!(state.t, config.max_t);
-        
+
         let mut db = runner.channels.database_arc.lock().unwrap();
         let result_out = db
             .query_get_latest(vec!["hover".to_string()].into())
@@ -114,6 +121,5 @@ mod test {
         let value = serde_json::from_value::<HoverOutputs>(result_out).unwrap();
         assert_eq!(value.error, 0.0);
         assert_eq!(value.desired_pose, pose);
-    
     }
 }

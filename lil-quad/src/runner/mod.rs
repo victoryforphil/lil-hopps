@@ -1,14 +1,14 @@
 mod channels;
 mod config;
 mod detached;
-mod state;
 mod fixture;
+mod state;
 
 pub use channels::*;
 pub use config::*;
 pub use detached::*;
-pub use state::*;
 pub use fixture::*;
+pub use state::*;
 use tracing::{debug, info, instrument};
 
 use crate::uav::UAV;
