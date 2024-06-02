@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use lil_broker::{DataPoint, Database, QueryCommand, Timestamp, WriteQuery};
+use lil_broker::{DataPoint, Database, QueryCommand, QueryResponse, Timestamp, WriteQuery};
 use tracing::{debug, error, info, instrument};
 
 use crate::uav::TaskSubscription;
@@ -134,30 +134,21 @@ impl TaskManager {
             state.status = TaskStatus::Running;
 
             let subscriptions = &metadata.subscriptions;
-            let inputs: BTreeMap<String, DataPoint>;
-            {
-                let query = TaskSubscription::generate_latest_query(subscriptions);
-                let mut db = database.lock().unwrap();
-                let data = db.query_get_latest(query);
-                
-                let data = match data {
-                    Ok(data) => data,
-                    Err(err) => {
-                        error!("Failed to get data for task: {} {:?}", metadata.name, err);
-                        continue;
+            let mut inputs: BTreeMap<String, QueryResponse> = BTreeMap::new();
+            for sub in subscriptions {
+                let topic = &sub.name;
+                let query = TaskSubscription::generate_latest_query(&vec![sub.clone()]);
+                let result = database.lock().unwrap().query_get_latest(query);
+                match result {
+                    Ok(result) => {
+                        inputs.insert(topic.clone(), result);
                     }
-                };
-                // Select last
-                inputs = data
-                    .data
-                    .into_iter()
-                    .map(|(k, v)| {
-                        let last = v.last().unwrap();
-                        (k, last.clone())
-                    })
-                    .collect();
+                    Err(err) => {
+                        error!("Failed to get latest data for topic: {}", topic);
+                        
+                    }
+                }
             }
-
             let mut task_lock: std::sync::MutexGuard<'_, dyn Task> = task.task.lock().unwrap();
             let result = task_lock.run(timestamp, &inputs);
 
@@ -212,20 +203,17 @@ mod tests {
         fn run(
             &mut self,
             t: &Timestamp,
-            inputs: &BTreeMap<String, DataPoint>,
+            inputs: &BTreeMap<String, QueryResponse>,
         ) -> Result<TaskResult, anyhow::Error> {
             let mut result = TaskResult {
                 data: BTreeMap::new(),
                 execution_time: Timestamp::zero(),
             };
             let topic0 = inputs.get("a/input").unwrap();
-            let topic0_data = topic0.data.clone();
-            let topic0_value = match topic0_data {
-                lil_broker::Primatives::Number(n) => n,
-                _ => return Err(anyhow::anyhow!("Expected Number, got {:?}", topic0_data)),
-            };
+            let topic0_data = topic0.to_json("a/input").as_f64().unwrap();
+            
 
-            let new_value = topic0_value * 2.0;
+            let new_value = topic0_data * 2.0;
             let new_dp = DataPoint::new(t.clone(), Primatives::Number(new_value));
 
             result.data.insert("a/output".into(), new_dp);
@@ -243,20 +231,16 @@ mod tests {
         fn run(
             &mut self,
             t: &Timestamp,
-            inputs: &BTreeMap<String, DataPoint>,
+            inputs: &BTreeMap<String, QueryResponse>,
         ) -> Result<TaskResult, anyhow::Error> {
             let mut result = TaskResult {
                 data: BTreeMap::new(),
                 execution_time: Timestamp::zero(),
             };
             let topic0 = inputs.get("b/input").unwrap();
-            let topic0_data = topic0.data.clone();
-            let topic0_value = match topic0_data {
-                lil_broker::Primatives::Number(n) => n,
-                _ => return Err(anyhow::anyhow!("Expected Number, got {:?}", topic0_data)),
-            };
+            let topic0_data = topic0.to_json("b/input").as_f64().unwrap();
 
-            let new_value = topic0_value * 3.0;
+            let new_value = topic0_data * 3.0;
             let new_dp = DataPoint::new(t.clone(), Primatives::Number(new_value));
 
             result.data.insert("b/output".into(), new_dp);

@@ -1,3 +1,4 @@
+use lil_broker::{QueryCommand, QueryResponse};
 use tracing::instrument;
 
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
@@ -34,28 +35,20 @@ impl Task for MathTask {
     fn run(
         &mut self,
         t: &lil_broker::Timestamp,
-        inputs: &std::collections::BTreeMap<String, lil_broker::DataPoint>,
+        inputs: &std::collections::BTreeMap<String, QueryResponse>,
     ) -> Result<TaskResult, anyhow::Error> {
         let mut data = std::collections::BTreeMap::new();
-        let topic0 = inputs.get(&self.topic_a.name).unwrap();
-        let topic1 = inputs.get(&self.topic_b.name).unwrap();
-        let operation = inputs.get("/math/operation").unwrap();
-        let topic0_data = topic0.data.clone();
-        let topic1_data = topic1.data.clone();
-        let operation_data = operation.data.clone();
-        let topic0_value = match topic0_data {
-            lil_broker::Primatives::Number(n) => n,
-            _ => return Err(anyhow::anyhow!("Expected Number, got {:?}", topic0_data)),
+        let topic0 = inputs.get(&self.topic_a.name).unwrap().to_json(&self.topic_a.name);
+        let topic1 = inputs.get(&self.topic_b.name).unwrap().to_json(&self.topic_b.name);
+        let operation = inputs.get("/math/operation").unwrap().to_json("/math/operation");
+     
+        let topic0_value = topic0.as_f64().unwrap();
+        let topic1_value = match topic1.as_f64() {
+            Some(value) => value,
+            None => return Err(anyhow::anyhow!("Invalid value for topic 1,got {:?}", topic1)),
         };
-        let topic1_value = match topic1_data {
-            lil_broker::Primatives::Number(n) => n,
-            _ => return Err(anyhow::anyhow!("Expected Number, got {:?}", topic1_data)),
-        };
-        let operation_value = match operation_data {
-            lil_broker::Primatives::String(s) => s,
-            _ => return Err(anyhow::anyhow!("Expected String, got {:?}", operation_data)),
-        };
-        let result = match operation_value.as_str() {
+        let operation_value = operation.as_str().unwrap();
+        let result = match operation_value {
             "+" => topic0_value + topic1_value,
             "-" => topic0_value - topic1_value,
             "*" => topic0_value * topic1_value,
@@ -77,6 +70,8 @@ mod test {
     use super::*;
     use lil_broker::Primatives;
     use pretty_assertions::assert_eq;
+    use serde_json::json;
+    use tracing::info;
     #[test]
     fn test_math_task_metadata() {
         let task = MathTask::new("/math/0".into(), "/math/1".into());
@@ -94,24 +89,23 @@ mod test {
 
     #[test]
     fn test_math_task_run() {
+        env_logger::init();
         let mut task = MathTask::new("/math/0".into(), "/math/1".into());
         let t = lil_broker::Timestamp::new(0);
-        let inputs = {
-            let mut map = std::collections::BTreeMap::new();
-            map.insert(
-                "/math/0".into(),
-                lil_broker::DataPoint::new(t.clone(), Primatives::Number(5.0)),
-            );
-            map.insert(
-                "/math/1".into(),
-                lil_broker::DataPoint::new(t.clone(), Primatives::Number(3.0)),
-            );
-            map.insert(
-                "/math/operation".into(),
-                lil_broker::DataPoint::new(t.clone(), Primatives::String("+".to_string())),
-            );
-            map
-        };
+        let mut inputs = std::collections::BTreeMap::new();
+        inputs.insert(
+            "/math/0".into(),
+            lil_broker::QueryResponse::from_json(json!({"/math/0":{"0": 3.0}})),
+        );
+        inputs.insert(
+            "/math/1".into(),
+            lil_broker::QueryResponse::from_json(json!({"/math/1":{"0": 5.0}})),
+        );
+        inputs.insert(
+            "/math/operation".into(),
+            lil_broker::QueryResponse::from_json(json!({"/math/operation":{"0": "+"}})),
+        );
+        info!("Inputs: {:#?}", inputs);
         let result = task.run(&t, &inputs).unwrap();
         assert_eq!(result.data.len(), 1);
         assert_eq!(

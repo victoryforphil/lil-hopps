@@ -1,43 +1,38 @@
 
 
-use lil_broker::{DataPoint, QueryResponse};
-use tracing::{debug, info, instrument};
+use tracing::instrument;
 
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
 
-pub struct EchoTask {
-    pub echo_topics: Vec<String>,
+pub struct HoverTask {
+   
 }
 
-impl EchoTask {
-    pub fn new(echo_topics: Vec<String>) -> EchoTask {
-        EchoTask { echo_topics }
+impl HoverTask {
+    pub fn new() -> HoverTask {
+        HoverTask {  }
     }
 }
 
-impl Task for EchoTask {
+impl Task for HoverTask {
     fn metadata(&self) -> TaskMetadata {
-        TaskMetadata::new("EchoTask".to_string())
+        TaskMetadata::new("HoverTask".to_string())
             .with_subscriptions(
-                self.echo_topics
-                    .iter()
-                    .map(|topic| TaskSubscription::from(topic.clone()))
-                    .collect(),
+                vec![
+                    TaskSubscription::from("sense/pose".to_string()),
+                ]
             )
-            .with_refresh_rate_hz(10.0)
+            .with_refresh_rate_hz(50.0)
     }
    // #[instrument(skip_all)]
     fn run(
         &mut self,
         t: &lil_broker::Timestamp,
-        inputs: &std::collections::BTreeMap<String,QueryResponse>,
+        inputs: &std::collections::BTreeMap<String, QueryResponset>,
     ) -> Result<TaskResult, anyhow::Error> {
         let mut data = std::collections::BTreeMap::new();
-        for (topic, response) in inputs.iter() {
-            for (key, value) in &response.data {
-                info!("{}: {:?}", key, value);
-                data.insert(format!("{}/echo", topic), value.last().unwrap().clone());
-            }
+        for (topic, dp) in inputs.iter() {
+            data.insert(topic.clone() + "/echo", dp.clone());
         }
         Ok(TaskResult {
             data,
@@ -51,7 +46,6 @@ mod test {
     use super::*;
     use lil_broker::Primatives;
     use pretty_assertions::assert_eq;
-    use serde_json::json;
     #[test]
     fn test_echo_task_metadata() {
         let echo_topics = vec!["/topic/0".to_string(), "/topic/1".to_string()];
@@ -69,20 +63,18 @@ mod test {
         let echo_topics = vec!["/topic/0".to_string(), "/topic/1".to_string()];
         let mut task = EchoTask::new(echo_topics);
         let t = lil_broker::Timestamp::new(0);
-        let mut inputs = std::collections::BTreeMap::new();
-        inputs.insert(
-            "/topic/0".into(),
-            lil_broker::QueryResponse::from_json(json!({"/topic/0": {"0": 5.0}})),
-        );
-        inputs.insert(
-            "/topic/1".into(),
-            lil_broker::QueryResponse::from_json(json!({"/topic/1": {"0": "lil-hopps"}})),
-        );
-
-
-
-
-
+        let inputs = {
+            let mut map = std::collections::BTreeMap::new();
+            map.insert(
+                "/topic/0".into(),
+                lil_broker::DataPoint::new(t.clone(), Primatives::Number(5.0)),
+            );
+            map.insert(
+                "/topic/1".into(),
+                lil_broker::DataPoint::new(t.clone(), Primatives::String("lil-hopps".to_string())),
+            );
+            map
+        };
         let result = task.run(&t, &inputs).unwrap();
         assert_eq!(result.data.len(), 2);
         assert_eq!(

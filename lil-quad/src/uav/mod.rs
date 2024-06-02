@@ -56,6 +56,8 @@ mod tests {
         let mut uav = UAV::new(Arc::new(Mutex::new(runtime)));
         let t = Timestamp::new(0);
         uav.tick(&t).unwrap();
+        let t = Timestamp::new(1);
+        uav.tick(&t).unwrap();
 
         // Check /math/output/echo for the result
         let dp = uav

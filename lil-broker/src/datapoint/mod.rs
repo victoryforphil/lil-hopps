@@ -1,5 +1,5 @@
 mod primatives;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub use primatives::Primatives;
 
@@ -23,6 +23,24 @@ impl DataPoint {
             data,
             tags: BTreeSet::new(),
         }
+    }
+    pub fn json_to_datapoints(timestamp: Timestamp, json: serde_json::Value) -> BTreeMap<String, DataPoint> {
+        let mut map = BTreeMap::new();
+        
+        if let serde_json::Value::Object(obj) = json {
+            for (key, val) in obj {
+                if let Some(supported_type) = Primatives::from_value(val.clone()) {
+                    let dp = DataPoint::new(timestamp.clone(), supported_type);
+                    map.insert(key, dp);
+                }
+            }
+
+        }else {
+            // Encode single field as "value"
+            
+        }
+
+        map
     }
     ///Builder function to add a tag to the DataPoint
     pub fn tag(mut self, tag: Tag) -> Self {
