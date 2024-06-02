@@ -136,7 +136,7 @@ mod test {
         info!("Desired pose: {:?}", result_out);
         let value = serde_json::from_value::<HoverOutputs>(result_out).unwrap();
 
-        assert_eq!(value.error, 0.1);
+        assert_eq!(value.error, 0.0);
         assert_eq!(value.desired_pose, pose);
     }
 
