@@ -7,7 +7,7 @@ use tracing::info;
 
 
 fn main() {
-    env_logger::init();
+    //env_logger::init();
   
     // wait 5s
     std::thread::sleep(std::time::Duration::from_secs(5));

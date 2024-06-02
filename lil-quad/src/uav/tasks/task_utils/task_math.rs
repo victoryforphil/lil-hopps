@@ -102,7 +102,7 @@ mod test {
 
     #[test]
     fn test_math_task_run() {
-        env_logger::init();
+        //env_logger::init();
         let mut task = MathTask::new("/math/0".into(), "/math/1".into());
         let t = lil_broker::Timestamp::new(0);
         let mut inputs = std::collections::BTreeMap::new();

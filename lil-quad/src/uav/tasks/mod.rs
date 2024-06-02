@@ -163,7 +163,7 @@ mod test {
 
     #[test]
     fn test_mock_task_run() {
-        env_logger::init();
+        //env_logger::init();
         let mut task = MockTask {};
         let t = Timestamp::new(0);
         let inputs = {

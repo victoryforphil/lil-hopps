@@ -116,7 +116,7 @@ mod tests {
 
     #[test]
     pub fn test_uav_runner_blocking_started() {
-        env_logger::init();
+        //env_logger::init();
         let uav_runtime = MockUAVRuntime::new().as_arc_mutex();
         let uav = UAV::new(uav_runtime);
         let config = UAVRunnerConfig::default().set_wait();
@@ -140,7 +140,7 @@ mod tests {
 
     #[test]
     pub fn test_uav_runner_blocking_not_started() {
-        env_logger::init();
+        //env_logger::init();
         let uav_runtime = MockUAVRuntime::new().as_arc_mutex();
         let uav = UAV::new(uav_runtime);
         let config = UAVRunnerConfig::default();
@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     pub fn test_uav_runner_blocking_external_tick() {
-        env_logger::init();
+        //env_logger::init();
         let uav_runtime = MockUAVRuntime::new().as_arc_mutex();
         let uav = UAV::new(uav_runtime);
         let config = UAVRunnerConfig::default().set_external_tick();

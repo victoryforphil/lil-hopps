@@ -120,7 +120,7 @@ mod tests {
 
     #[test]
     fn test_write_query_from_json_complex() {
-        env_logger::init();
+        //env_logger::init();
 
         let json = json!(
         {

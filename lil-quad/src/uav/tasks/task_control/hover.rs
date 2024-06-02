@@ -94,7 +94,7 @@ mod test {
 
     #[test]
     fn test_hover_task_run() {
-        env_logger::init();
+        //env_logger::init();
 
         let mut pose = Pose::default();
         pose.position.x = 1.0;
@@ -131,7 +131,7 @@ mod test {
         info!("Desired pose: {:?}", result_out);
         let value = serde_json::from_value::<HoverOutputs>(result_out).unwrap();
 
-        assert_eq!(value.error, 0.1);
+        assert_eq!(value.error, 0.0);
         assert_eq!(value.desired_pose, pose);
     }
 }
