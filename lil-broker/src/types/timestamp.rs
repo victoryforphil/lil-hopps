@@ -5,7 +5,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, Hash, Eq, Ord )]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Hash, Eq, Ord)]
 pub struct Timestamp {
     pub tick_ms: u32,
 }
