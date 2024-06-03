@@ -189,7 +189,7 @@ mod tests {
             }
         }
         state = last_valid_state;
-        assert_eq!(state.unwrap().running, false);
+        assert_eq!(state.unwrap().is_done, true);
     }
 
     #[test]
@@ -199,7 +199,7 @@ mod tests {
         rabbit = 1;
         assert_eq!(rabbit, 1);
         runner.start();
-        assert_eq!(runner.channel_rx.recv().unwrap().running, true);
+        assert_eq!(runner.channel_rx.recv().unwrap().is_done, false);
 
         while runner.channel_rx.try_recv().is_ok() {}
     }
@@ -211,7 +211,7 @@ mod tests {
         rabbit = 1;
         assert_eq!(rabbit, 1);
         runner.start();
-        assert_eq!(runner.channel_rx.recv().unwrap().running, true);
+        assert_eq!(runner.channel_rx.recv().unwrap().is_done, false);
 
         while runner.channel_rx.try_recv().is_ok() {}
     }
