@@ -81,7 +81,7 @@ impl Bucket {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{types::Tag, Primatives, Timestamp};
+    use crate::{Primatives, Timestamp};
 
     /// Querying tests
     #[test]

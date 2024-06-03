@@ -1,5 +1,8 @@
 {
     "rust-analyzer.linkedProjects": [
         "./lil-broker/Cargo.toml"
+    ],
+    "cSpell.words": [
+        "tasker"
     ]
 }

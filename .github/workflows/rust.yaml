@@ -36,8 +36,8 @@ jobs:
       - uses: taiki-e/install-action@nextest
       - name: Collect coverage data (including doctests)
         run: |
-          cargo llvm-cov --no-report nextest --ignore-filename-regex .cargo
-          cargo llvm-cov report --lcov --output-path lcov.info  --ignore-filename-regex .cargo
+          cargo llvm-cov --no-report nextest --ignore-filename-regex calloop-0.10.6/*
+          cargo llvm-cov report --lcov --output-path lcov.info  --ignore-filename-regex calloop-0.10.6/*
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         with:

@@ -1,7 +1,9 @@
 mod primatives;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
+use json_unflattening::flattening::flatten;
 pub use primatives::Primatives;
+use tracing::warn;
 
 use crate::{Tag, Timestamp};
 
@@ -24,6 +26,24 @@ impl DataPoint {
             tags: BTreeSet::new(),
         }
     }
+    pub fn json_to_datapoints(
+        timestamp: Timestamp,
+        json: serde_json::Value,
+    ) -> BTreeMap<String, DataPoint> {
+        let mut map = BTreeMap::new();
+        // Flatten JSON
+        let json = flatten(&json).unwrap();
+        for (key, val) in json {
+            if let Some(supported_type) = Primatives::from_value(val.clone()) {
+                let dp = DataPoint::new(timestamp.clone(), supported_type);
+                map.insert(key, dp);
+            } else {
+                warn!("Unsupported type for datapoint: {}", val);
+            }
+        }
+
+        map
+    }
     ///Builder function to add a tag to the DataPoint
     pub fn tag(mut self, tag: Tag) -> Self {
         self.tags.insert(tag);
@@ -38,7 +58,6 @@ impl DataPoint {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::Tag;
 
     #[test]
     fn test_datapoint_new() {
