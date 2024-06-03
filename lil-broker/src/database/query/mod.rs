@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::DataPoint;
+use crate::{DataPoint, Primatives, Timestamp};
 
 mod get_latest;
 mod lookup;
@@ -11,10 +11,13 @@ mod write;
 pub use get_latest::*;
 use json_unflattening::unflattening::unflatten;
 pub use lookup::*;
+
 pub use lookup_range::*;
+
 use serde_json::{json, Value};
 pub use tag_filter::*;
 
+use tracing::debug;
 pub use write::*;
 #[derive(Debug, Clone)]
 pub enum QueryCommand {
@@ -45,6 +48,31 @@ impl QueryResponse {
         }
     }
 
+    pub fn from_data(data: BTreeMap<String, Vec<DataPoint>>) -> QueryResponse {
+        let len = data.len();
+        QueryResponse {
+            data,
+            metadata: QueryResponseMetadata {
+                n_results: len,
+                was_successful: true,
+            },
+        }
+    }
+
+    pub fn from_json(json: Value) -> QueryResponse {
+        let mut data = BTreeMap::new();
+        for (key, value) in json.as_object().unwrap() {
+            let mut data_points = Vec::new();
+            for (timestamp, data) in value.as_object().unwrap() {
+                let timestamp = Timestamp::new(timestamp.parse().unwrap());
+                let data = Primatives::from_value(data.clone()).unwrap();
+                data_points.push(DataPoint::new(timestamp, data));
+            }
+            data.insert(key.to_string(), data_points);
+        }
+        QueryResponse::from_data(data)
+    }
+
     pub fn to_json(&self, prefix: &str) -> Value {
         let mut values: serde_json::Map<String, Value> = serde_json::Map::new();
         for (key, data) in self.data.iter() {
@@ -57,8 +85,9 @@ impl QueryResponse {
             values.insert(key.to_string(), json!(data_points.last()));
         }
         // Strip Prefix
+        debug!("{:?}", values);
 
-        let unflattened_json = unflatten(&values).unwrap();
+        let unflattened_json = unflatten(&values).unwrap_or_default();
         unflattened_json
     }
 

@@ -12,7 +12,7 @@ pub enum Primatives {
     ArrayRef(Vec<String>),
 }
 impl Primatives {
-    pub(crate) fn from_value(val: Value) -> Option<Primatives> {
+    pub fn from_value(val: Value) -> Option<Primatives> {
         match val {
             Value::String(s) => Some(Primatives::String(s)),
             Value::Number(n) => n.as_f64().map(|f| Primatives::Number(f as f64)),
@@ -50,7 +50,7 @@ impl Primatives {
         }
     }
 
-    pub(crate) fn to_value(&self) -> Value {
+    pub fn to_value(&self) -> Value {
         match self {
             Primatives::Number(n) => json!(*n),
             Primatives::String(s) => Value::String(s.clone()),

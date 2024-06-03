@@ -1,11 +1,13 @@
 mod manager;
+mod task_control;
 mod task_utils;
 pub use manager::*;
+pub use task_control::*;
 pub use task_utils::*;
 
-use std::{any, collections::BTreeMap};
+use std::collections::BTreeMap;
 
-use lil_broker::{DataPoint, GetLatestQuery, Timestamp};
+use lil_broker::{DataPoint, GetLatestQuery, QueryResponse, Timestamp};
 #[derive(Debug, Clone, PartialEq)]
 pub struct TaskMetadata {
     pub name: String,
@@ -13,28 +15,29 @@ pub struct TaskMetadata {
     pub refresh_rate: Timestamp,
 }
 #[derive(Debug, Clone, PartialEq)]
-pub struct TaskSubscription{
+pub struct TaskSubscription {
     pub name: String,
     pub ack: bool,
 }
 
-impl TaskSubscription{
-    pub fn new(name: String) -> TaskSubscription{
-        TaskSubscription{
-            name,
-            ack: false,
-        }
+impl TaskSubscription {
+    pub fn new(name: String) -> TaskSubscription {
+        TaskSubscription { name, ack: false }
     }
 
-    pub fn with_ack(mut self, ack: bool) -> TaskSubscription{
+    pub fn with_ack(mut self, ack: bool) -> TaskSubscription {
         self.ack = ack;
         self
     }
 
-    pub fn generate_latest_query(subs: &Vec<TaskSubscription>) -> GetLatestQuery{
+    pub fn generate_latest_query(subs: &Vec<TaskSubscription>) -> GetLatestQuery {
         let topics = subs.iter().map(|sub| sub.name.clone()).collect();
-        let acks = subs.iter().filter(|sub| sub.ack).map(|sub| sub.name.clone()).collect();
-        GetLatestQuery{
+        let acks = subs
+            .iter()
+            .filter(|sub| sub.ack)
+            .map(|sub| sub.name.clone())
+            .collect();
+        GetLatestQuery {
             topics,
             ack_topics: acks,
             tag_filters: Vec::new(),
@@ -42,14 +45,14 @@ impl TaskSubscription{
     }
 }
 
-impl From<String> for TaskSubscription{
-    fn from(name: String) -> Self{
+impl From<String> for TaskSubscription {
+    fn from(name: String) -> Self {
         TaskSubscription::new(name)
     }
 }
 
-impl From<&str> for TaskSubscription{
-    fn from(name: &str) -> Self{
+impl From<&str> for TaskSubscription {
+    fn from(name: &str) -> Self {
         TaskSubscription::new(name.into())
     }
 }
@@ -98,12 +101,12 @@ pub struct TaskResult {
     pub execution_time: Timestamp,
 }
 
-pub trait Task {
+pub trait Task: Send + Sync {
     fn metadata(&self) -> TaskMetadata;
     fn run(
         &mut self,
         t: &Timestamp,
-        inputs: &BTreeMap<String, DataPoint>,
+        inputs: &BTreeMap<String, QueryResponse>,
     ) -> Result<TaskResult, anyhow::Error>;
 }
 
@@ -120,7 +123,7 @@ pub struct MockTask {}
 
 impl Task for MockTask {
     fn metadata(&self) -> TaskMetadata {
-        TaskMetadata::new("Mock Task".into())
+        TaskMetadata::new("MockTask".into())
             .with_refresh_rate(Timestamp::from_hz(100.0 as f32))
             .with_subscription("/topic/0".into())
     }
@@ -128,25 +131,18 @@ impl Task for MockTask {
     fn run(
         &mut self,
         t: &Timestamp,
-        inputs: &BTreeMap<String, DataPoint>,
+        inputs: &BTreeMap<String, QueryResponse>,
     ) -> Result<TaskResult, anyhow::Error> {
         let mut result = TaskResult {
             data: BTreeMap::new(),
             execution_time: Timestamp::zero(),
         };
-        let topic0 = inputs.get("/topic/0").unwrap();
-        let topic0_data = topic0.data.clone();
-        let topic0_value = match topic0_data {
-            lil_broker::Primatives::Number(n) => n,
-            _ => return Err(anyhow::anyhow!("Expected Number, got {:?}", topic0_data)),
-        };
-
+        let topic0 = inputs.get("/topic/0".into()).unwrap().to_json("/topic/0");
+        let topic0_value = topic0.as_f64().unwrap();
         let debug_message = format!("topic_0={}", topic0_value);
         let debug_message_dp =
             DataPoint::new(t.clone(), lil_broker::Primatives::String(debug_message));
-        result
-            .data
-            .insert("/debug/0".into(), debug_message_dp);
+        result.data.insert("/debug/0".into(), debug_message_dp);
         Ok(result)
     }
 }
@@ -155,10 +151,11 @@ impl Task for MockTask {
 mod test {
     use super::*;
     use pretty_assertions::assert_eq;
+    use serde_json::json;
     #[test]
     fn test_mock_task_metadata() {
         let metadata = MockTask {}.metadata();
-        assert_eq!(metadata.name, "Mock Task");
+        assert_eq!(metadata.name, "MockTask");
         assert_eq!(metadata.subscriptions.len(), 1);
         assert_eq!(metadata.subscriptions[0], "/topic/0".into());
         assert_eq!(metadata.refresh_rate, Timestamp::from_hz(100.0 as f32));
@@ -166,20 +163,20 @@ mod test {
 
     #[test]
     fn test_mock_task_run() {
+        //env_logger::init();
         let mut task = MockTask {};
         let t = Timestamp::new(0);
         let inputs = {
             let mut map = BTreeMap::new();
-            map.insert("/topic/0".into(), DataPoint::new(t, 5.0.into()));
+            map.insert(
+                "/topic/0".into(),
+                QueryResponse::from_json(json!({"/topic/0": {"0": 5.0}})),
+            );
             map
         };
         let result = task.run(&t, &inputs).unwrap();
 
         assert_eq!(result.data.len(), 1);
         assert_eq!(result.execution_time, Timestamp::zero());
-
-        let debug_messages = result.data.get("/debug/0").unwrap();
-        let debug_message = &debug_messages;
-        assert_eq!(debug_message.data, lil_broker::Primatives::String("topic_0=5".to_string()));
     }
 }

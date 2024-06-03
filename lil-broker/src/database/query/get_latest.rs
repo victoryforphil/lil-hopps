@@ -1,7 +1,7 @@
 use crate::{Database, QueryCommand, QueryResponse};
 
 use super::tag_filter::TagFilter;
-use tracing::{debug, info};
+use tracing::debug;
 #[derive(Debug, Clone)]
 pub struct GetLatestQuery {
     pub topics: Vec<String>,
@@ -119,13 +119,41 @@ impl Database {
 
         Ok(response)
     }
+
+    pub fn query_get_latest_stripped(
+        &mut self,
+        query: GetLatestQuery,
+    ) -> Result<QueryResponse, String> {
+        let mut response = QueryResponse::default();
+        debug!("Querying for latest data: {:?}", query);
+        let all_bucket_keys = self.get_keys().into_iter();
+        let matching_keys = all_bucket_keys.filter(|key| {
+            for topic in &query.topics {
+                if key.starts_with(topic) {
+                    return true;
+                }
+            }
+            false
+        });
+        // Read the matching keys
+        let addtional_keys = self.read_bucket(matching_keys.collect(), &query, &mut response);
+
+        if let Some(addtional_keys) = addtional_keys {
+            debug!("Additional keys to read: {:?}", addtional_keys);
+            self.read_bucket(addtional_keys, &query, &mut response);
+        }
+
+        Ok(response)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{Primatives, Tag, Timestamp, WriteQuery};
-    use pretty_assertions::{assert_eq, assert_ne};
+    use crate::{Primatives, Timestamp, WriteQuery};
+    use pretty_assertions::assert_eq;
     use serde_json::json;
+
+    use tracing::info;
 
     use super::*;
 
@@ -154,7 +182,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_json_struct() {
-        env_logger::init();
         let mut db = Database::new();
 
         #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -239,7 +266,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_ack() {
-        env_logger::init();
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
         let _write_res = db.query_batch(vec![query1.into()]).unwrap();
@@ -271,7 +297,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_bucket_tags() {
-        env_logger::init();
         let mut db = Database::new();
         let query1 = WriteQuery::new("test/a/1".into(), 1.0.into(), Timestamp::from_seconds(1.0));
         db.add_tag_to_bucket("test/a/1", "user/test_tag".into());
@@ -293,7 +318,6 @@ mod tests {
 
     #[test]
     fn test_get_latest_query_additonial() {
-        env_logger::init();
         let mut db = Database::new();
 
         let queries = vec![

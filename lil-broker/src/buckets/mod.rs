@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use tracing::debug;
 
 mod querying;
-
+#[derive(Debug)]
 pub struct Bucket {
     pub name: String,
     pub bucket_tags: BTreeSet<Tag>,
