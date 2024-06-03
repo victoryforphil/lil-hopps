@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["native_pixels_per_point","screen_size_in_pixels"],"mod":["clipboard"],"struct":["EventResponse","State","WindowSettings"]};

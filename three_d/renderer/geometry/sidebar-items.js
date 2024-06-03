@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CpuGeometry","Indices","Positions"],"struct":["BoundingBox","Circle","CpuMesh","InstancedMesh","Instances","KeyFrameAnimation","KeyFrames","Line","Mesh","ParticleSystem","Particles","PointCloud","Rectangle","Sprites"],"trait":["Geometry"]};

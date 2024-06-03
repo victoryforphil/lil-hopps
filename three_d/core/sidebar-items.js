@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CoreError"],"fn":["apply_cube_effect","apply_effect"],"mod":["buffer","prelude","render_states","render_target","texture"],"struct":["Context","Program","ScissorBox","Viewport"],"trait":["UniformDataType"]};

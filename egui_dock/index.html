@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`egui_dock`: docking support for `egui`"><title>egui_dock - Rust</title><script> if (window.location.protocol !== "file:") document.write(`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2">`)</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="egui_dock" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0 (9b00956e5 2024-04-29)" data-channel="1.78.0" data-search-js="search-42d8da7a6b9792c2.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-4c98445ec4002617.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-12cf3b4f4f9dc36d.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../egui_dock/index.html">egui_dock</a><span class="version">0.8.2</span></h2></div><div class="sidebar-elems"><ul class="block">
+            <li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li></ul></section></div></nav><div class="sidebar-resizer"></div>
+    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../egui_dock/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">egui_dock</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/egui_dock/lib.rs.html#1-231">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="egui_dock-docking-support-for-egui"><a class="doc-anchor" href="#egui_dock-docking-support-for-egui">§</a><code>egui_dock</code>: docking support for <code>egui</code></h2>
+<p>Originally created by <a href="https://github.com/lain-dono">@lain-dono</a>, this library provides docking support for <code>egui</code>.
+It lets you open and close tabs, freely move them around, resize them, and undock them into new egui windows which
+can also have other tabs docked in them.</p>
+<h3 id="basic-usage"><a class="doc-anchor" href="#basic-usage">§</a>Basic usage</h3>
+<p>The library is centered around the <a href="dock_state/struct.DockState.html" title="struct egui_dock::dock_state::DockState"><code>DockState</code></a>.
+It contains a series of <a href="dock_state/surface/enum.Surface.html" title="enum egui_dock::dock_state::surface::Surface"><code>Surface</code></a>s which all have their own <a href="dock_state/tree/struct.Tree.html" title="struct egui_dock::dock_state::tree::Tree"><code>Tree</code></a>.
+Each <a href="dock_state/tree/struct.Tree.html" title="struct egui_dock::dock_state::tree::Tree"><code>Tree</code></a> stores a hierarchy of <a href="dock_state/tree/node/enum.Node.html" title="enum egui_dock::dock_state::tree::node::Node"><code>Node</code></a>s which contain the splits and tabs.</p>
+<p><a href="dock_state/struct.DockState.html" title="struct egui_dock::dock_state::DockState"><code>DockState</code></a> is generic (<code>DockState&lt;Tab&gt;</code>) so you can use any data to represent a tab.
+You show the tabs using <a href="widgets/dock_area/struct.DockArea.html" title="struct egui_dock::widgets::dock_area::DockArea"><code>DockArea</code></a> and specify how they are shown by implementing <a href="widgets/tab_viewer/trait.TabViewer.html" title="trait egui_dock::widgets::tab_viewer::TabViewer"><code>TabViewer</code></a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>egui_dock::{DockArea, DockState, NodeIndex, Style, TabViewer};
+<span class="kw">use </span>egui::{Ui, WidgetText};
+
+<span class="comment">// First, let's pick a type that we'll use to attach some data to each tab.
+// It can be any type.
+</span><span class="kw">type </span>Tab = String;
+
+<span class="comment">// To define the contents and properties of individual tabs, we implement the `TabViewer`
+// trait. Only three things are mandatory: the `Tab` associated type, and the `ui` and
+// `title` methods. There are more methods in `TabViewer` which you can also override.
+</span><span class="kw">struct </span>MyTabViewer;
+
+<span class="kw">impl </span>TabViewer <span class="kw">for </span>MyTabViewer {
+    <span class="comment">// This associated type is used to attach some data to each tab.
+    </span><span class="kw">type </span>Tab = Tab;
+
+    <span class="comment">// Returns the current `tab`'s title.
+    </span><span class="kw">fn </span>title(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tab: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Tab) -&gt; WidgetText {
+        tab.as_str().into()
+    }
+
+    <span class="comment">// Defines the contents of a given `tab`.
+    </span><span class="kw">fn </span>ui(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ui: <span class="kw-2">&amp;mut </span>Ui, tab: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Tab) {
+        ui.label(<span class="macro">format!</span>(<span class="string">"Content of {tab}"</span>));
+    }
+}
+
+<span class="comment">// Here is a simple example of how you can manage a `DockState` of your application.
+</span><span class="kw">struct </span>MyTabs {
+    dock_state: DockState&lt;Tab&gt;
+}
+
+<span class="kw">impl </span>MyTabs {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="comment">// Create a `DockState` with an initial tab "tab1" in the main `Surface`'s root node.
+        </span><span class="kw">let </span>tabs = [<span class="string">"tab1"</span>, <span class="string">"tab2"</span>, <span class="string">"tab3"</span>].map(str::to_string).into_iter().collect();
+        <span class="kw">let </span>dock_state = DockState::new(tabs);
+        <span class="self">Self </span>{ dock_state }
+    }
+
+    <span class="kw">fn </span>ui(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ui: <span class="kw-2">&amp;mut </span>Ui) {
+        <span class="comment">// Here we just display the `DockState` using a `DockArea`.
+        // This is where egui handles rendering and all the integrations.
+        //
+        // We can specify a custom `Style` for the `DockArea`, or just inherit
+        // all of it from egui.
+        </span>DockArea::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.dock_state)
+            .style(Style::from_egui(ui.style().as_ref()))
+            .show_inside(ui, <span class="kw-2">&amp;mut </span>MyTabViewer);
+    }
+}
+</code></pre></div>
+<h3 id="look-and-feel-customization"><a class="doc-anchor" href="#look-and-feel-customization">§</a>Look and feel customization</h3>
+<p><code>egui_dock</code> exposes the <a href="style/struct.Style.html" title="struct egui_dock::style::Style"><code>Style</code></a> struct that lets you change how tabs and the <a href="widgets/dock_area/struct.DockArea.html" title="struct egui_dock::widgets::dock_area::DockArea"><code>DockArea</code></a>
+should look and feel. <a href="style/struct.Style.html" title="struct egui_dock::style::Style"><code>Style</code></a> is divided into several, more specialized structs that handle
+individual elements of the UI.</p>
+<p>Your <a href="style/struct.Style.html" title="struct egui_dock::style::Style"><code>Style</code></a> can inherit all its properties from an <a href="../egui/style/struct.Style.html" title="struct egui::style::Style"><code>egui::Style</code></a> through the
+<a href="style/struct.Style.html#method.from_egui" title="associated function egui_dock::style::Style::from_egui"><code>Style::from_egui</code></a> function.</p>
+<p>Example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Inherit the look and feel from egui.
+</span><span class="kw">let </span><span class="kw-2">mut </span>style = Style::from_egui(ui.style());
+
+<span class="comment">// Modify a few fields.
+</span>style.overlay.overlay_type = OverlayType::HighlightedAreas;
+style.buttons.add_tab_align = TabAddAlign::Left;
+
+<span class="comment">// Use the style with the `DockArea`.
+</span>DockArea::new(<span class="kw-2">&amp;mut </span>dock_state)
+    .style(style)
+    .show_inside(ui, <span class="kw-2">&amp;mut </span>MyTabViewer);</code></pre></div>
+<h3 id="surfaces"><a class="doc-anchor" href="#surfaces">§</a>Surfaces</h3>
+<p>A <a href="dock_state/surface/enum.Surface.html" title="enum egui_dock::dock_state::surface::Surface"><code>Surface</code></a> is an abstraction for any tab hierarchy. There are two kinds of
+non-empty surfaces: <code>Main</code> and <code>Window</code>.</p>
+<p>There can only be one <code>Main</code> surface. It’s the one surface that is rendered inside the
+<a href="../egui/ui/struct.Ui.html" title="struct egui::ui::Ui"><code>Ui</code></a> you’ve passed to <a href="widgets/dock_area/struct.DockArea.html#method.show_inside" title="method egui_dock::widgets::dock_area::DockArea::show_inside"><code>DockArea::show_inside</code></a>, or inside the
+<a href="../egui/containers/panel/struct.CentralPanel.html" title="struct egui::containers::panel::CentralPanel"><code>egui::CentralPanel</code></a> created by <a href="widgets/dock_area/struct.DockArea.html#method.show" title="method egui_dock::widgets::dock_area::DockArea::show"><code>DockArea::show</code></a>.</p>
+<p>On the other hand, there can be multiple <code>Window</code> surfaces. Those represent surfaces that were
+created by undocking tabs from the <code>Main</code> surface, and each of them is rendered inside
+a <a href="../egui/containers/window/struct.Window.html" title="struct egui::containers::window::Window"><code>egui::Window</code></a> - hence their name.</p>
+<p>While most of surface management will be done by the user of your application, you can also do it
+programatically using the <a href="dock_state/struct.DockState.html" title="struct egui_dock::dock_state::DockState"><code>DockState</code></a> API.</p>
+<p>Example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Create a new window `Surface` with one tab inside it.
+</span><span class="kw">let </span><span class="kw-2">mut </span>surface_index = dock_state.add_window(<span class="macro">vec!</span>[<span class="string">"Window Tab"</span>.to_string()]);
+
+<span class="comment">// Access the window state by its surface index and then move and resize it.
+</span><span class="kw">let </span>window_state = dock_state.get_window_state_mut(surface_index).unwrap();
+window_state.set_position(Pos2::ZERO);
+window_state.set_size(Vec2::splat(<span class="number">100.0</span>));</code></pre></div>
+<p>For more details, see: <a href="dock_state/struct.DockState.html" title="struct egui_dock::dock_state::DockState"><code>DockState</code></a>.</p>
+<h3 id="trees"><a class="doc-anchor" href="#trees">§</a>Trees</h3>
+<p>In each <a href="dock_state/surface/enum.Surface.html" title="enum egui_dock::dock_state::surface::Surface"><code>Surface</code></a> there is a <a href="dock_state/tree/struct.Tree.html" title="struct egui_dock::dock_state::tree::Tree"><code>Tree</code></a> which actually stores the tabs. As the name suggests,
+tabs and splits are represented with a binary tree.</p>
+<p>The <a href="dock_state/tree/struct.Tree.html" title="struct egui_dock::dock_state::tree::Tree"><code>Tree</code></a> API allows you to programatically manipulate the dock layout.</p>
+<p>Example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Create a `DockState` with an initial tab "tab1" in the main `Surface`'s root node.
+</span><span class="kw">let </span><span class="kw-2">mut </span>dock_state = DockState::new(<span class="macro">vec!</span>[<span class="string">"tab1"</span>.to_string()]);
+
+<span class="comment">// Currently, the `DockState` only has one `Surface`: the main one.
+// Let's get mutable access to add more nodes in it.
+</span><span class="kw">let </span>surface = dock_state.main_surface_mut();
+
+<span class="comment">// Insert "tab2" to the left of "tab1", where the width of "tab2"
+// is 20% of root node's width.
+</span><span class="kw">let </span>[_old_node, new_node] =
+    surface.split_left(NodeIndex::root(), <span class="number">0.20</span>, <span class="macro">vec!</span>[<span class="string">"tab2"</span>.to_string()]);
+
+<span class="comment">// Insert "tab3" below "tab2" with both tabs having equal size.
+</span>surface.split_below(new_node, <span class="number">0.5</span>, <span class="macro">vec!</span>[<span class="string">"tab3"</span>.to_string()]);
+
+<span class="comment">// The layout will look similar to this:
+// +--------+--------------------------------+
+// |        |                                |
+// |  tab2  |                                |
+// |        |                                |
+// +--------+              tab1              |
+// |        |                                |
+// |  tab3  |                                |
+// |        |                                |
+// +--------+--------------------------------+</span></code></pre></div>
+<h3 id="translations"><a class="doc-anchor" href="#translations">§</a>Translations</h3>
+<p>Some parts of the <a href="widgets/dock_area/struct.DockArea.html" title="struct egui_dock::widgets::dock_area::DockArea"><code>DockArea</code></a> contain text that has nothing to do with tab content (currently it’s just the
+tab context menus, but that might change in the future). The <a href="dock_state/translations/index.html" title="mod egui_dock::dock_state::translations"><code>translations</code></a> module provides an API for defining
+an alternative for each text element. This is especially useful when your application’s interface is in any
+language other than English, but can also be used in any other way, e.g. to add icons.</p>
+<p>Example usage:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>translations_pl = Translations {
+    tab_context_menu: TabContextMenuTranslations {
+        close_button: <span class="string">"Zamknij zakładkę"</span>.to_string(),
+        eject_button: <span class="string">"Przenieś zakładkę do nowego okna"</span>.to_string(),
+    },
+};
+<span class="kw">let </span>dock_state = DockState::&lt;Tab&gt;::new(<span class="macro">vec!</span>[]).with_translations(translations_pl);
+
+<span class="comment">// Alternatively:
+</span><span class="kw">let </span><span class="kw-2">mut </span>dock_state = DockState::&lt;Tab&gt;::new(<span class="macro">vec!</span>[]);
+dock_state.translations.tab_context_menu.close_button = <span class="string">"タブを閉じる"</span>.to_string();
+dock_state.translations.tab_context_menu.eject_button = <span class="string">"タブを新しいウィンドウへ移動"</span>.to_string();</code></pre></div>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name" id="reexport.egui"><code>pub use <a class="mod" href="../egui/index.html" title="mod egui">egui</a>;</code></div></li><li><div class="item-name"><code>pub use <a class="mod" href="dock_state/index.html" title="mod egui_dock::dock_state">dock_state</a>::*;</code></div></li><li><div class="item-name"><code>pub use <a class="mod" href="style/index.html" title="mod egui_dock::style">style</a>::*;</code></div></li><li><div class="item-name"><code>pub use <a class="mod" href="dock_state/translations/index.html" title="mod egui_dock::dock_state::translations">translations</a>::*;</code></div></li><li><div class="item-name"><code>pub use <a class="mod" href="dock_state/tree/index.html" title="mod egui_dock::dock_state::tree">tree</a>::*;</code></div></li><li><div class="item-name"><code>pub use <a class="mod" href="widgets/index.html" title="mod egui_dock::widgets">widgets</a>::*;</code></div></li></ul><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="dock_state/index.html" title="mod egui_dock::dock_state">dock_state</a></div><div class="desc docblock-short">The main structure of the library.</div></li><li><div class="item-name"><a class="mod" href="style/index.html" title="mod egui_dock::style">style</a></div><div class="desc docblock-short">Look and feel.</div></li><li><div class="item-name"><a class="mod" href="widgets/index.html" title="mod egui_dock::widgets">widgets</a></div><div class="desc docblock-short">Widgets provided by the library.</div></li></ul></section></div></main></body></html>

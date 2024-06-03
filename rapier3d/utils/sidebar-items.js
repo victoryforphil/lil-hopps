@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":["IndexMut2","WBasis","WQuat","WReal","WSign"]};
