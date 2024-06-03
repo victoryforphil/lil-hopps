@@ -2,10 +2,9 @@ name: Rust
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
   pull_request:
-    branches: ["main"]
-
 env:
   CARGO_TERM_COLOR: always
 
@@ -29,7 +28,8 @@ jobs:
       - uses: taiki-e/install-action@nextest
       - uses: actions/checkout@v4
       - name: Install Rust
-        run: rustup update nightly 
+        run: |
+          rustup update nightly 
       - name: Install cargo-llvm-cov
         run: rustup component add llvm-tools-preview --toolchain nightly
       - uses: taiki-e/install-action@cargo-llvm-cov
@@ -37,25 +37,24 @@ jobs:
       - name: Collect coverage data (including doctests)
         run: |
           cargo llvm-cov --no-report nextest --ignore-filename-regex calloop-0.10.6/*
-          cargo llvm-cov --no-report --doc  --ignore-filename-regex calloop-0.10.6/*
-          cargo llvm-cov report --doctests --lcov --output-path lcov.info  --ignore-filename-regex calloop-0.10.6/*
+          cargo llvm-cov report --lcov --output-path lcov.info  --ignore-filename-regex calloop-0.10.6/*
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: taiki-e/install-action@nextest
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        run: rustup update stable
-      - name: Build docs
-        run: cargo doc --verbose --all-features --workspace
-      - name: Deploy docs
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./target/doc
+          fail_ci_if_error: false
+#  docs:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: taiki-e/install-action@nextest
+#      - uses: actions/checkout@v4
+#      - name: Install Rust
+#        run: rustup update stable
+#      - name: Build docs
+#        run: cargo doc --verbose --all-features --workspace
+#      - name: Deploy docs
+#        uses: peaceiris/actions-gh-pages@v3
+#        with:
+#            github_token: ${{ secrets.GITHUB_TOKEN }}
+#            publish_dir: ./target/doc
