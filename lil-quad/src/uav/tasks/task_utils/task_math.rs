@@ -1,4 +1,5 @@
 use lil_broker::QueryResponse;
+use serde_json::json;
 
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
 
@@ -68,9 +69,8 @@ impl Task for MathTask {
             "/" => topic0_value / topic1_value,
             _ => return Err(anyhow::anyhow!("Invalid operation: {}", operation_value)),
         };
-        let result_dp =
-            lil_broker::DataPoint::new(t.clone(), lil_broker::Primatives::Number(result));
-        data.insert("/math/output".to_string(), result_dp);
+
+        data.insert("/math".to_string(), json!({ "output": result}));
         Ok(TaskResult {
             data,
             execution_time: t.clone(),
@@ -102,7 +102,7 @@ mod test {
 
     #[test]
     fn test_math_task_run() {
-        //env_logger::init();
+        env_logger::init();
         let mut task = MathTask::new("/math/0".into(), "/math/1".into());
         let t = lil_broker::Timestamp::new(0);
         let mut inputs = std::collections::BTreeMap::new();
@@ -121,9 +121,10 @@ mod test {
         info!("Inputs: {:#?}", inputs);
         let result = task.run(&t, &inputs).unwrap();
         assert_eq!(result.data.len(), 1);
+        info!("Result: {:#?}", result.data);
         assert_eq!(
-            result.data.get("/math/output").unwrap().data,
-            Primatives::Number(8.0)
+            result.data.get("/math").unwrap().get("output").unwrap(),
+            8.0
         );
     }
 }

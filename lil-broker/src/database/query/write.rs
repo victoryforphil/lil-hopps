@@ -25,8 +25,8 @@ impl WriteQuery {
 
     pub fn from_json_batch(json: Value, timestamp: Timestamp, prefix: String) -> Vec<QueryCommand> {
         let mut queries = Vec::new();
-
-        let out = flatten(&json).unwrap();
+        println!("Flattening json: {:?}", json);
+        let out = flatten(&json).expect("Failed to flatten json");
 
         for (key, val) in out.iter() {
             if let Some(supported_type) = Primatives::from_value(val.clone()) {

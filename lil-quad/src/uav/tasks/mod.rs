@@ -2,12 +2,13 @@ mod manager;
 mod task_control;
 mod task_utils;
 pub use manager::*;
+use serde_json::{json, Value};
 pub use task_control::*;
 pub use task_utils::*;
 
 use std::collections::BTreeMap;
 
-use lil_broker::{DataPoint, GetLatestQuery, QueryResponse, Timestamp};
+use lil_broker::{GetLatestQuery, QueryResponse, Timestamp};
 #[derive(Debug, Clone, PartialEq)]
 pub struct TaskMetadata {
     pub name: String,
@@ -97,7 +98,7 @@ impl Default for TaskMetadata {
 }
 
 pub struct TaskResult {
-    pub data: BTreeMap<String, DataPoint>,
+    pub data: BTreeMap<String, Value>,
     pub execution_time: Timestamp,
 }
 
@@ -140,9 +141,9 @@ impl Task for MockTask {
         let topic0 = inputs.get("/topic/0".into()).unwrap().to_json("/topic/0");
         let topic0_value = topic0.as_f64().unwrap();
         let debug_message = format!("topic_0={}", topic0_value);
-        let debug_message_dp =
-            DataPoint::new(t.clone(), lil_broker::Primatives::String(debug_message));
-        result.data.insert("/debug/0".into(), debug_message_dp);
+        result
+            .data
+            .insert("/debug/".into(), json!({"0": debug_message}));
         Ok(result)
     }
 }
