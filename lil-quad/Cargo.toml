@@ -14,8 +14,15 @@ lil-broker = { path = "../lil-broker" }
 lil-helper = { path = "../lil-helper" }
 lil-viz = { path = "../lil-viz" }
 pretty_assertions = "1.4.0"
-serde = {version = "1.0.197", features = ["derive"]}
-tracing = {version = "0.1.40"}
+serde = { version = "1.0.197", features = ["derive"] }
+tracing = { version = "0.1.40" }
 tracing-subscriber = "0.3.18"
 serde_json = "1.0.117"
 json-unflattening = "0.1.2"
+
+[dev-dependencies]
+criterion = { version = "0.4", features = ["html_reports"] }
+
+[[bench]]
+name = "tasks_benchmark"
+harness = false
