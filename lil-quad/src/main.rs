@@ -5,10 +5,9 @@ use lil_quad::{
 };
 use tracing::info;
 
-
 fn main() {
     //env_logger::init();
-  
+
     // wait 5s
     std::thread::sleep(std::time::Duration::from_secs(5));
     let uav_runtime = MockUAVRuntime::new().as_arc_mutex();

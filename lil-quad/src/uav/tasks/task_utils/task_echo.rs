@@ -1,4 +1,5 @@
 use lil_broker::QueryResponse;
+use serde_json::json;
 use tracing::info;
 
 use crate::uav::{Task, TaskMetadata, TaskResult, TaskSubscription};
@@ -32,10 +33,9 @@ impl Task for EchoTask {
     ) -> Result<TaskResult, anyhow::Error> {
         let mut data = std::collections::BTreeMap::new();
         for (topic, response) in inputs.iter() {
-            for (key, value) in &response.data {
-                info!("{}: {:?}", key, value);
-                data.insert(format!("{}/echo", topic), value.last().unwrap().clone());
-            }
+            let json_response = response.to_json(topic);
+            info!("Echoing topic: {} with value: {}", topic, json_response);
+            data.insert(format!("{}", topic), json!({"echo": json_response}));
         }
         Ok(TaskResult {
             data,
@@ -47,7 +47,6 @@ impl Task for EchoTask {
 #[cfg(test)]
 mod test {
     use super::*;
-    use lil_broker::Primatives;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     #[test]
@@ -64,6 +63,7 @@ mod test {
 
     #[test]
     fn test_echo_task_run() {
+        env_logger::init();
         let echo_topics = vec!["/topic/0".to_string(), "/topic/1".to_string()];
         let mut task = EchoTask::new(echo_topics);
         let t = lil_broker::Timestamp::new(0);
@@ -80,12 +80,12 @@ mod test {
         let result = task.run(&t, &inputs).unwrap();
         assert_eq!(result.data.len(), 2);
         assert_eq!(
-            result.data.get("/topic/0/echo").unwrap().data,
-            Primatives::Number(5.0)
+            result.data.get("/topic/0").unwrap().get("echo").unwrap(),
+            5.0
         );
         assert_eq!(
-            result.data.get("/topic/1/echo").unwrap().data,
-            Primatives::String("lil-hopps".to_string())
+            result.data.get("/topic/1").unwrap().get("echo").unwrap(),
+            "lil-hopps"
         );
     }
 }

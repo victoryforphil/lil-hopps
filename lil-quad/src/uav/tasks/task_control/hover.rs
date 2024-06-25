@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use lil_broker::{DataPoint, QueryResponse};
 use lil_helper::types::Pose;
 use serde::{Deserialize, Serialize};
@@ -50,15 +52,9 @@ impl Task for HoverTask {
             error,
             desired_pose,
         };
-        let result_dp = DataPoint::json_to_datapoints(t.clone(), json!(outputs));
-        // Prefix the data with the task name
-        let result_dp = result_dp
-            .into_iter()
-            .map(|(k, v)| (format!("hover/{}", k), v))
-            .collect();
 
         Ok(TaskResult {
-            data: result_dp,
+            data: BTreeMap::from_iter(vec![("hover".to_string(), json!(outputs))]),
             execution_time: t.clone(),
         })
     }

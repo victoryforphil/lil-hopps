@@ -157,8 +157,8 @@ impl TaskManager {
                     let mut write_queries: Vec<QueryCommand> = vec![];
 
                     for (topic, dp) in write_data {
-                        let query = WriteQuery::new(topic, dp.data, timestamp.clone());
-                        write_queries.push(query.into());
+                        let mut query = WriteQuery::from_json_batch(dp, timestamp.clone(), topic);
+                        write_queries.append(&mut query);
                     }
 
                     debug!(
@@ -182,6 +182,7 @@ impl TaskManager {
 #[cfg(test)]
 mod tests {
     use lil_broker::{DataPoint, Primatives, WriteQuery};
+    use serde_json::json;
 
     use crate::uav::TaskResult;
 
@@ -210,9 +211,10 @@ mod tests {
             let topic0_data = topic0.to_json("a/input").as_f64().unwrap();
 
             let new_value = topic0_data * 2.0;
-            let new_dp = DataPoint::new(t.clone(), Primatives::Number(new_value));
 
-            result.data.insert("a/output".into(), new_dp);
+            result
+                .data
+                .insert("a".into(), json!({ "output": new_value}));
             Ok(result)
         }
     }
@@ -237,15 +239,17 @@ mod tests {
             let topic0_data = topic0.to_json("b/input").as_f64().unwrap();
 
             let new_value = topic0_data * 3.0;
-            let new_dp = DataPoint::new(t.clone(), Primatives::Number(new_value));
 
-            result.data.insert("b/output".into(), new_dp);
+            result
+                .data
+                .insert("b".into(), json!({ "output": new_value}));
             Ok(result)
         }
     }
 
     #[test]
     fn test_task_manager_data_flow() {
+        env_logger::init();
         let mut task_manager = TaskManager::new();
         let task_a = Arc::new(Mutex::new(TaskA {}));
         let task_b = Arc::new(Mutex::new(TaskB {}));
