@@ -1,6 +1,6 @@
 [workspace]
 
-members = [
-    "lil-broker", "lil-helper", "lil-quad", "lil-sym", "lil-viz",
+members = [ "lil-link","lil-quad"
+    
 ]
 resolver = "2"

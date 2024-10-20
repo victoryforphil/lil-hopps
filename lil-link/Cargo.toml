@@ -1,0 +1,11 @@
+[package]
+name = "lil-link"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "link_test"
+path = "bin/link_test.rs"
+
+[dependencies]
+mavlink = "0.13.1"
