@@ -33,6 +33,8 @@ pub struct QuadLinkCore {
     thread: Option<thread::JoinHandle<()>>,
 }
 
+pub type QuadlinkCoreHandle = Arc<Mutex<QuadLinkCore>>;
+
 impl QuadLinkCore {
     pub fn new(connection_string: &str) -> Result<Self, anyhow::Error> {
         let (recv_tx, recv_rx): (Sender<_>, Receiver<_>) = crossbeam_channel::bounded(500);
@@ -98,7 +100,7 @@ impl QuadLinkCore {
                                 let param_name = param_id.iter().map(|c| *c as char).collect::<String>();
                                 let value = pv.param_value as f64;
                                 let (recv_tx, _) = recv_channels.clone();
-                                recv_tx.send(QuadMessageRx::ParamValue(param_name, value)).unwrap();
+                                recv_tx.send(QuadMessageRx::ParamValue(param_name.to_ascii_lowercase(), value)).unwrap();
                             }
                             _ => {}
                         }

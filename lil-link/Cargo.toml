@@ -11,6 +11,10 @@ path = "bin/link_raw_test.rs"
 name = "link_smoketest"
 path = "bin/link_smoketest.rs"
 
+[[bin]]
+name = "link_cmd_test"
+path = "bin/link_cmd_test.rs"
+
 [dependencies]
 anyhow = "1.0.90"
 clap = { version = "4.5.20", features = ["derive"] }
@@ -21,3 +25,6 @@ serde = { version = "1.0.210", features = ["derive"] }
 thiserror = "1.0.64"
 tracing = { version = "0.1.40", features = ["log"] }
 tracing-subscriber = "0.3.18"
+victory-commander = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
+victory-data-store = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
+victory-wtf = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
