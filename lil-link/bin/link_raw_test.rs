@@ -1,4 +1,4 @@
-use mavlink::error::MessageReadError;
+use mavlink::{error::MessageReadError, MavConnection};
 use std::{env, sync::Arc, thread, time::Duration};
 
 fn main() {
@@ -10,6 +10,7 @@ fn main() {
         );
         return;
     }
+    
 
     // It's possible to change the mavlink dialect to be used in the connect call
     let mut mavconn = mavlink::connect::<mavlink::ardupilotmega::MavMessage>(&args[1]).unwrap();
@@ -41,7 +42,22 @@ fn main() {
     loop {
         match vehicle.recv() {
             Ok((_header, msg)) => {
-                println!("received: {msg:?}");
+            
+                match msg {
+                    
+                    mavlink::ardupilotmega::MavMessage::HEARTBEAT(hb) => {
+                        println!("heartbeat: {hb:?}");
+                    }
+                    // Parameter
+                    mavlink::ardupilotmega::MavMessage::PARAM_VALUE(pv) => {
+                        let param_id = pv.param_id;
+                        // Covert to name from byte array of chars
+                        let param_name = param_id.iter().map(|c| *c as char).collect::<String>();
+                        println!("param: {param_name} ");   
+                    }
+                    _ => {}
+                }
+                //println!("received: {msg:?}");
             }
             Err(MessageReadError::Io(e)) => {
                 if e.kind() == std::io::ErrorKind::WouldBlock {
@@ -59,37 +75,3 @@ fn main() {
     }
 }
 
-/// Create a heartbeat message using 'ardupilotmega' dialect
-pub fn heartbeat_message() -> mavlink::ardupilotmega::MavMessage {
-    mavlink::ardupilotmega::MavMessage::HEARTBEAT(mavlink::ardupilotmega::HEARTBEAT_DATA {
-        custom_mode: 0,
-        mavtype: mavlink::ardupilotmega::MavType::MAV_TYPE_QUADROTOR,
-        autopilot: mavlink::ardupilotmega::MavAutopilot::MAV_AUTOPILOT_ARDUPILOTMEGA,
-        base_mode: mavlink::ardupilotmega::MavModeFlag::empty(),
-        system_status: mavlink::ardupilotmega::MavState::MAV_STATE_STANDBY,
-        mavlink_version: 0x3,
-    })
-}
-
-/// Create a message requesting the parameters list
-pub fn request_parameters() -> mavlink::ardupilotmega::MavMessage {
-    mavlink::ardupilotmega::MavMessage::PARAM_REQUEST_LIST(
-        mavlink::ardupilotmega::PARAM_REQUEST_LIST_DATA {
-            target_system: 0,
-            target_component: 0,
-        },
-    )
-}
-
-/// Create a message enabling data streaming
-pub fn request_stream() -> mavlink::ardupilotmega::MavMessage {
-    mavlink::ardupilotmega::MavMessage::REQUEST_DATA_STREAM(
-        mavlink::ardupilotmega::REQUEST_DATA_STREAM_DATA {
-            target_system: 0,
-            target_component: 0,
-            req_stream_id: 0,
-            req_message_rate: 10,
-            start_stop: 1,
-        },
-    )
-}

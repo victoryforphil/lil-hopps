@@ -4,8 +4,20 @@ version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "link_test"
-path = "bin/link_test.rs"
+name = "link_raw_test"
+path = "bin/link_raw_test.rs"
+
+[[bin]]
+name = "link_smoketest"
+path = "bin/link_smoketest.rs"
 
 [dependencies]
+anyhow = "1.0.90"
+clap = { version = "4.5.20", features = ["derive"] }
+crossbeam-channel = "0.5.13"
+log = "0.4.22"
 mavlink = "0.13.1"
+serde = { version = "1.0.210", features = ["derive"] }
+thiserror = "1.0.64"
+tracing = { version = "0.1.40", features = ["log"] }
+tracing-subscriber = "0.3.18"
