@@ -1,5 +1,6 @@
 use std::{collections::BTreeSet, sync::{Arc, Mutex}};
 
+use serde::{Deserialize, Serialize};
 use tracing::{debug, error};
 use victory_commander::system::System;
 use victory_data_store::{database::DataView, topics::TopicKey};
@@ -11,6 +12,12 @@ use crate::mavlink::{core::{QuadLinkCore, QuadlinkCoreHandle}, messages::QuadMes
 
 pub struct QuadlinkSystem{
     mavlink: QuadlinkCoreHandle,
+}
+#[derive(Debug,Serialize, Deserialize)]
+pub struct QuadAttitudeTemp{
+    roll: f64,
+    pitch: f64,
+    yaw: f64,
 }
 
 impl QuadlinkSystem{
@@ -24,13 +31,17 @@ impl QuadlinkSystem{
     }
 
     fn proccess_message(&mut self, msg: QuadMessageRx, data_view: &mut DataView){
-
         match msg{
             QuadMessageRx::ParamValue(p_key, p_value) => {
                 debug!("RX Got param update: {} = {}", p_key, p_value);
                 let topic_key = TopicKey::from_str(&format!("params/{}", p_key));
                 data_view.add_latest(&topic_key, p_value);
             }
+            QuadMessageRx::Attitude(roll, pitch, yaw) => {
+                let topic_key = TopicKey::from_str("attitude");
+                data_view.add_latest(&topic_key, QuadAttitudeTemp{roll, pitch, yaw});
+            }
+            
         };
     }
 }   

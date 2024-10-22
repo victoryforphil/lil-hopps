@@ -102,7 +102,24 @@ impl QuadLinkCore {
                                 let (recv_tx, _) = recv_channels.clone();
                                 recv_tx.send(QuadMessageRx::ParamValue(param_name.to_ascii_lowercase(), value)).unwrap();
                             }
-                            _ => {}
+                            //LOCAL_POSITION_NED
+                            mavlink::ardupilotmega::MavMessage::LOCAL_POSITION_NED(lp) => {
+                                info!("Local Position NED: {:?}", lp);
+                            }
+                            mavlink::ardupilotmega::MavMessage::ATTITUDE(a) => {
+                                //info!("Attitude: {:?}", a);
+                                let (recv_tx, _) = recv_channels.clone();
+                                recv_tx.send(QuadMessageRx::Attitude(a.roll as f64, a.pitch as f64, a.yaw as f64)).unwrap();
+                            }
+                            //GLOBAL_POSITION_INT
+                            mavlink::ardupilotmega::MavMessage::GLOBAL_POSITION_INT(gp) => {
+                                //info!("Global Position Int: {:?}", gp);
+                            }
+                            //SYS_STATUS
+                    
+                            _ => {
+                               
+                            }
                         }
                         //println!("received: {msg:?}");
                     }
