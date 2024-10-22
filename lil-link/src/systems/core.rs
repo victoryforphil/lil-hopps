@@ -1,5 +1,6 @@
 use std::{collections::BTreeSet, sync::{Arc, Mutex}};
 
+use log::info;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error};
 use victory_commander::system::System;
@@ -38,6 +39,7 @@ impl QuadlinkSystem{
                 data_view.add_latest(&topic_key, p_value);
             }
             QuadMessageRx::Attitude(roll, pitch, yaw) => {
+                info!("RX Got attitude: {} {} {}", roll, pitch, yaw);
                 let topic_key = TopicKey::from_str("attitude");
                 data_view.add_latest(&topic_key, QuadAttitudeTemp{roll, pitch, yaw});
             }

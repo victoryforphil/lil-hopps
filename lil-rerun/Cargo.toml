@@ -1,25 +1,10 @@
 [package]
-name = "lil-link"
+name = "lil-rerun"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "link_raw_test"
-path = "bin/link_raw_test.rs"
-
-[[bin]]
-name = "link_smoketest"
-path = "bin/link_smoketest.rs"
-
-[[bin]]
-name = "link_cmd_test"
-path = "bin/link_cmd_test.rs"
-
-[[bin]]
-name = "link_rerun"
-path = "bin/link_rerun.rs"
-
 [dependencies]
+rerun = "0.19.0"
 anyhow = "1.0.90"
 clap = { version = "4.5.20", features = ["derive"] }
 crossbeam-channel = "0.5.13"
@@ -32,4 +17,4 @@ tracing-subscriber = "0.3.18"
 victory-commander = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
 victory-data-store = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
 victory-wtf = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
-lil-rerun = { path = "../lil-rerun" }
+nalgebra = "0.33.1"
