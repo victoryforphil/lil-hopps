@@ -1,6 +1,6 @@
 use mavlink::{error::MessageReadError, MavConnection};
 use std::{env, sync::Arc, thread, time::Duration};
-
+use lil_link::mavlink::helpers::MavLinkHelper;
 fn main() {
     let args: Vec<_> = env::args().collect();
 
@@ -21,16 +21,16 @@ fn main() {
 
     let vehicle = Arc::new(mavconn);
     vehicle
-        .send(&mavlink::MavHeader::default(), &request_parameters())
+        .send(&mavlink::MavHeader::default(), &MavLinkHelper::request_parameters())
         .unwrap();
     vehicle
-        .send(&mavlink::MavHeader::default(), &request_stream())
+        .send(&mavlink::MavHeader::default(), &MavLinkHelper::request_stream())
         .unwrap();
 
     thread::spawn({
         let vehicle = vehicle.clone();
         move || loop {
-            let res = vehicle.send_default(&heartbeat_message());
+            let res = vehicle.send_default(&MavLinkHelper::heartbeat_message());
             if res.is_ok() {
                 thread::sleep(Duration::from_secs(1));
             } else {

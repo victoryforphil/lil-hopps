@@ -18,3 +18,4 @@ victory-commander = { git = "https://github.com/victoryforphil/victory-suite.git
 victory-data-store = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
 victory-wtf = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
 nalgebra = "0.33.1"
+lil-link = { path = "../lil-link" }

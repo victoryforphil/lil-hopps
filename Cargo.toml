@@ -1,4 +1,4 @@
 [workspace]
 
-members = [ "lil-link","lil-quad", "lil-rerun"]
+members = [ "lil-launcher", "lil-link","lil-quad", "lil-rerun"]
 resolver = "2"
