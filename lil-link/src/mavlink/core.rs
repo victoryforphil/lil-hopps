@@ -218,6 +218,7 @@ impl QuadLinkCore {
                                 // Covert to name from byte array of chars
                                 let param_name =
                                     param_id.iter().map(|c| *c as char).collect::<String>();
+                                let param_name = param_name.trim_end_matches(char::from(0));
                                 let value = pv.param_value as f64;
                                 let (recv_tx, _) = recv_channels.clone();
                                 recv_tx

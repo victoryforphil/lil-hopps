@@ -133,6 +133,7 @@ impl System for RerunSystem {
         let mut topics = BTreeSet::new();
         topics.insert(TopicKey::from_str("attitude"));
         topics.insert(TopicKey::from_str("status"));
+        topics.insert(TopicKey::from_str("status"));
         topics.insert(TopicKey::from_str("position"));
         topics
     }

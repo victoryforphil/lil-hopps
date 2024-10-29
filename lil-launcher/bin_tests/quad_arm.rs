@@ -55,6 +55,13 @@ fn main() {
     let args = ArmArgs::parse();
     info!("Running 'link_arm' with args: {:#?}", args);
 
+    let server = TCPServerAdapter::new(TCPServerOptions {
+        port: 7001,
+        address: "0.0.0.0".to_string(),
+        update_interval: Timespan::new_hz(50.0),
+    });
+    let server_handle = Arc::new(Mutex::new(server));
+
     let mut runner = BasherSysRunner::new();
     runner.dt = Timespan::new_hz(args.hz as f64);
     

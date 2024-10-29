@@ -36,6 +36,7 @@ impl QuadlinkSystem {
         match msg {
             QuadMessageRx::ParamValue(p_key, p_value) => {
                 let topic_key = TopicKey::from_str(&format!("params/{}", p_key));
+                
                 data_view
                     .add_latest(&topic_key, p_value)
                     .expect("Failed to add latest parameter value");

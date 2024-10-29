@@ -23,6 +23,10 @@ path = "bin_tests/link_rerun.rs"
 name = "quad_arm"
 path = "bin_tests/quad_arm.rs"
 
+[[bin]]
+name = "quad_sil"
+path = "bin_tests/quad_sil.rs"
+
 [dependencies]
 anyhow = "1.0.90"
 clap = { version = "4.5.20", features = ["derive"] }
@@ -36,6 +40,7 @@ tracing-subscriber = "0.3.18"
 victory-commander = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
 victory-data-store = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
 victory-wtf = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
+victory-broker = { git = "https://github.com/victoryforphil/victory-suite.git", version = "*" }
 lil-rerun = { path = "../lil-rerun" }
 lil-quad = { path = "../lil-quad" }
 lil-link = { path = "../lil-link" }
