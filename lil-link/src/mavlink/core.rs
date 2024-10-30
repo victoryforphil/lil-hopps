@@ -5,11 +5,7 @@ use std::{
 };
 
 use crossbeam_channel::{Receiver, Sender};
-use mavlink::{
-    ardupilotmega::MavMessage,
-    error::MessageReadError,
-    MavConnection,
-};
+use mavlink::{ardupilotmega::MavMessage, error::MessageReadError, MavConnection};
 use tracing::{debug, info, warn};
 
 use crate::mavlink::helpers::MavLinkHelper;

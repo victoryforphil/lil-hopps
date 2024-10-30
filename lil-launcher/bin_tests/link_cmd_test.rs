@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
-
 use lil_link::mavlink::system::QuadlinkSystem;
 use tracing::info;
 use tracing::Level;
@@ -60,7 +59,12 @@ fn main() {
         a.display_name().cmp(&b.display_name())
     });
     for key in keys {
-        let latest = runner.data_store.lock().unwrap().get_latest_primitive(&key).unwrap();
+        let latest = runner
+            .data_store
+            .lock()
+            .unwrap()
+            .get_latest_primitive(&key)
+            .unwrap();
         info!(" {:?} \t\t {:?}", key, latest);
     }
 }

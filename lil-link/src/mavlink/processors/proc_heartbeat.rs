@@ -3,7 +3,7 @@ use victory_data_store::{database::DataView, topics::TopicKey};
 
 use crate::{
     common::{
-        identifiers::{IDENT_STATUS_MODE, IDENT_STATUS_SYSTEM},
+        identifiers::{IDENT_BASE_STATUS, IDENT_STATUS_MODE, IDENT_STATUS_SYSTEM},
         types::autopilot_status::QuadAutopilotStatus,
     },
     mavlink::{core::MavlinkMessageType, helpers::MavLinkHelper},
@@ -29,8 +29,20 @@ impl MavlinkMessageProcessor for HeartbeatProcessor {
             MavLinkHelper::decode_mode_flag(heartbeat_msg.base_mode);
 
         // Write to database
-        data_view.add_latest(&TopicKey::from_str(IDENT_STATUS_MODE), mode_status)?;
-        data_view.add_latest(&TopicKey::from_str(IDENT_STATUS_SYSTEM), system_status)?;
+        data_view
+            .add_latest(
+                &TopicKey::from_str(format!("{}{}", IDENT_BASE_STATUS, IDENT_STATUS_MODE).as_str()),
+                mode_status,
+            )
+            .expect("Failed to add mode status");
+        data_view
+            .add_latest(
+                &TopicKey::from_str(
+                    format!("{}{}", IDENT_BASE_STATUS, IDENT_STATUS_SYSTEM).as_str(),
+                ),
+                system_status,
+            )
+            .expect("Failed to add system status");
 
         Ok(())
     }
