@@ -1,9 +1,9 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use lil_link::mavlink::core::QuadLinkCore;
-use lil_link::mavlink::types::QuadMode;
-use lil_link::systems::core::QuadlinkSystem;
+
+use lil_link::common::types::mode::QuadMode;
+use lil_link::mavlink::system::QuadlinkSystem;
 use lil_quad::systems::timed_arm::TimedArm;
 use lil_quad::systems::timed_mode::TimedMode;
 use lil_quad::systems::timed_takeoff::TimedTakeoff;

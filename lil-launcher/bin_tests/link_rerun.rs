@@ -1,8 +1,7 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use lil_link::mavlink::core::QuadLinkCore;
-use lil_link::systems::core::QuadlinkSystem;
+use lil_link::mavlink::system::QuadlinkSystem;
 use lil_rerun::system::RerunSystem;
 use tracing::debug;
 use tracing::error;
