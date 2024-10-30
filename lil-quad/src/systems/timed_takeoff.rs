@@ -1,10 +1,9 @@
 use std::collections::BTreeSet;
 
 use lil_link::common::types::request_takeoff::QuadTakeoffRequest;
-use log::{debug, info};
-use serde::{Deserialize, Serialize};
+use log::info;
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, primitives::Primitives, topics::TopicKey};
+use victory_data_store::{database::DataView, topics::TopicKey};
 use victory_wtf::Timepoint;
 
 pub struct TimedTakeoff {

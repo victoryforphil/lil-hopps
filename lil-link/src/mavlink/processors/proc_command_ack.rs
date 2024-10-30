@@ -2,7 +2,7 @@ use log::info;
 use victory_data_store::{database::DataView, topics::TopicKey};
 
 use crate::{
-    common::identifiers::{IDENT_BASE_LOG, IDENT_COMMAND_ACK, IDENT_STATUS_TEXT},
+    common::identifiers::{IDENT_BASE_LOG, IDENT_COMMAND_ACK},
     mavlink::core::MavlinkMessageType,
 };
 

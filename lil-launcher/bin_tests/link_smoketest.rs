@@ -1,17 +1,13 @@
 use lil_link::mavlink::core::QuadLinkCore;
-use tracing::debug;
 use tracing::error;
 use tracing::info;
-use tracing::level_filters::LevelFilter;
 use tracing::Level;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 
-use tracing_subscriber::layer::SubscriberExt;
 
-use tracing_subscriber::FmtSubscriber;
 
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]

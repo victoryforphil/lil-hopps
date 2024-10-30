@@ -3,9 +3,6 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use log::info;
-use serde::{Deserialize, Serialize};
-use tracing::{debug, error};
 use victory_commander::system::System;
 use victory_data_store::{database::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
@@ -16,7 +13,7 @@ use crate::common::types::{
 };
 
 use super::{
-    core::{MavlinkMessageType, QuadLinkCore, QuadlinkCoreHandle},
+    core::{QuadLinkCore, QuadlinkCoreHandle},
     processors::{MavlinkGenericProcessor, MavlinkMessageProcessor},
 };
 

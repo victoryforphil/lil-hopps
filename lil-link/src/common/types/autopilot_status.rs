@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::common::identifiers::IDENT_BASE_STATUS;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct QuadAutopilotStatus {

@@ -2,26 +2,19 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use lil_link::common::types::mode::QuadMode;
-use lil_link::mavlink::core::QuadLinkCore;
 
 use lil_link::mavlink::system::QuadlinkSystem;
 use lil_quad::systems::timed_arm::TimedArm;
 use lil_quad::systems::timed_mode::TimedMode;
 use lil_quad::systems::timed_takeoff::TimedTakeoff;
-use lil_rerun::system::RerunSystem;
-use tracing::debug;
-use tracing::error;
 use tracing::info;
-use tracing::level_filters::LevelFilter;
 use tracing::Level;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 
-use tracing_subscriber::layer::SubscriberExt;
 
-use tracing_subscriber::FmtSubscriber;
 
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 use victory_broker::adapters::tcp::TCPServerAdapter;
 use victory_broker::adapters::tcp::TCPServerOptions;
 use victory_commander::system::runner::BasherSysRunner;

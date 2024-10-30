@@ -1,9 +1,8 @@
 use lil_link::common::types::pose_ned::QuadPoseNED;
 use log::{info, warn};
-use nalgebra::{Quaternion, UnitQuaternion};
+use nalgebra::UnitQuaternion;
 use rerun::{
-    components::{PoseRotationAxisAngle, PoseRotationQuat},
-    Angle, Arrows3D, Boxes3D, RotationAxisAngle, Scalar, Text, TextDocument, Vec3D,
+    Boxes3D, Scalar, TextDocument, Vec3D,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -43,7 +42,7 @@ impl System for RerunSystem {
     fn execute(&mut self, state: &DataView, _dt: Timespan) -> DataView {
         let rerun = &mut self.lil_rerun.rerun;
 
-        let mut rerun = if let Some(rerun) = rerun {
+        let rerun = if let Some(rerun) = rerun {
             rerun
         } else {
             warn!("Rerun not found");

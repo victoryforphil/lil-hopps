@@ -1,4 +1,3 @@
-use core::error;
 use std::{
     sync::{Arc, Mutex},
     thread,
@@ -7,7 +6,7 @@ use std::{
 
 use crossbeam_channel::{Receiver, Sender};
 use mavlink::{
-    ardupilotmega::{MavMessage, MavModeFlag, COMMAND_LONG_DATA, SET_MODE_DATA},
+    ardupilotmega::MavMessage,
     error::MessageReadError,
     MavConnection,
 };

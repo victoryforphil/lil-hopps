@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 
-use log::{debug, info};
+use log::info;
 use serde::{Deserialize, Serialize};
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, primitives::Primitives, topics::TopicKey};
+use victory_data_store::{database::DataView, topics::TopicKey};
 use victory_wtf::Timepoint;
 
 pub struct TimedArm {
