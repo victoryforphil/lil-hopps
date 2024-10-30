@@ -8,8 +8,6 @@ use tracing::Level;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 
-
-
 use clap::Parser;
 use victory_commander::system::runner::BasherSysRunner;
 use victory_wtf::Timepoint;
