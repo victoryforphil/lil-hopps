@@ -38,7 +38,8 @@ In order to support Hop #3, which entails using our own Rust stack to command hi
 	 - **Min:** View these current values with some color / vibrant UX. RED = faling, GREEN = good. 
 	 - **Bonus:** Time history
 # Design
-[INSERT DRAWING LINK]
+![image](https://github.com/user-attachments/assets/2066f45d-fd74-4789-bf31-7962b53d166d)
+
 # Data
 ## Parameters
 - Parameters are how Ardupilot (and other MavLink autopilots) store various configurable settings and acts as the main entrypoint to setting up an autopilot.
