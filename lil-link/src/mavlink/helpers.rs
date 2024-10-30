@@ -1,4 +1,8 @@
-use super::{ardu_modes::ArduMode, types::{QuadMode, QuadModeStatus, QuadSensorStatus}};
+use crate::common::types::{
+    autopilot_status::QuadAutopilotStatus, mode::QuadMode, sensor_status::QuadSensorStatus,
+};
+
+use super::ardu_modes::ArduMode;
 
 pub struct MavLinkHelper;
 
@@ -39,8 +43,8 @@ impl MavLinkHelper {
     }
 
     /// Decode MavModeFlag to QuadModeStatus
-    pub fn decode_mode_flag(flag: mavlink::ardupilotmega::MavModeFlag) -> QuadModeStatus {
-        QuadModeStatus {
+    pub fn decode_mode_flag(flag: mavlink::ardupilotmega::MavModeFlag) -> QuadAutopilotStatus {
+        QuadAutopilotStatus {
             custom_mode_enabled: flag
                 .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_CUSTOM_MODE_ENABLED),
             test_enabled: flag
@@ -111,7 +115,6 @@ impl MavLinkHelper {
             QuadMode::PosHold => ArduMode::PosHold,
             QuadMode::Brake => ArduMode::Brake,
             QuadMode::Follow => ArduMode::Follow,
-
         }
     }
 }

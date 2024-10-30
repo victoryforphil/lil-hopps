@@ -1,5 +1,4 @@
-use std::collections::BTreeSet;
-use lil_link::mavlink::types::QuadNED;
+use lil_link::common::types::pose_ned::QuadPoseNED;
 use log::{info, warn};
 use nalgebra::{Quaternion, UnitQuaternion};
 use rerun::{
@@ -7,6 +6,7 @@ use rerun::{
     Angle, Arrows3D, Boxes3D, RotationAxisAngle, Scalar, Text, TextDocument, Vec3D,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 use victory_commander::system::System;
 use victory_data_store::{database::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
@@ -49,7 +49,10 @@ impl System for RerunSystem {
             warn!("Rerun not found");
             return DataView::new();
         };
-        rerun.log_static("floor", &Boxes3D::from_sizes(vec![Vec3D::new(100.0, 100.0, 0.1)]));
+        rerun.log_static(
+            "floor",
+            &Boxes3D::from_sizes(vec![Vec3D::new(100.0, 100.0, 0.1)]),
+        );
         rerun.set_time_seconds("system-time", self.time.secs());
 
         let data_map = state.get_latest_map(&TopicKey::empty()).unwrap();
@@ -97,7 +100,7 @@ impl System for RerunSystem {
 
         let position = state
             .get_latest(&TopicKey::from_str("position/ned"))
-            .unwrap_or(QuadNED{x: 0.0, y: 0.0, z: 0.0});
+            .unwrap_or(QuadPoseNED::new_xyz(0.0, 0.0, 0.0));
 
         match (roll, pitch, yaw) {
             (Primitives::Float(roll), Primitives::Float(pitch), Primitives::Float(yaw)) => {
@@ -106,22 +109,21 @@ impl System for RerunSystem {
                 rerun.log(
                     "attitude",
                     &Boxes3D::from_sizes(vec![Vec3D::new(1.0, 1.0, 0.1)])
-                    .with_quaternions(vec![[
-                        quat.coords[0] as f32,
-                        quat.coords[1] as f32,
-                        quat.coords[2] as f32,
-                        quat.coords[3] as f32,
-                    ]])
-                    .with_centers(vec![Vec3D::new(
-                        position.x as f32,
-                        position.y as f32,
-                        -position.z as f32,
-                    )]),
+                        .with_quaternions(vec![[
+                            quat.coords[0] as f32,
+                            quat.coords[1] as f32,
+                            quat.coords[2] as f32,
+                            quat.coords[3] as f32,
+                        ]])
+                        .with_centers(vec![Vec3D::new(
+                            position.position.x as f32,
+                            position.position.y as f32,
+                            -position.position.z as f32,
+                        )]),
                 );
             }
             _ => {}
         }
-
 
         self.time = self.time.clone() + _dt;
         DataView::new()
@@ -133,7 +135,7 @@ impl System for RerunSystem {
         let mut topics = BTreeSet::new();
         topics.insert(TopicKey::from_str("attitude"));
         topics.insert(TopicKey::from_str("status"));
-        topics.insert(TopicKey::from_str("status"));
+        topics.insert(TopicKey::from_str("params"));
         topics.insert(TopicKey::from_str("position"));
         topics
     }

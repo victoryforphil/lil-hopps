@@ -20,16 +20,16 @@ struct SmoketestArgs {
     connection_string: String,
 }
 
-fn main(){
+fn main() {
     fmt()
-    .with_max_level(Level::DEBUG)
-    .with_target(true)
-    .pretty()
-    .compact()
-    .with_file(false)
-    .with_line_number(false)
-    .without_time()
-    .init();
+        .with_max_level(Level::DEBUG)
+        .with_target(true)
+        .pretty()
+        .compact()
+        .with_file(false)
+        .with_line_number(false)
+        .without_time()
+        .init();
 
     let args = SmoketestArgs::parse();
     info!("Running 'link_smoketest' with args: {:#?}", args);
@@ -38,16 +38,15 @@ fn main(){
 
     quadlink.start_thread().unwrap();
 
-    loop{
-     
+    loop {
         let msgs = quadlink.recv();
-        match msgs{
+        match msgs {
             Ok(msgs) => {
                 info!("Received {} messages", msgs.len());
-                for msg in msgs{
-                  //  info!("Message: {:#?}", msg);
+                for msg in msgs {
+                    //  info!("Message: {:#?}", msg);
                 }
-            },
+            }
             Err(e) => {
                 error!("Error receiving messages: {}", e);
             }

@@ -34,10 +34,22 @@ struct ArmArgs {
     #[clap(long, value_parser, help = "Command Hz ", default_value = "10.0")]
     hz: f32,
 
-    #[clap(short, long, value_parser, help = "Duration in seconds", default_value = "100.0")]
+    #[clap(
+        short,
+        long,
+        value_parser,
+        help = "Duration in seconds",
+        default_value = "100.0"
+    )]
     duration: f32,
 
-    #[clap(short, long, value_parser, help = "Arm time in seconds", default_value = "7.0")]
+    #[clap(
+        short,
+        long,
+        value_parser,
+        help = "Arm time in seconds",
+        default_value = "7.0"
+    )]
     arm_time: f32,
 }
 
@@ -55,43 +67,41 @@ fn main() {
     let args = ArmArgs::parse();
     info!("Running 'link_arm' with args: {:#?}", args);
 
-    let server = TCPServerAdapter::new(TCPServerOptions {
-        port: 7001,
-        address: "0.0.0.0".to_string(),
-        update_interval: Timespan::new_hz(50.0),
-    });
-    let server_handle = Arc::new(Mutex::new(server));
-
     let mut runner = BasherSysRunner::new();
     runner.dt = Timespan::new_hz(args.hz as f64);
-    
+
     runner.add_system(Arc::new(Mutex::new(
         QuadlinkSystem::new_from_connection_string(args.connection_string.as_str()).unwrap(),
     )));
 
-    runner.add_system(Arc::new(Mutex::new(
-        TimedArm::new(Timepoint::new_secs(args.arm_time as f64)),
-    )));
+    runner.add_system(Arc::new(Mutex::new(TimedArm::new(Timepoint::new_secs(
+        args.arm_time as f64,
+    )))));
 
-    runner.add_system(Arc::new(Mutex::new(
-       TimedMode::new(Timepoint::new_secs(args.arm_time as f64 + 1.0), QuadMode::Stabilize),
-    )));
-    runner.add_system(Arc::new(Mutex::new(
-        TimedMode::new(Timepoint::new_secs(args.arm_time as f64 + 4.0), QuadMode::Guided),
-     )));
+    runner.add_system(Arc::new(Mutex::new(TimedMode::new(
+        Timepoint::new_secs(args.arm_time as f64 + 1.0),
+        QuadMode::Stabilize,
+    ))));
+    runner.add_system(Arc::new(Mutex::new(TimedMode::new(
+        Timepoint::new_secs(args.arm_time as f64 + 4.0),
+        QuadMode::Guided,
+    ))));
 
-     runner.add_system(Arc::new(Mutex::new(
-        TimedTakeoff::new(Timepoint::new_secs(args.arm_time as f64 + 8.0), 11.0),
-     )));
-    runner.add_system(Arc::new(Mutex::new(
-        RerunSystem::new("quad_arm".to_string()),
-    )));
+    runner.add_system(Arc::new(Mutex::new(TimedTakeoff::new(
+        Timepoint::new_secs(args.arm_time as f64 + 8.0),
+        11.0,
+    ))));
+    runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
+        "quad_arm".to_string(),
+    ))));
 
     runner.set_real_time(true);
-    runner.run( Timepoint::new_secs(args.duration as f64));
+    runner.run(Timepoint::new_secs(args.duration as f64));
     let mut keys = runner.data_store.get_all_keys();
-    keys.sort_by(|a: &Arc<victory_data_store::topics::TopicKey>, b| a.display_name().cmp(&b.display_name()));
-    for key in keys{
+    keys.sort_by(|a: &Arc<victory_data_store::topics::TopicKey>, b| {
+        a.display_name().cmp(&b.display_name())
+    });
+    for key in keys {
         let latest = runner.data_store.get_latest_primitive(&key).unwrap();
         info!(" {:?} \t\t {:?}", key, latest);
     }

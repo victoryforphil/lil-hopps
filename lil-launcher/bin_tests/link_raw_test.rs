@@ -1,6 +1,6 @@
+use lil_link::mavlink::helpers::MavLinkHelper;
 use mavlink::{error::MessageReadError, MavConnection};
 use std::{env, sync::Arc, thread, time::Duration};
-use lil_link::mavlink::helpers::MavLinkHelper;
 fn main() {
     let args: Vec<_> = env::args().collect();
 
@@ -10,7 +10,6 @@ fn main() {
         );
         return;
     }
-    
 
     // It's possible to change the mavlink dialect to be used in the connect call
     let mut mavconn = mavlink::connect::<mavlink::ardupilotmega::MavMessage>(&args[1]).unwrap();
@@ -21,10 +20,16 @@ fn main() {
 
     let vehicle = Arc::new(mavconn);
     vehicle
-        .send(&mavlink::MavHeader::default(), &MavLinkHelper::request_parameters())
+        .send(
+            &mavlink::MavHeader::default(),
+            &MavLinkHelper::request_parameters(),
+        )
         .unwrap();
     vehicle
-        .send(&mavlink::MavHeader::default(), &MavLinkHelper::request_stream())
+        .send(
+            &mavlink::MavHeader::default(),
+            &MavLinkHelper::request_stream(),
+        )
         .unwrap();
 
     thread::spawn({
@@ -42,9 +47,7 @@ fn main() {
     loop {
         match vehicle.recv() {
             Ok((_header, msg)) => {
-            
                 match msg {
-                    
                     mavlink::ardupilotmega::MavMessage::HEARTBEAT(hb) => {
                         println!("heartbeat: {hb:?}");
                     }
@@ -53,7 +56,7 @@ fn main() {
                         let param_id = pv.param_id;
                         // Covert to name from byte array of chars
                         let param_name = param_id.iter().map(|c| *c as char).collect::<String>();
-                        println!("param: {param_name} ");   
+                        println!("param: {param_name} ");
                     }
                     _ => {}
                 }
@@ -74,4 +77,3 @@ fn main() {
         }
     }
 }
-

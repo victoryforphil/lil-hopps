@@ -74,7 +74,7 @@ impl ArduMode {
             ArduMode::AltHold => "AltHold",
             ArduMode::Auto => "Auto",
             ArduMode::Guided => "Guided",
-            ArduMode::Loiter => "Loiter", 
+            ArduMode::Loiter => "Loiter",
             ArduMode::RTL => "RTL",
             ArduMode::Circle => "Circle",
             ArduMode::Land => "Land",
@@ -95,6 +95,7 @@ impl ArduMode {
             ArduMode::HeliAutorotate => "Heli_Autorotate",
             ArduMode::AutoRTL => "Auto RTL",
             ArduMode::Turtle => "Turtle",
-        }.to_string()
+        }
+        .to_string()
     }
 }

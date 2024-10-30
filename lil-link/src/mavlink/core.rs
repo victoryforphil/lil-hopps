@@ -1,3 +1,4 @@
+
 use core::error;
 use std::{
     sync::{Arc, Mutex},
@@ -13,9 +14,7 @@ use mavlink::{
 };
 use tracing::{debug, info, warn};
 
-use crate::mavlink::{helpers::MavLinkHelper, types::QuadNED};
-
-use super::messages::{QuadMessageRx, QuadMessageTx};
+use crate::mavlink::helpers::MavLinkHelper;
 
 #[derive(thiserror::Error, Debug)]
 pub enum QuadLinkError {
@@ -24,7 +23,7 @@ pub enum QuadLinkError {
     #[error("Channel recv error: {0}")]
     ChannelRecvError(crossbeam_channel::RecvError),
     #[error("Channel send error: {0}")]
-    ChannelSendError(crossbeam_channel::SendError<QuadMessageTx>),
+    ChannelSendError(crossbeam_channel::SendError<MavlinkMessageType>),
     #[error("Connection error: {0}")]
     ConnectionError(String),
     #[error("Generic error: {0}")]
@@ -32,10 +31,10 @@ pub enum QuadLinkError {
     #[error("No Pending Data")]
     NoData,
 }
-
+pub type MavlinkMessageType = mavlink::ardupilotmega::MavMessage;
 pub struct QuadLinkCore {
-    recv_channels: (Sender<QuadMessageRx>, Receiver<QuadMessageRx>),
-    transmit_channels: (Sender<QuadMessageTx>, Receiver<QuadMessageTx>),
+    recv_channels: (Sender<MavlinkMessageType>, Receiver<MavlinkMessageType>),
+    transmit_channels: (Sender<MavlinkMessageType>, Receiver<MavlinkMessageType>),
     connection_string: String,
     recv_thread: Option<thread::JoinHandle<()>>,
     send_thread: Option<thread::JoinHandle<()>>,
@@ -59,70 +58,6 @@ impl QuadLinkCore {
         })
     }
 
-    fn process_send_message(
-        quad_msg: &QuadMessageTx,
-        mav_con: Arc<Box<dyn MavConnection<MavMessage> + Send + Sync>>,
-    ) {
-        match quad_msg {
-            QuadMessageTx::SetArm(arm) => {
-                let arm_value = if *arm { 1.0 } else { 0.0 };
-                let arm_cmd = mavlink::ardupilotmega::MavMessage::COMMAND_LONG(
-                    mavlink::ardupilotmega::COMMAND_LONG_DATA {
-                        param1: arm_value,
-                        param2: 21196.,
-                        param3: 0.0,
-                        param4: 0.0,
-                        param5: 0.0,
-                        param6: 0.0,
-                        param7: 0.0,
-                        command: mavlink::ardupilotmega::MavCmd::MAV_CMD_COMPONENT_ARM_DISARM,
-                        target_system: 0,
-                        target_component: 0,
-                        confirmation: 0,
-                    },
-                );
-                info!("Sending Ardupilot Arm Command: {:#?}", arm_cmd);
-                mav_con
-                    .send(&mavlink::MavHeader::default(), &arm_cmd)
-                    .unwrap();
-            }
-            QuadMessageTx::SetMode(mode) => {
-                // See: https://ardupilot.org/dev/docs/mavlink-get-set-flightmode.html
-                let mav_mode = MavLinkHelper::quad_mode_to_mav_mode(mode);
-                let mode_cmd =
-                    mavlink::ardupilotmega::MavMessage::COMMAND_LONG(COMMAND_LONG_DATA {
-                        param1: MavModeFlag::MAV_MODE_FLAG_CUSTOM_MODE_ENABLED.bits() as f32,
-                        param2: mav_mode.to_u32() as f32,
-                        command: mavlink::ardupilotmega::MavCmd::MAV_CMD_DO_SET_MODE,
-                        ..Default::default()
-                    });
-                info!(
-                    "Quadlink / MAVLink => Sending MAVLink Mode Command: {:#?}",
-                    mode_cmd
-                );
-                mav_con
-                    .send(&mavlink::MavHeader::default(), &mode_cmd)
-                    .unwrap();
-            }
-            QuadMessageTx::ParamSet(_, _) => todo!(),
-            QuadMessageTx::TakeOff(height) => {
-                let takeoff_cmd =
-                    mavlink::ardupilotmega::MavMessage::COMMAND_LONG(COMMAND_LONG_DATA {
-                        param3: 5.0,
-                        param7: *height,
-                        command: mavlink::ardupilotmega::MavCmd::MAV_CMD_NAV_TAKEOFF,
-                        ..Default::default()
-                    });
-                info!(
-                    "Quadlink / MAVLink => Sending MAVLink Takeoff Command: {:#?}",
-                    takeoff_cmd
-                );
-                mav_con
-                    .send(&mavlink::MavHeader::default(), &takeoff_cmd)
-                    .unwrap();
-            }
-        }
-    }
     pub fn start_thread(&mut self) -> Result<(), QuadLinkError> {
         let con_string: String = self.connection_string.clone();
         let recv_channels = self.recv_channels.clone();
@@ -134,8 +69,8 @@ impl QuadLinkCore {
     }
     fn start_thread_inner(
         con_string: String,
-        recv_channels: (Sender<QuadMessageRx>, Receiver<QuadMessageRx>),
-        transmit_channels: (Sender<QuadMessageTx>, Receiver<QuadMessageTx>),
+        recv_channels: (Sender<MavlinkMessageType>, Receiver<MavlinkMessageType>),
+        transmit_channels: (Sender<MavlinkMessageType>, Receiver<MavlinkMessageType>),
     ) -> Result<(), QuadLinkError> {
         // 1. Make the connection
 
@@ -189,7 +124,7 @@ impl QuadLinkCore {
         thread::spawn(move || loop {
             let (_, rx) = &transmit_channels;
             if let Ok(msg) = rx.recv() {
-                Self::process_send_message(&msg, vehicle.clone());
+                vehicle.send(&mavlink::MavHeader::default(), &msg).unwrap();
             }
         });
 
@@ -200,73 +135,8 @@ impl QuadLinkCore {
             loop {
                 match mav_con.recv() {
                     Ok((_header, msg)) => {
-                        match msg {
-                            mavlink::ardupilotmega::MavMessage::HEARTBEAT(hb) => {
-                                let system_status = format!("{:?}", hb.system_status);
-                                let mode_status = MavLinkHelper::decode_mode_flag(hb.base_mode);
-                                let (recv_tx, _) = recv_channels.clone();
-                                recv_tx
-                                    .send(QuadMessageRx::ModeStatus(mode_status))
-                                    .unwrap();
-                                recv_tx
-                                    .send(QuadMessageRx::SimpleStatus(system_status))
-                                    .unwrap();
-                            }
-                            // Parameter
-                            mavlink::ardupilotmega::MavMessage::PARAM_VALUE(pv) => {
-                                let param_id = pv.param_id;
-                                // Covert to name from byte array of chars
-                                let param_name =
-                                    param_id.iter().map(|c| *c as char).collect::<String>();
-                                let param_name = param_name.trim_end_matches(char::from(0));
-                                let value = pv.param_value as f64;
-                                let (recv_tx, _) = recv_channels.clone();
-                                recv_tx
-                                    .send(QuadMessageRx::ParamValue(
-                                        param_name.to_ascii_lowercase(),
-                                        value,
-                                    ))
-                                    .unwrap();
-                            }
-                            mavlink::ardupilotmega::MavMessage::STATUSTEXT(st) => {
-                                // Convert to string
-                                let text = st.text.iter().map(|c| *c as char).collect::<String>();
-                                let text = text.trim_end_matches(char::from(0));
-                                info!(" ---\n\t MAV Link Status Text: {:?}", text);
-                            }
-
-                            //SYS_STATUS
-                            mavlink::ardupilotmega::MavMessage::SYS_STATUS(ss) => {
-                                let sesnor_health = ss.onboard_control_sensors_health;
-                                let sensor_status =
-                                    MavLinkHelper::decode_sensor_health(sesnor_health);
-                            }
-                            mavlink::ardupilotmega::MavMessage::LOCAL_POSITION_NED(lp) => {
-                                let (recv_tx, _) = recv_channels.clone();
-                                recv_tx
-                                    .send(QuadMessageRx::Position(QuadNED {
-                                        x: lp.x as f64,
-                                        y: lp.y as f64,
-                                        z: lp.z as f64,
-                                    }))
-                                    .unwrap();
-                            }
-                            mavlink::ardupilotmega::MavMessage::ATTITUDE(a) => {
-                                //info!("Attitude: {:?}", a);
-                                let (recv_tx, _) = recv_channels.clone();
-                                recv_tx
-                                    .send(QuadMessageRx::Attitude(
-                                        a.roll as f64,
-                                        a.pitch as f64,
-                                        a.yaw as f64,
-                                    ))
-                                    .unwrap();
-                            }
-                            mavlink::ardupilotmega::MavMessage::COMMAND_ACK(ca) => {
-                                debug!("Command Ack: {:?}", ca);
-                            }
-                            _ => {}
-                        }
+                        let (recv_tx, _) = recv_channels.clone();
+                        recv_tx.send(msg).unwrap();
                         //println!("received: {msg:?}");
                     }
                     Err(MessageReadError::Io(e)) => {
@@ -285,13 +155,13 @@ impl QuadLinkCore {
         Ok(())
     }
 
-    pub fn send(&self, msg: &QuadMessageTx) -> Result<(), QuadLinkError> {
+    pub fn send(&self, msg: &MavlinkMessageType) -> Result<(), QuadLinkError> {
         let (tx, _) = &self.transmit_channels;
         tx.send(msg.clone())
             .map_err(|e| QuadLinkError::ChannelSendError(e))
     }
 
-    pub fn recv(&self) -> Result<Vec<QuadMessageRx>, QuadLinkError> {
+    pub fn recv(&self) -> Result<Vec<MavlinkMessageType>, QuadLinkError> {
         let mut data = Vec::new();
         let (_tx, rx) = &self.recv_channels;
         while let Ok(msg) = rx.try_recv() {

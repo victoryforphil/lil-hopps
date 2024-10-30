@@ -4,8 +4,8 @@ use std::{
 };
 
 use rerun::RecordingStreamBuilder;
-pub mod types;
 pub mod system;
+pub mod types;
 pub type LilRerunHandle = Arc<Mutex<LilRerun>>;
 #[derive(Debug, Clone, PartialEq)]
 pub enum RerunMode {
@@ -55,14 +55,14 @@ impl LilRerun {
                 .with_path_prefix("logs/handler")
                 // You can also use the standard `RUST_LOG` environment variable!
                 .with_filter(rerun::default_log_filter())
-                .init().unwrap_err();
-                
+                .init()
+                .unwrap_err();
+
             log::info!("This INFO log got added through the standard logging interface");
         }
 
         self.rerun = Some(rec);
     }
-
 
     pub fn rerun(&self) -> Option<rerun::RecordingStream> {
         self.rerun.clone()

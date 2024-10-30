@@ -29,7 +29,13 @@ struct SmoketestArgs {
     #[clap(long, value_parser, help = "Command Hz ", default_value = "50.0")]
     hz: f32,
 
-    #[clap(short, long, value_parser, help = "Duration in seconds", default_value = "5.0")]
+    #[clap(
+        short,
+        long,
+        value_parser,
+        help = "Duration in seconds",
+        default_value = "5.0"
+    )]
     duration: f32,
 }
 
@@ -49,16 +55,18 @@ fn main() {
 
     let mut runner = BasherSysRunner::new();
     runner.dt = Timespan::new_hz(args.hz as f64);
-    
+
     runner.add_system(Arc::new(Mutex::new(
         QuadlinkSystem::new_from_connection_string(args.connection_string.as_str()).unwrap(),
     )));
 
     runner.set_real_time(true);
-    runner.run( Timepoint::new_secs(args.duration as f64));
+    runner.run(Timepoint::new_secs(args.duration as f64));
     let mut keys = runner.data_store.get_all_keys();
-    keys.sort_by(|a: &Arc<victory_data_store::topics::TopicKey>, b| a.display_name().cmp(&b.display_name()));
-    for key in keys{
+    keys.sort_by(|a: &Arc<victory_data_store::topics::TopicKey>, b| {
+        a.display_name().cmp(&b.display_name())
+    });
+    for key in keys {
         let latest = runner.data_store.get_latest_primitive(&key).unwrap();
         info!(" {:?} \t\t {:?}", key, latest);
     }
