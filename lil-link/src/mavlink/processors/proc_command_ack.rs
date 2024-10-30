@@ -25,10 +25,17 @@ impl MavlinkMessageProcessor for CommandAckProcessor {
             }
         };
 
-        info!("Command ack: \n\t {:?}", command_ack_msg);
+        info!(
+            "QUAD COMMAND ACK:\n\t {:?} -> {:?} \n  --------------",
+            command_ack_msg.command, command_ack_msg.result
+        );
 
-        let topic_key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_LOG, IDENT_COMMAND_ACK));
-        data_view.add_latest(&topic_key, command_ack_msg)?;
+        let topic_key = TopicKey::from_str(&format!(
+            "{}/{}/{:?}",
+            IDENT_BASE_LOG, IDENT_COMMAND_ACK, command_ack_msg.command
+        ).to_ascii_lowercase());
+        let result = format!("{:?}", command_ack_msg.result);
+        data_view.add_latest(&topic_key, result)?;
 
         Ok(())
     }

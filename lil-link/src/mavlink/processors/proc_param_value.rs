@@ -1,6 +1,9 @@
 use victory_data_store::topics::TopicKey;
 
-use crate::{common::identifiers::IDENT_BASE_PARAMS, mavlink::core::MavlinkMessageType};
+use crate::{
+    common::{identifiers::IDENT_BASE_PARAMS, types::parameter::QuadParameter},
+    mavlink::core::MavlinkMessageType,
+};
 
 use super::MavlinkMessageProcessor;
 
@@ -30,9 +33,13 @@ impl MavlinkMessageProcessor for ParamValueProcessor {
             .to_ascii_lowercase();
         let value = param_value_msg.param_value as f64;
 
+        let param = QuadParameter::new(param_name, value);
+
         // Write to database
-        let key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_PARAMS, param_name));
-        data_view.add_latest(&key, value)?;
+        let topic_key = param.get_topic_key();
+        data_view
+            .add_latest(&topic_key, value)
+            .expect("Failed to write param value to database");
 
         Ok(())
     }

@@ -3,6 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use log::info;
 use victory_commander::system::System;
 use victory_data_store::{database::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
@@ -13,6 +14,10 @@ use crate::common::types::{
 };
 
 use super::{
+    builders::{
+        cmd_arm::mavlink_build_arm_message, cmd_mode::mavlink_build_mode_message,
+        cmd_takeoff::mavlink_build_cmd_takeoff_message,
+    },
     core::{QuadLinkCore, QuadlinkCoreHandle},
     processors::{MavlinkGenericProcessor, MavlinkMessageProcessor},
 };
@@ -66,53 +71,60 @@ impl System for QuadlinkSystem {
             inputs.get_latest(&TopicKey::from_str("cmd/mode"));
 
         if let Ok(arm_req) = arm_req {
-            if !arm_req.ack {
-                /*
-                    let arm_msg = QuadMessageTx::SetArm(arm_req.arm);
-                {
+            match mavlink_build_arm_message(arm_req.clone()) {
+                Some(arm_msg) => {
                     let mavlink = self.mavlink.lock().unwrap();
                     info!("QuadLink received arm request from cmd/arm: {:?}", arm_req);
                     mavlink.send(&arm_msg).unwrap();
+                    let mut new_ack = arm_req;
+                    new_ack.ack();
+                    output
+                        .add_latest(&new_ack.get_topic_key(), new_ack)
+                        .expect("Failend to add latest arm ack");
                 }
-                let mut new_ack = arm_req;
-                new_ack.ack = true;
-                output
-                    .add_latest(&TopicKey::from_str("cmd/arm"), new_ack)
-                    .expect("Failed to add latest arm ack");
-                 */
+                None => {}
             }
         }
         if let Ok(mode_req) = mode_req {
             if !mode_req.ack {
-                /*
-                 let mode_msg = QuadMessageTx::SetMode(mode_req.mode.clone());
-                {
-                    let mavlink = self.mavlink.lock().unwrap();
-                    info!("QuadLink received mode request from cmd/mode: {:?}", mode_req);
-                    mavlink.send(&mode_msg).unwrap();
+                match mavlink_build_mode_message(mode_req.clone()) {
+                    Some(mode_msg) => {
+                        let mavlink = self.mavlink.lock().unwrap();
+                        info!(
+                            "QuadLink received mode request from cmd/mode: {:?}",
+                            mode_req.clone()
+                        );
+                        mavlink.send(&mode_msg).unwrap();
+                    }
+                    None => {}
                 }
+                let mut new_ack = mode_req;
+                new_ack.ack();
                 output
-                    .add_latest(&TopicKey::from_str("cmd/mode/ack"), true)
+                    .add_latest(&new_ack.get_topic_key(), new_ack)
                     .expect("Failed to add latest mode ack");
-                */
             }
         }
 
         let takeoff_req: Result<QuadTakeoffRequest, _> =
             inputs.get_latest(&TopicKey::from_str("cmd/takeoff"));
-        if let Ok(_takeoff_req) = takeoff_req {
-            /*
-             let takeoff_msg = QuadMessageTx::TakeOff(takeoff_req.height);
-            if !takeoff_req.ack {
-                {
+        if let Ok(takeoff_req) = takeoff_req {
+            match mavlink_build_cmd_takeoff_message(takeoff_req.clone()) {
+                Some(takeoff_msg) => {
                     let mavlink = self.mavlink.lock().unwrap();
+                    info!(
+                        "QuadLink received takeoff request from cmd/takeoff: {:?}",
+                        takeoff_req.clone()
+                    );
                     mavlink.send(&takeoff_msg).unwrap();
                 }
-                output
-                    .add_latest(&TopicKey::from_str("cmd/takeoff/ack"), true)
-                    .expect("Failed to add latest takeoff ack");
+                None => {}
             }
-            */
+            let mut new_ack = takeoff_req;
+            new_ack.ack();
+            output
+                .add_latest(&new_ack.get_topic_key(), new_ack)
+                .expect("Failed to add latest takeoff ack");
         }
         output
     }
