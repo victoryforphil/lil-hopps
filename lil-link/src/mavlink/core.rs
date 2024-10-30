@@ -156,7 +156,7 @@ impl QuadLinkCore {
     pub fn send(&self, msg: &MavlinkMessageType) -> Result<(), QuadLinkError> {
         let (tx, _) = &self.transmit_channels;
         tx.send(msg.clone())
-            .map_err(|e| QuadLinkError::ChannelSendError(e))
+            .map_err(QuadLinkError::ChannelSendError)
     }
 
     pub fn recv(&self) -> Result<Vec<MavlinkMessageType>, QuadLinkError> {

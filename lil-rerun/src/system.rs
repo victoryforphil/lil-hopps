@@ -101,27 +101,24 @@ impl System for RerunSystem {
             .get_latest(&TopicKey::from_str("position/ned"))
             .unwrap_or(QuadPoseNED::new_xyz(0.0, 0.0, 0.0));
 
-        match (roll, pitch, yaw) {
-            (Primitives::Float(roll), Primitives::Float(pitch), Primitives::Float(yaw)) => {
-                let quat = UnitQuaternion::from_euler_angles(*roll, *pitch, *yaw);
-                let quat = quat.quaternion();
-                rerun.log(
-                    "attitude",
-                    &Boxes3D::from_sizes(vec![Vec3D::new(1.0, 1.0, 0.1)])
-                        .with_quaternions(vec![[
-                            quat.coords[0] as f32,
-                            quat.coords[1] as f32,
-                            quat.coords[2] as f32,
-                            quat.coords[3] as f32,
-                        ]])
-                        .with_centers(vec![Vec3D::new(
-                            position.position.x as f32,
-                            position.position.y as f32,
-                            -position.position.z as f32,
-                        )]),
-                );
-            }
-            _ => {}
+        if let (Primitives::Float(roll), Primitives::Float(pitch), Primitives::Float(yaw)) = (roll, pitch, yaw) {
+            let quat = UnitQuaternion::from_euler_angles(*roll, *pitch, *yaw);
+            let quat = quat.quaternion();
+            rerun.log(
+                "attitude",
+                &Boxes3D::from_sizes(vec![Vec3D::new(1.0, 1.0, 0.1)])
+                    .with_quaternions(vec![[
+                        quat.coords[0] as f32,
+                        quat.coords[1] as f32,
+                        quat.coords[2] as f32,
+                        quat.coords[3] as f32,
+                    ]])
+                    .with_centers(vec![Vec3D::new(
+                        position.position.x as f32,
+                        position.position.y as f32,
+                        -position.position.z as f32,
+                    )]),
+            );
         }
 
         self.time = self.time.clone() + _dt;

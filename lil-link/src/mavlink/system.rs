@@ -48,7 +48,7 @@ impl System for QuadlinkSystem {
         topics
     }
 
-    fn execute<'a>(&mut self, inputs: &'a DataView, _: Timespan) -> DataView {
+    fn execute(&mut self, inputs: &DataView, _: Timespan) -> DataView {
         let mut output = DataView::new();
 
         let mut msgs = vec![];
@@ -65,25 +65,22 @@ impl System for QuadlinkSystem {
         let mode_req: Result<QuadSetModeRequest, _> =
             inputs.get_latest(&TopicKey::from_str("cmd/mode"));
 
-        match arm_req {
-            Ok(arm_req) => {
-                if !arm_req.ack {
-                    /*
-                        let arm_msg = QuadMessageTx::SetArm(arm_req.arm);
-                    {
-                        let mavlink = self.mavlink.lock().unwrap();
-                        info!("QuadLink received arm request from cmd/arm: {:?}", arm_req);
-                        mavlink.send(&arm_msg).unwrap();
-                    }
-                    let mut new_ack = arm_req;
-                    new_ack.ack = true;
-                    output
-                        .add_latest(&TopicKey::from_str("cmd/arm"), new_ack)
-                        .expect("Failed to add latest arm ack");
-                     */
+        if let Ok(arm_req) = arm_req {
+            if !arm_req.ack {
+                /*
+                    let arm_msg = QuadMessageTx::SetArm(arm_req.arm);
+                {
+                    let mavlink = self.mavlink.lock().unwrap();
+                    info!("QuadLink received arm request from cmd/arm: {:?}", arm_req);
+                    mavlink.send(&arm_msg).unwrap();
                 }
+                let mut new_ack = arm_req;
+                new_ack.ack = true;
+                output
+                    .add_latest(&TopicKey::from_str("cmd/arm"), new_ack)
+                    .expect("Failed to add latest arm ack");
+                 */
             }
-            Err(_) => {}
         }
         if let Ok(mode_req) = mode_req {
             if !mode_req.ack {

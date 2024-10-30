@@ -8,19 +8,14 @@ use lil_quad::systems::timed_arm::TimedArm;
 use lil_quad::systems::timed_mode::TimedMode;
 use lil_quad::systems::timed_takeoff::TimedTakeoff;
 use lil_rerun::system::RerunSystem;
-use tracing::debug;
-use tracing::error;
 use tracing::info;
-use tracing::level_filters::LevelFilter;
 use tracing::Level;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 
-use tracing_subscriber::layer::SubscriberExt;
 
-use tracing_subscriber::FmtSubscriber;
 
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 use victory_commander::system::runner::BasherSysRunner;
 use victory_wtf::Timepoint;
 use victory_wtf::Timespan;

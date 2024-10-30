@@ -38,9 +38,9 @@ impl System for TimedArm {
         BTreeSet::new()
     }
 
-    fn execute<'a>(
+    fn execute(
         &mut self,
-        inputs: &'a victory_data_store::database::DataView,
+        inputs: &victory_data_store::database::DataView,
         dt: victory_wtf::Timespan,
     ) -> victory_data_store::database::DataView {
         self.current_time = self.current_time.clone() + dt;
