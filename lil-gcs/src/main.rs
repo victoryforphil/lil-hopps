@@ -77,6 +77,7 @@ impl SubCallback for TCPNodeSubscriber {
             self.map
                 .insert(topic.display_name(), format!("{:?}", datapoint.value));
         }
+        info!("Received {} datapoints", datapoints.len());
         // clear the console
         // print!("\x1b[2J\x1b[1;1H");
     }
@@ -129,11 +130,13 @@ fn main() {
                 let csv_string = format!("{},{}\n", topic, datapoint);
                 csv.write_all(csv_string.as_bytes()).unwrap();
             }
+
+            info!("CSV updated with {} datapoints", map.map.len());
         }
     });
 
     loop {
-        thread::sleep(Duration::from_secs_f32(0.1));
+        thread::sleep(Duration::from_secs_f32(0.01));
         node.tick();
     }
 }

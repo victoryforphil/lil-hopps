@@ -46,6 +46,7 @@ impl MavlinkMessageProcessor for MavlinkGenericProcessor {
             MavlinkMessageType::LOCAL_POSITION_NED(_) => {
                 proc_local_position::LocalPositionProcessor::on_mavlink_message(msg, data_view)
             }
+
             _ => Ok(()),
         }
     }

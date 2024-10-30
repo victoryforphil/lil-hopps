@@ -34,7 +34,7 @@ struct SILArgs {
     #[clap(short, long, value_parser, help = "Mavlink connection string")]
     connection_string: String,
 
-    #[clap(long, value_parser, help = "Command Hz ", default_value = "10.0")]
+    #[clap(long, value_parser, help = "Command Hz ", default_value = "25.0")]
     hz: f32,
 
     #[clap(
@@ -74,7 +74,7 @@ fn main() {
     let server = TCPServerAdapter::new(TCPServerOptions {
         port: 7001,
         address: "0.0.0.0".to_string(),
-        update_interval: Timespan::new_hz(25.0),
+        update_interval: Timespan::new_hz(100.0),
     });
     let server_handle = Arc::new(Mutex::new(server));
     runner.enable_pubsub(server_handle);
