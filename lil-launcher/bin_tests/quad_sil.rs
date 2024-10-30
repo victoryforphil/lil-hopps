@@ -10,7 +10,6 @@ use lil_quad::systems::timed_takeoff::TimedTakeoff;
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
-use tracing_subscriber::prelude::*;
 
 
 

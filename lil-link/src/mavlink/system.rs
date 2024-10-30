@@ -50,7 +50,7 @@ impl System for QuadlinkSystem {
 
     fn execute(&mut self, inputs: &DataView, _: Timespan) -> DataView {
         let mut output = DataView::new();
-
+        #[allow(unused_variables)]
         let mut msgs = vec![];
         {
             let mavlink = self.mavlink.lock().unwrap();
@@ -100,7 +100,7 @@ impl System for QuadlinkSystem {
 
         let takeoff_req: Result<QuadTakeoffRequest, _> =
             inputs.get_latest(&TopicKey::from_str("cmd/takeoff"));
-        if let Ok(takeoff_req) = takeoff_req {
+        if let Ok(_takeoff_req) = takeoff_req {
             /*
              let takeoff_msg = QuadMessageTx::TakeOff(takeoff_req.height);
             if !takeoff_req.ack {

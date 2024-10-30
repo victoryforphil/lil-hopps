@@ -6,7 +6,6 @@ use lil_rerun::system::RerunSystem;
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
-use tracing_subscriber::prelude::*;
 
 
 

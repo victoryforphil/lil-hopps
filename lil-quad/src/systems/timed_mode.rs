@@ -37,7 +37,7 @@ impl System for TimedMode {
 
     fn execute(
         &mut self,
-        inputs: &victory_data_store::database::DataView,
+        _inputs: &victory_data_store::database::DataView,
         dt: victory_wtf::Timespan,
     ) -> victory_data_store::database::DataView {
         self.current_time = self.current_time.clone() + dt;
@@ -55,7 +55,8 @@ impl System for TimedMode {
             ack: false,
         };
         self.sent = true;
-        out.add_latest(&TopicKey::from_str("cmd/mode"), mode_msg);
+        out.add_latest(&TopicKey::from_str("cmd/mode"), mode_msg)
+            .expect("Failed to add mode message");
         out
     }
 

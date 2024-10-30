@@ -51,23 +51,24 @@ impl System for RerunSystem {
         rerun.log_static(
             "floor",
             &Boxes3D::from_sizes(vec![Vec3D::new(100.0, 100.0, 0.1)]),
-        );
+        ).expect("Failed to log floor");
         rerun.set_time_seconds("system-time", self.time.secs());
 
         let data_map = state.get_latest_map(&TopicKey::empty()).unwrap();
         for (key, value) in data_map.iter() {
             match value {
                 Primitives::Unset => {}
-                Primitives::Instant(timepoint) => {}
-                Primitives::Duration(timespan) => {}
+                Primitives::Instant(_timepoint) => {}
+                Primitives::Duration(_timespan) => {}
                 Primitives::Integer(val) => {
-                    rerun.log(key.display_name(), &Scalar::new(*val as f64));
+                    rerun.log(key.display_name(), &Scalar::new(*val as f64)).expect("Failed to log integer");   
                 }
                 Primitives::Float(val) => {
-                    rerun.log(key.display_name(), &Scalar::new(*val));
+                    rerun.log(key.display_name(), &Scalar::new(*val)).expect("Failed to log float");
                 }
                 Primitives::Text(val) => {
-                    rerun.log(key.display_name(), &TextDocument::new(val.clone()));
+                    rerun.log(key.display_name(), &TextDocument::new(val.clone()))
+                        .expect("Failed to log text");
                 }
                 Primitives::Blob(vic_blob) => {
                     info!("Rerun logging blob: {:?}", vic_blob);
@@ -77,10 +78,13 @@ impl System for RerunSystem {
                     rerun.log(
                         key.display_name(),
                         &TextDocument::new(if *bool { "true" } else { "false" }.to_string()),
-                    );
-                    rerun.log(key.display_name(), &Scalar::new(*bool as i64 as f64));
+                    )
+                    .expect("Failed to log boolean");
+                    rerun
+                        .log(key.display_name(), &Scalar::new(*bool as i64 as f64))
+                        .expect("Failed to log boolean");
                 }
-                Primitives::List(vec) => {}
+                Primitives::List(_vec) => {}
                 Primitives::Reference(_) => {}
                 Primitives::StructType(_) => {
                     // info!("Rerun logging struct: {:?}", value);
@@ -118,7 +122,8 @@ impl System for RerunSystem {
                         position.position.y as f32,
                         -position.position.z as f32,
                     )]),
-            );
+            )
+            .expect("Failed to log attitude");
         }
 
         self.time = self.time.clone() + _dt;

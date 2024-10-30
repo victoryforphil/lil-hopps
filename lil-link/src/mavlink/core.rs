@@ -34,9 +34,6 @@ pub struct QuadLinkCore {
     recv_channels: (Sender<MavlinkMessageType>, Receiver<MavlinkMessageType>),
     transmit_channels: (Sender<MavlinkMessageType>, Receiver<MavlinkMessageType>),
     connection_string: String,
-    recv_thread: Option<thread::JoinHandle<()>>,
-    send_thread: Option<thread::JoinHandle<()>>,
-    heartbeat_thread: Option<thread::JoinHandle<()>>,
 }
 
 pub type QuadlinkCoreHandle = Arc<Mutex<QuadLinkCore>>;
@@ -50,9 +47,6 @@ impl QuadLinkCore {
             recv_channels: (recv_tx, recv_rx),
             transmit_channels: (transmit_tx, transmit_rx),
             connection_string: connection_string.to_string(),
-            recv_thread: None,
-            send_thread: None,
-            heartbeat_thread: None,
         })
     }
 
