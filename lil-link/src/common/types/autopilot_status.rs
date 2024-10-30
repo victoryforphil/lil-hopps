@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct QuadAutopilotStatus {
     pub custom_mode_enabled: bool,

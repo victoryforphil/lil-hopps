@@ -12,8 +12,6 @@ use tracing::Level;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;
 
-
-
 use clap::{Parser, ValueEnum};
 use victory_broker::adapters::tcp::TCPClientAdapter;
 use victory_broker::adapters::tcp::TCPClientOptions;

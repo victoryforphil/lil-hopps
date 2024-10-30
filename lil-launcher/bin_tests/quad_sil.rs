@@ -11,8 +11,6 @@ use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
-
-
 use clap::Parser;
 use victory_broker::adapters::tcp::TCPServerAdapter;
 use victory_broker::adapters::tcp::TCPServerOptions;

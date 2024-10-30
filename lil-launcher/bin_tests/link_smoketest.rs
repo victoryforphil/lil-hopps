@@ -4,9 +4,6 @@ use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
-
-
-
 use clap::Parser;
 
 #[derive(Parser, Debug)]

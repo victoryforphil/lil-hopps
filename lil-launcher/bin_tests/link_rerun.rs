@@ -7,8 +7,6 @@ use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
-
-
 use clap::Parser;
 use victory_commander::system::runner::BasherSysRunner;
 use victory_wtf::Timepoint;
@@ -65,7 +63,12 @@ fn main() {
         a.display_name().cmp(&b.display_name())
     });
     for key in keys {
-        let latest = runner.data_store.lock().unwrap().get_latest_primitive(&key).unwrap();
+        let latest = runner
+            .data_store
+            .lock()
+            .unwrap()
+            .get_latest_primitive(&key)
+            .unwrap();
         info!(" {:?} \t\t {:?}", key, latest);
     }
 }
