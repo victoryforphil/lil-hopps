@@ -31,14 +31,14 @@ impl MavlinkMessageProcessor for HeartbeatProcessor {
         // Write to database
         data_view
             .add_latest(
-                &TopicKey::from_str(format!("{}{}", IDENT_BASE_STATUS, IDENT_STATUS_MODE).as_str()),
+                &TopicKey::from_str(format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_MODE).as_str()),
                 mode_status,
             )
             .expect("Failed to add mode status");
         data_view
             .add_latest(
                 &TopicKey::from_str(
-                    format!("{}{}", IDENT_BASE_STATUS, IDENT_STATUS_SYSTEM).as_str(),
+                    format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_SYSTEM).as_str(),
                 ),
                 system_status,
             )
