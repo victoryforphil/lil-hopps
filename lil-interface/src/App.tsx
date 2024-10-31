@@ -4,7 +4,7 @@ import './style/App.scss';
 function App() {
 	return (
 		<>
-			<div className="flex gap-5 items-center">
+			<div className="flex gap-4 items-center">
 				<div className="">
 					<img
 						src={orbLogo}
@@ -12,8 +12,8 @@ function App() {
 						alt="This is a weird looking logo"
 					/>
 				</div>
-				<h1 className="font-thin font-mono no-select text-slate-50">
-					Kontrol
+				<h1 className="font-bold font-mono no-select text-slate-500 tracking-wide">
+					KTRL
 				</h1>
 			</div>
 		</>
