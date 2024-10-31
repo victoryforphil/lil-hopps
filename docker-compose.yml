@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  ardupilot-sitl:
+    image: radarku/ardupilot-sitl
+    platform: "linux/amd64" # macos AMD has the wrong architecture
+    container_name: sitl
+    ports:
+      - "5760:5760"
+    restart: 'always'
