@@ -8,3 +8,14 @@ services:
     ports:
       - "5760:5760"
     restart: 'always'
+  lil-interface:
+    image: lil-interface
+    container_name: ui
+    build:
+      context: ./lil-interface
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+    restart: 'always'
