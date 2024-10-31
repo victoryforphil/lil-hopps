@@ -10,9 +10,8 @@ use std::time::Duration;
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
-use tracing_subscriber::prelude::*;
 
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 use victory_broker::adapters::tcp::TCPClientAdapter;
 use victory_broker::adapters::tcp::TCPClientOptions;
 use victory_broker::node::sub_callback::SubCallback;
@@ -104,7 +103,7 @@ fn main() {
 
             let map = subscriber_handle.lock().unwrap();
 
-            csv.rewind();
+            let _ = csv.rewind();
             for (topic, datapoint) in map.map.iter() {
                 // Save to CSV
                 let csv_string = format!("{},{}\n", topic, datapoint);

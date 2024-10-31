@@ -12,7 +12,7 @@ function App() {
 						alt="This is a weird looking logo"
 					/>
 				</div>
-				<h1 className="font-normal font-mono no-select text-slate-50">
+				<h1 className="font-thin font-mono no-select text-slate-50">
 					Kontrol
 				</h1>
 			</div>
