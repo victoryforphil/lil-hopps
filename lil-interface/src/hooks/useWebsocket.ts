@@ -1,4 +1,4 @@
-import { parseWebMessage } from '../data/message';
+import { parseWebMessage } from '@/data/message';
 import { useEffect, useState } from 'react';
 
 export const useWebSocket = (url: string) => {

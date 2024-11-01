@@ -8,7 +8,7 @@ function App() {
 	const { isConnected } = useWebSocket('ws://localhost:3030');
 
 
-    const log_message = useLogStore((state) => state.log_message);
+    const log_message = useLogStore((state) => state.log_messages);
 
 	return (
 		<>
