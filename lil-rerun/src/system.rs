@@ -78,16 +78,20 @@ impl System for RerunSystem {
                 Primitives::Blob(vic_blob) => {
                     info!("Rerun logging blob: {:?}", vic_blob);
                 }
-                Primitives::Boolean(bool) => {
+                Primitives::Boolean(bool_val) => {
                     // Log text vesion
                     rerun
                         .log(
                             key.display_name(),
-                            &TextDocument::new(if *bool { "true" } else { "false" }.to_string()),
+                            &TextDocument::new(format!(
+                                "{}: {}",
+                                key.display_name(),
+                                if *bool_val { "true" } else { "false" }
+                            )),
                         )
                         .expect("Failed to log boolean");
                     rerun
-                        .log(key.display_name(), &Scalar::new(*bool as i64 as f64))
+                        .log(key.display_name(), &Scalar::new(*bool_val as i64 as f64))
                         .expect("Failed to log boolean");
                 }
                 Primitives::List(_vec) => {}
@@ -98,17 +102,17 @@ impl System for RerunSystem {
             }
         }
         let roll = data_map
-            .get(&TopicKey::from_str("attitude/roll"))
+            .get(&TopicKey::from_str("pose/attitude/rpy_radians/x"))
             .unwrap_or(&Primitives::Float(0.0));
         let pitch = data_map
-            .get(&TopicKey::from_str("attitude/pitch"))
+            .get(&TopicKey::from_str("pose/attitude/rpy_radians/y"))
             .unwrap_or(&Primitives::Float(0.0));
         let yaw = data_map
-            .get(&TopicKey::from_str("attitude/yaw"))
+            .get(&TopicKey::from_str("pose/attitude/rpy_radians/z"))
             .unwrap_or(&Primitives::Float(0.0));
 
         let position = state
-            .get_latest(&TopicKey::from_str("position/ned"))
+            .get_latest(&TopicKey::from_str("pose/ned"))
             .unwrap_or(QuadPoseNED::new_xyz(0.0, 0.0, 0.0));
 
         if let (Primitives::Float(roll), Primitives::Float(pitch), Primitives::Float(yaw)) =
@@ -143,10 +147,9 @@ impl System for RerunSystem {
 
     fn get_subscribed_topics(&self) -> std::collections::BTreeSet<TopicKey> {
         let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::from_str("attitude"));
         topics.insert(TopicKey::from_str("status"));
-        topics.insert(TopicKey::from_str("params"));
-        topics.insert(TopicKey::from_str("position"));
+        topics.insert(TopicKey::from_str("log"));
+        topics.insert(TopicKey::from_str("pose"));
         topics
     }
 }
