@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 
 interface LogStore {
-    log_message: string;
-    setLogMessage: (message: string) => void;
+    log_messages: string[];
+    addLogMessage: (message: string) => void;
 }
 
 export const useLogStore = create<LogStore>((set) => ({
-    log_message: "",
-    setLogMessage: (message: string) => set({ log_message: message }),
+    log_messages: [],
+    // This is wrong somehow. TBD
+    addLogMessage: (message: string) => set(state => { return {log_messages: [...state.log_messages, message]} })
 }));

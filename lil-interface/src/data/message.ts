@@ -84,7 +84,7 @@ export function parseWebMessage(data: any) {
 	console.log(topicStore);
 
     if (topicStore.has("log/text")) {
-        useLogStore.getState().setLogMessage(topicStore.get("log/text")!.value as string);
+        useLogStore.getState().addLogMessage(topicStore.get("log/text")!.value as string);
     }
 
 	console.log(`Latency: ${latency.toFixed(2)} ms`);
