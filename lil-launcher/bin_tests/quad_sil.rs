@@ -4,9 +4,12 @@ use std::sync::Mutex;
 use lil_link::common::types::mode::QuadMode;
 
 use lil_link::mavlink::system::QuadlinkSystem;
+use lil_quad::systems::health_check::HealthCheck;
+use lil_quad::systems::health_check::HealthCheckConfig;
 use lil_quad::systems::timed_arm::TimedArm;
 use lil_quad::systems::timed_mode::TimedMode;
 use lil_quad::systems::timed_takeoff::TimedTakeoff;
+use lil_rerun::system::RerunSystem;
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
@@ -79,21 +82,26 @@ fn main() {
     )))));
 
     runner.add_system(Arc::new(Mutex::new(TimedMode::new(
-        Timepoint::new_secs(args.arm_time as f64 + 1.0),
+        Timepoint::new_secs(args.arm_time as f64 + 2.0),
         QuadMode::Stabilize,
     ))));
     runner.add_system(Arc::new(Mutex::new(TimedMode::new(
-        Timepoint::new_secs(args.arm_time as f64 + 4.0),
+        Timepoint::new_secs(args.arm_time as f64 + 5.0),
         QuadMode::Guided,
     ))));
 
     runner.add_system(Arc::new(Mutex::new(TimedTakeoff::new(
-        Timepoint::new_secs(args.arm_time as f64 + 8.0),
+        Timepoint::new_secs(args.arm_time as f64 + 5.0),
         11.0,
     ))));
-    //runner.add_system(Arc::new(Mutex::new(
-    //    RerunSystem::new("quad_arm".to_string()),
-    //)));
+
+    runner.add_system(Arc::new(Mutex::new(HealthCheck::new(HealthCheckConfig {
+        check_ekf: Some(true),
+    }))));
+
+    runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
+        "quad_arm".to_string(),
+    ))));
 
     runner.set_real_time(true);
     runner.run(Timepoint::new_secs(args.duration as f64));

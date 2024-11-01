@@ -1,5 +1,6 @@
 use crate::common::types::{
-    autopilot_status::QuadAutopilotStatus, mode::QuadMode, sensor_status::QuadSensorStatus,
+    autopilot_status::QuadAutopilotStatus, ekf_status::QuadEkfStatus, mode::QuadMode,
+    sensor_status::QuadSensorStatus,
 };
 
 use super::ardu_modes::ArduMode;
@@ -36,7 +37,7 @@ impl MavLinkHelper {
                 target_system: 0,
                 target_component: 0,
                 req_stream_id: 0,
-                req_message_rate: 50,
+                req_message_rate: 20,
                 start_stop: 1,
             },
         )
@@ -46,21 +47,22 @@ impl MavLinkHelper {
     pub fn decode_mode_flag(flag: mavlink::ardupilotmega::MavModeFlag) -> QuadAutopilotStatus {
         QuadAutopilotStatus {
             custom_mode_enabled: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_CUSTOM_MODE_ENABLED),
+                .intersects(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_CUSTOM_MODE_ENABLED),
             test_enabled: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_TEST_ENABLED),
+                .intersects(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_TEST_ENABLED),
             auto_enabled: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_AUTO_ENABLED),
+                .intersects(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_AUTO_ENABLED),
             guided_enabled: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_GUIDED_ENABLED),
+                .intersects(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_GUIDED_ENABLED),
             stabilize_enabled: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_STABILIZE_ENABLED),
+                .intersects(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_STABILIZE_ENABLED),
             hil_enabled: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_HIL_ENABLED),
-            manual_input_enabled: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_MANUAL_INPUT_ENABLED),
+                .intersects(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_HIL_ENABLED),
+            manual_input_enabled: flag.intersects(
+                mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_MANUAL_INPUT_ENABLED,
+            ),
             safety_armed: flag
-                .contains(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_SAFETY_ARMED),
+                .intersects(mavlink::ardupilotmega::MavModeFlag::MAV_MODE_FLAG_SAFETY_ARMED),
         }
     }
 
@@ -68,38 +70,38 @@ impl MavLinkHelper {
         health: mavlink::ardupilotmega::MavSysStatusSensor,
     ) -> QuadSensorStatus {
         QuadSensorStatus {
-            gyro: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_GYRO),
-            accel: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_ACCEL),
-            mag: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_MAG),
-            abs_pressure: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_ABSOLUTE_PRESSURE),
-            diff_pressure: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_DIFFERENTIAL_PRESSURE),
-            gps: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_GPS),
-            optical_flow: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_OPTICAL_FLOW),
-            vision_position: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_VISION_POSITION),
-            laser_position: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_LASER_POSITION),
-            external_ground_truth: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_EXTERNAL_GROUND_TRUTH),
-            rate_control: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_ANGULAR_RATE_CONTROL),
-            attitude_stabilization: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_ATTITUDE_STABILIZATION),
-            yaw_position: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_YAW_POSITION),
-            altitude_control: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_Z_ALTITUDE_CONTROL),
-            xy_position_control: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_XY_POSITION_CONTROL),
-            motor_control: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_MOTOR_OUTPUTS),
-            rc_receiver: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_RC_RECEIVER),
-            gyro2: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_GYRO2),
-            accel2: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_ACCEL2),
-            mag2: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_MAG2),
-            geofence: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_GEOFENCE),
-            ahrs: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_AHRS),
-            terrain: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_TERRAIN),
-            reverse_motor: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_REVERSE_MOTOR),
-            logging: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_LOGGING),
-            battery: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_BATTERY),
-            proximity: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_PROXIMITY),
-            satcom: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_SATCOM),
-            prearm_check: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_PREARM_CHECK),
-            obstacle_avoidance: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_OBSTACLE_AVOIDANCE),
-            propulsion: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_PROPULSION),
-            extension: health.contains(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_EXTENSION_USED),
+            gyro: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_GYRO),
+            accel: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_ACCEL),
+            mag: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_MAG),
+            abs_pressure: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_ABSOLUTE_PRESSURE),
+            diff_pressure: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_DIFFERENTIAL_PRESSURE),
+            gps: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_GPS),
+            optical_flow: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_OPTICAL_FLOW),
+            vision_position: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_VISION_POSITION),
+            laser_position: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_LASER_POSITION),
+            external_ground_truth: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_EXTERNAL_GROUND_TRUTH),
+            rate_control: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_ANGULAR_RATE_CONTROL),
+            attitude_stabilization: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_ATTITUDE_STABILIZATION),
+            yaw_position: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_YAW_POSITION),
+            altitude_control: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_Z_ALTITUDE_CONTROL),
+            xy_position_control: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_XY_POSITION_CONTROL),
+            motor_control: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_MOTOR_OUTPUTS),
+            rc_receiver: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_RC_RECEIVER),
+            gyro2: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_GYRO2),
+            accel2: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_ACCEL2),
+            mag2: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_3D_MAG2),
+            geofence: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_GEOFENCE),
+            ahrs: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_AHRS),
+            terrain: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_TERRAIN),
+            reverse_motor: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_REVERSE_MOTOR),
+            logging: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_LOGGING),
+            battery: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_BATTERY),
+            proximity: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_PROXIMITY),
+            satcom: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_SATCOM),
+            prearm_check: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_PREARM_CHECK),
+            obstacle_avoidance: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_OBSTACLE_AVOIDANCE),
+            propulsion: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_SENSOR_PROPULSION),
+            extension: health.intersects(mavlink::ardupilotmega::MavSysStatusSensor::MAV_SYS_STATUS_EXTENSION_USED),
         }
     }
     pub fn quad_mode_to_mav_mode(mode: &QuadMode) -> ArduMode {
@@ -115,6 +117,30 @@ impl MavLinkHelper {
             QuadMode::PosHold => ArduMode::PosHold,
             QuadMode::Brake => ArduMode::Brake,
             QuadMode::Follow => ArduMode::Follow,
+        }
+    }
+
+    pub fn decode_ekf_status(flags: mavlink::ardupilotmega::EkfStatusFlags) -> QuadEkfStatus {
+        QuadEkfStatus {
+            attitude: flags.intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_ATTITUDE),
+            vel_horiz: flags.intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_VELOCITY_HORIZ),
+            vel_vert: flags.intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_VELOCITY_VERT),
+            pos_horiz_rel: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_POS_HORIZ_REL),
+            pos_horiz_abs: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_POS_HORIZ_ABS),
+            pos_vert_abs: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_POS_VERT_ABS),
+            pos_vert_agl: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_POS_VERT_AGL),
+            const_pos_mode: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_CONST_POS_MODE),
+            pred_pos_horiz_rel: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_PRED_POS_HORIZ_REL),
+            pred_pos_horiz_abs: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_PRED_POS_HORIZ_ABS),
+            uninitialized: flags
+                .intersects(mavlink::ardupilotmega::EkfStatusFlags::EKF_UNINITIALIZED),
         }
     }
 }

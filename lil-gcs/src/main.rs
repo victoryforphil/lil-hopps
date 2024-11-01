@@ -57,7 +57,7 @@ impl SubCallback for TCPNodeSubscriber {
             self.map
                 .insert(topic.display_name(), format!("{:?}", datapoint.value));
         }
-      
+
         // clear the console
         // print!("\x1b[2J\x1b[1;1H");
     }

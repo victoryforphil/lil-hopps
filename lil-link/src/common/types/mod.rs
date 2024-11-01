@@ -8,4 +8,6 @@ pub mod request_takeoff;
 pub mod sensor_status;
 pub mod vector3;
 
+pub mod ekf_status;
+pub mod health_status;
 pub mod parameter;
