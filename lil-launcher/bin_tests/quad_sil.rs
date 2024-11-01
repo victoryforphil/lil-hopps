@@ -1,11 +1,18 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
+use lil_link::common::identifiers::IDENT_BASE_STATUS;
+use lil_link::common::identifiers::IDENT_STATUS_HEALTH;
 use lil_link::common::types::mode::QuadMode;
 
 use lil_link::mavlink::system::QuadlinkSystem;
 use lil_quad::systems::health_check::HealthCheck;
 use lil_quad::systems::health_check::HealthCheckConfig;
+use lil_quad::systems::mission_runner::task::ConditionTask;
+use lil_quad::systems::mission_runner::task::TaskType;
+use lil_quad::systems::mission_runner::task::Tasks;
+use lil_quad::systems::mission_runner::task::TimedTask;
+use lil_quad::systems::mission_runner::MissionRunner;
 use lil_quad::systems::timed_arm::TimedArm;
 use lil_quad::systems::timed_mode::TimedMode;
 use lil_quad::systems::timed_takeoff::TimedTakeoff;
@@ -18,6 +25,8 @@ use clap::Parser;
 use victory_broker::adapters::tcp::TCPServerAdapter;
 use victory_broker::adapters::tcp::TCPServerOptions;
 use victory_commander::system::runner::BasherSysRunner;
+use victory_data_store::primitives::Primitives;
+use victory_data_store::topics::TopicKey;
 use victory_wtf::Timepoint;
 use victory_wtf::Timespan;
 
@@ -77,23 +86,35 @@ fn main() {
         QuadlinkSystem::new_from_connection_string(args.connection_string.as_str()).unwrap(),
     )));
 
-    runner.add_system(Arc::new(Mutex::new(TimedArm::new(Timepoint::new_secs(
-        args.arm_time as f64,
-    )))));
+    let arm_task = ConditionTask::new(
+        "arm".to_string(),
+        TopicKey::from_str(&format!(
+            "{}/{}/healthy",
+            IDENT_BASE_STATUS, IDENT_STATUS_HEALTH
+        )),
+        Some(Primitives::Boolean(true)),
+        Tasks::Arm,
+    );
 
-    runner.add_system(Arc::new(Mutex::new(TimedMode::new(
-        Timepoint::new_secs(args.arm_time as f64 + 2.0),
-        QuadMode::Stabilize,
-    ))));
-    runner.add_system(Arc::new(Mutex::new(TimedMode::new(
-        Timepoint::new_secs(args.arm_time as f64 + 5.0),
-        QuadMode::Guided,
-    ))));
+    let mode_task = TimedTask::new(
+        "mode".to_string(),
+        Timespan::new_secs(2.0),
+        Tasks::SetMode(QuadMode::Guided),
+    );
 
-    runner.add_system(Arc::new(Mutex::new(TimedTakeoff::new(
-        Timepoint::new_secs(args.arm_time as f64 + 5.0),
-        11.0,
-    ))));
+    let takeoff_task = TimedTask::new(
+        "takeoff".to_string(),
+        Timespan::new_secs(2.0),
+        Tasks::Takeoff(11.0),
+    );
+
+    let mission = vec![
+        TaskType::Condition(arm_task),
+        TaskType::Timed(mode_task),
+        TaskType::Timed(takeoff_task),
+    ];
+
+    runner.add_system(Arc::new(Mutex::new(MissionRunner::new(mission))));
 
     runner.add_system(Arc::new(Mutex::new(HealthCheck::new(HealthCheckConfig {
         check_ekf: Some(true),
