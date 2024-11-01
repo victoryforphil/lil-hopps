@@ -1,10 +1,14 @@
 import orbLogo from './assets/OrbLogo.svg';
 import { useWebSocket } from './hooks/useWebsocket';
+import { useLogStore } from './state/logstore';
 import './style/App.scss';
 
 function App() {
 
-	const { socket, isConnected } = useWebSocket('ws://localhost:3030');
+	const { isConnected } = useWebSocket('ws://localhost:3030');
+
+
+    const log_message = useLogStore((state) => state.log_message);
 
 	return (
 		<>
@@ -20,10 +24,16 @@ function App() {
 					KTRL
 				</h1>
 			</div>
+			<div className='flex flex-row gap-10 items-center w-full'>
 			<div>
 				{
 					isConnected ? <h1>Connected To Websocket</h1> : <h1>Not Connected</h1>
 				}
+			</div>
+			<div>
+				{log_message}
+			</div>
+
 			</div>
 		</>
 	);
