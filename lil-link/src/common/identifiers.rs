@@ -7,6 +7,8 @@ pub static IDENT_STATUS_SYSTEM: &str = "system";
 pub static IDENT_STATUS_MODE: &str = "mode";
 pub static IDENT_STATUS_TEXT: &str = "text";
 pub static IDENT_STATUS_SENSORS: &str = "sensors";
+pub static IDENT_STATUS_EKF: &str = "ekf";
+pub static IDENT_STATUS_HEALTH: &str = "health";
 pub static IDENT_COMMAND_ACK: &str = "command_ack";
 
 pub static IDENT_POSE_NED: &str = "ned";
