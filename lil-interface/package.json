@@ -14,6 +14,7 @@
     "@mantine/core": "^7.13.4",
     "@mantine/hooks": "^7.13.4",
     "@mantine/notifications": "^7.13.4",
+    "@msgpack/msgpack": "^3.0.0-beta2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.13.2",

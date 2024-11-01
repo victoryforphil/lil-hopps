@@ -4,11 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.90"
 clap = { version = "4.5.20", features = ["derive"] }
-crossbeam-channel = "0.5.13"
 log = "0.4.22"
-mavlink = "0.13.1"
+websocket = "0.27.1"
+rmp-serde = "1.3.0"
 
 serde = { version = "1.0.210", features = ["derive"] }
 thiserror = "1.0.64"
