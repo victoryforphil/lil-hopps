@@ -9,14 +9,12 @@ use victory_data_store::{database::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
 
 use crate::common::types::{
-    request_arm::QuadSetModeRequest, request_mode_set::QuadArmRequest,
-    request_takeoff::QuadTakeoffRequest,
+    request_arm::QuadSetModeRequest, request_land::QuadLandRequest, request_mode_set::QuadArmRequest, request_takeoff::QuadTakeoffRequest
 };
 
 use super::{
     builders::{
-        cmd_arm::mavlink_build_arm_message, cmd_mode::mavlink_build_mode_message,
-        cmd_takeoff::mavlink_build_cmd_takeoff_message,
+        cmd_arm::mavlink_build_arm_message, cmd_land::mavlink_build_cmd_land_message, cmd_mode::mavlink_build_mode_message, cmd_takeoff::mavlink_build_cmd_takeoff_message
     },
     core::{QuadLinkCore, QuadlinkCoreHandle},
     processors::{MavlinkGenericProcessor, MavlinkMessageProcessor},
@@ -47,14 +45,17 @@ impl System for QuadlinkSystem {
 
     fn get_subscribed_topics(&self) -> std::collections::BTreeSet<TopicKey> {
         let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::from_str("cmd/arm"));
-        topics.insert(TopicKey::from_str("cmd/mode"));
-        topics.insert(TopicKey::from_str("cmd/takeoff"));
+        topics.insert(TopicKey::from_str("cmd"));
         topics
-    }
+    }   
 
+  
     fn execute(&mut self, inputs: &DataView, _: Timespan) -> DataView {
+
+        
         let mut output = DataView::new();
+
+
         #[allow(unused_variables)]
         let mut msgs = vec![];
         {
@@ -69,6 +70,8 @@ impl System for QuadlinkSystem {
         let arm_req: Result<QuadArmRequest, _> = inputs.get_latest(&TopicKey::from_str("cmd/arm"));
         let mode_req: Result<QuadSetModeRequest, _> =
             inputs.get_latest(&TopicKey::from_str("cmd/mode"));
+
+        
 
         if let Ok(arm_req) = arm_req {
             match mavlink_build_arm_message(arm_req.clone()) {
@@ -125,6 +128,27 @@ impl System for QuadlinkSystem {
             output
                 .add_latest(&new_ack.get_topic_key(), new_ack)
                 .expect("Failed to add latest takeoff ack");
+        }
+
+        let land_req: Result<QuadLandRequest, _> =
+            inputs.get_latest(&TopicKey::from_str("cmd/land"));
+        if let Ok(land_req) = land_req {
+            match mavlink_build_cmd_land_message(land_req.clone()) {
+                Some(land_msg) => {
+                    let mavlink = self.mavlink.lock().unwrap();
+                    info!(
+                        "QuadLink received land request from cmd/land: {:?}",
+                        land_req.clone()
+                    );
+                    mavlink.send(&land_msg).unwrap();
+                }
+                None => {}
+            }
+            let mut new_ack = land_req;
+            new_ack.ack();
+            output
+                .add_latest(&new_ack.get_topic_key(), new_ack)
+                .expect("Failed to add latest land ack");
         }
         output
     }
