@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, ScrollArea } from '@mantine/core';
+import { ActionIcon, Badge, Button, ScrollArea } from '@mantine/core';
 import {
 	IconArrowLeft,
 	IconDots,
@@ -7,6 +7,8 @@ import {
 } from '@tabler/icons-react';
 import { BatteryLabel } from './battery';
 import clsx from 'clsx';
+import useControlStore from '@/state/control';
+import { notifications } from '@mantine/notifications';
 
 export function SidebarHeader() {
 	return (
@@ -52,13 +54,21 @@ export function SidebarHeader() {
 	);
 }
 
+// TODO: arm buttons here. For the cool looks.
 export function DroneLabel(props: { name: string; battery: number }) {
 	return (
-		<div className="flex flex-1 rounded-lg info-container justify-between">
-			<div className="flex items-center font-semibold">{props.name}</div>
-			<div>
-				<BatteryLabel charge={props.battery} />
+		<div className="flex flex-col rounded-lg info-container">
+			<div className="flex flex-1 justify-between">
+				<div className="flex items-center font-semibold">
+					{props.name}
+				</div>
+				<div>
+					<BatteryLabel charge={props.battery} />
+				</div>
 			</div>
+			{/* <div>
+                <ArmButtons />
+            </div> */}
 		</div>
 	);
 }
@@ -105,6 +115,16 @@ function StatusLabel(props: { name: string; status: string }) {
 
 const fake_logs: string[] = [
 	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
+	'12:01 Initial Log Message',
 	'12:03 IMU Boot up',
 	'12:04 IMU Borked',
 ];
@@ -148,6 +168,56 @@ export function LogBox() {
 					})}
 				</div>
 			</ScrollArea>
+		</div>
+	);
+}
+
+export function ArmButtons() {
+	// States for arming and take off ideally.
+	const { armed, toggleArm, flying, toggleFlying } = useControlStore();
+
+	return (
+		<div className="flex justify-between">
+			<Button
+				color={armed ? 'red' : 'green'}
+				size="lg"
+				w={'45%'}
+				variant="filled"
+				onClick={() => {
+					toggleArm();
+
+                    if (!armed) {
+                        notifications.show({
+                            title: "Control System",
+                            message: "Arming Drone",
+                            color: "red"
+                        })
+                    } else {
+                        toggleFlying();
+                    }
+				}}
+			>
+				{armed ? 'Disarm' : 'Arm'}
+			</Button>
+			<Button
+				color={armed ? (flying ? 'red' : 'green') : 'gray'}
+				variant="outline"
+				size="lg"
+				w={'45%'}
+				disabled={!armed}
+				onClick={() => {
+					toggleFlying();
+
+                    if (!flying) {
+                        notifications.show({
+                            title: "Control System",
+                            message: "Taking off"
+                        })
+                    }
+				}}
+			>
+				{flying ? 'Land' : 'Take Off'}
+			</Button>
 		</div>
 	);
 }

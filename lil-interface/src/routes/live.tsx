@@ -1,5 +1,5 @@
 import MapContainer from '@/components/map';
-import { DroneLabel, StatusContainer, SidebarHeader, LogBox } from '@/components/sidebar';
+import { DroneLabel, StatusContainer, SidebarHeader, LogBox, ArmButtons } from '@/components/sidebar';
 import { useWebSocket } from '@/hooks/useWebsocket';
 import { useLogStore } from '@/state/logstore';
 
@@ -38,6 +38,8 @@ const fake_status_systems = [
     }
 ]
 
+// TODO: Seperate out top and bottom sidebar. So we can have arming always be on the bottom.
+
 export default function Live() {
 	const { isConnected } = useWebSocket('ws://localhost:3030');
 	const log_message = useLogStore((state) => state.log_messages);
@@ -45,12 +47,17 @@ export default function Live() {
 	return (
 		<div className="full-width-container">
 			<div className="sidebar">
-
-                <div className='flex flex-col gap-4'> 
-                    <SidebarHeader />
-                    <DroneLabel name='lil-hopper 01' battery={40} />
-                    <StatusContainer status={fake_status_systems} />
+                <div className='flex flex-col justify-between h-full'>
+                    <div className='flex flex-col gap-4'> 
+                        <SidebarHeader />
+                        <DroneLabel name='lil-hopper 01' battery={40} />
+                        <ArmButtons />
+                        <StatusContainer status={fake_status_systems} />
+                    </div>
+                    <div>
                     <LogBox />
+
+                    </div>
                 </div>
 
 			</div>
