@@ -26,6 +26,10 @@ impl QuadPoseNED {
     pub fn new_position_and_velocity(position: Vector3, velocity: Vector3) -> Self {
         Self { position, velocity }
     }
+
+    pub fn distance(&self, other: &Self) -> f64 {
+        self.position.distance(&other.position)
+    }
 }
 
 impl Default for QuadPoseNED {

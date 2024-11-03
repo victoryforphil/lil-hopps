@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use lil_link::common::{
     identifiers::{IDENT_BASE_STATUS, IDENT_STATUS_EKF, IDENT_STATUS_HEALTH},
     types::{
-        health_status::QuadHealthStatus, mode::QuadMode, request_arm::QuadSetModeRequest, request_land::QuadLandRequest, request_takeoff::QuadTakeoffRequest
+        health_status::QuadHealthStatus, mode::QuadMode, pose_ned::QuadPoseNED, request_arm::QuadSetModeRequest, request_land::QuadLandRequest, request_takeoff::QuadTakeoffRequest
     },
 };
 use log::{info, warn};
@@ -48,6 +48,9 @@ impl MissionRunner {
             }
             Tasks::Land => {
                 self.send_land(out);
+            }
+            Tasks::Waypoint(waypoint) => {
+                self.set_waypoint(waypoint, out);
             }
             _ => {
                 warn!("Unknown task type: {:?}", task);
@@ -97,6 +100,13 @@ impl MissionRunner {
         };
         out.add_latest(&TopicKey::from_str("cmd/mode"), mode_msg)
             .expect("Failed to add mode message");
+    }
+
+    fn set_waypoint(&mut self, waypoint: QuadPoseNED, out: &mut DataView) {
+        info!("Mission / Setting waypoint to {:?}", waypoint);
+        out.add_latest(&TopicKey::from_str("cmd/waypoint"), waypoint)
+            .expect("Failed to add waypoint message");
+    
     }
 }
 

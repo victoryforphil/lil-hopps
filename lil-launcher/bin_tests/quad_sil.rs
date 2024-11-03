@@ -5,6 +5,7 @@ use lil_link::common::identifiers::IDENT_BASE_STATUS;
 use lil_link::common::identifiers::IDENT_STATUS_HEALTH;
 use lil_link::common::types::mode::QuadMode;
 
+use lil_link::common::types::pose_ned::QuadPoseNED;
 use lil_link::mavlink::system::QuadlinkSystem;
 use lil_quad::systems::health_check::HealthCheck;
 use lil_quad::systems::health_check::HealthCheckConfig;
@@ -108,10 +109,20 @@ fn main() {
         Tasks::Takeoff(11.0),
     );
 
+    let waypoint_task = TimedTask::new(
+        "waypoint".to_string(),
+        Timespan::new_secs(10.0),
+        Tasks::Waypoint(QuadPoseNED::new_xyz(0.0, 5.0, -10.0)),
+    );
+    let waypoint_2_task = TimedTask::new(
+        "waypoint_2".to_string(),
+        Timespan::new_secs(10.0),
+        Tasks::Waypoint(QuadPoseNED::new_xyz(0.0, 0.0, -10.0)),
+    );
 
     let land_task = TimedTask::new(
         "land".to_string(),
-        Timespan::new_secs(10.0),
+        Timespan::new_secs(5.0),
         Tasks::Land,
     );
 
@@ -119,6 +130,8 @@ fn main() {
         TaskType::Condition(arm_task),
         TaskType::Timed(mode_task),
         TaskType::Timed(takeoff_task),
+        TaskType::Timed(waypoint_task),
+        TaskType::Timed(waypoint_2_task),
         TaskType::Timed(land_task),
     ];
 
