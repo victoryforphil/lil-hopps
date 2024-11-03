@@ -51,9 +51,7 @@ const fake_status_systems = [
 
 export default function Live() {
 	const { isConnected, reconnect } = useWebSocket('ws://localhost:3030');
-
-	// const log_message = useLogStore((state) => state.log_messages);
-
+    
 	const setConnected = useConnectionStore((state) => state.setConnected);
 	const connected = useConnectionStore((state) => state.connected);
 

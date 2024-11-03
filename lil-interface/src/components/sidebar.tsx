@@ -11,6 +11,9 @@ import clsx from 'clsx';
 import useControlStore from '@/state/control';
 import { notifications } from '@mantine/notifications';
 import { useConnectionStore } from '@/state/connection';
+import { useLogStore } from '@/state/logstore';
+import { useEffect, useState } from 'react';
+import useVictoryValue from '@/hooks/useVictoryValue';
 
 export function SidebarHeader(props: { reconnect_cb: () => void }) {
 	const connected = useConnectionStore((state) => state.connected);
@@ -97,31 +100,79 @@ export function DroneLabel(props: { name: string; battery: number }) {
 export function StatusContainer(props: {
 	status: { name: string; status: string }[];
 }) {
-	const getStatusLabels = () => {
-		return props.status.map((s, i) => {
-			return <StatusLabel name={s.name} status={s.status} key={i} />;
-		});
-	};
+
+    // subscribe to `status/sensors/gps`
+    const [gps_status] = useVictoryValue('status/sensors/gps');
+    const [satcom] = useVictoryValue('status/sensors/satcom');
+    const [terrain] = useVictoryValue('status/sensors/terrain');
+    const [vision_position] = useVictoryValue('status/sensors/vision_position');
+    const [xy_position_control] = useVictoryValue('status/sensors/xy_position_control');
+    const [yaw_position] = useVictoryValue('status/sensors/yaw_position');
+    const [guided_enabled] = useVictoryValue('status/mode/guided_enabled');
+    const [hil_enabled] = useVictoryValue('status/mode/hil_enabled');
+    const [manual_input_enabled] = useVictoryValue('status/mode/manual_input_enabled');
+    const [safety_armed] = useVictoryValue('status/mode/safety_armed');
+    const [stabilize_enabled] = useVictoryValue('status/mode/stabilize_enabled');
+    const [test_enabled] = useVictoryValue('status/mode/test_enabled');
+
+    // Needs a special case.
+    // status/system/system, Text("MAV_STATE_ACTIVE")
+
+	// const getStatusLabels = () => {
+	// 	return props.status.map((s, i) => {
+	// 		return <StatusLabel name={s.name} status={s.status} key={i} />;
+	// 	});
+	// };
 
 	return (
 		<div className="info-container flex flex-col rounded-lg">
 			<div className="w-fit text-sm font-light opacity-70">
 				Systems Status
 			</div>
-			<div className="flex flex-col mt-2">{getStatusLabels()}</div>
+            <div className='flex w-full flex-wrap justify-center'>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"GPS"} status={gps_status as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Sat Com"} status={satcom as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Terrain"} status={terrain as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Vision Pos"} status={vision_position as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"XY Control"} status={xy_position_control as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Yaw Control"} status={yaw_position as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Guided"} status={guided_enabled as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"HIL"} status={hil_enabled as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Manual Input"} status={manual_input_enabled as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Safety Armed"} status={safety_armed as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Stabilize"} status={stabilize_enabled as boolean} />}</div>
+                <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Test Mode"} status={test_enabled as boolean} />}</div>
+            </div>
 		</div>
 	);
 }
 
-function StatusLabel(props: { name: string; status: string }) {
+// function StatusLabel(props: { name: string; status: string }) {
+// 	const getStatus = () => {
+// 		if (props.status.toLowerCase() == 'healthy') {
+// 			return <div className="text-green-400">Healthy</div>;
+// 		} else if (props.status.toLowerCase() == 'offline') {
+// 			return <div className="text-red-400">Offline</div>;
+// 		} else {
+// 			return <div>{props.status}</div>;
+// 		}
+// 	};
+
+// 	return (
+// 		<div className="flex w-fit p-1">
+// 			<div>{props.name}:</div>
+// 			<div className="font-bold ml-2">{getStatus()}</div>
+// 		</div>
+// 	);
+// }
+
+function BoolStatusLabel(props: { name: string; status: boolean }) {
 	const getStatus = () => {
-		if (props.status.toLowerCase() == 'healthy') {
-			return <div className="text-green-400">Healthy</div>;
-		} else if (props.status.toLowerCase() == 'offline') {
-			return <div className="text-red-400">Offline</div>;
+		if (props.status) {
+			return <div className="text-green-400">Yes</div>;
 		} else {
-			return <div>{props.status}</div>;
-		}
+			return <div className="text-red-400">No</div>;
+		} 
 	};
 
 	return (
@@ -132,24 +183,15 @@ function StatusLabel(props: { name: string; status: string }) {
 	);
 }
 
-const fake_logs: string[] = [
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:01 Initial Log Message',
-	'12:03 IMU Boot up',
-	'12:04 IMU Borked',
-];
-
 export function LogBox() {
-	// TODO: ue the logs state variable to display all of them
+
+    const [reversedList, setReversedList] = useState<string[]>([])
+    const log_message = useLogStore((state) => state.log_messages);
+
+    useEffect(() => {
+      setReversedList(log_message.reverse())
+    }, [log_message])
+    
 
 	return (
 		<div className="info-container flex flex-col rounded-lg">
@@ -158,7 +200,7 @@ export function LogBox() {
 			</div>
 			<ScrollArea h={200}>
 				<div className="flex flex-col mt-2 font-mono font-bold text-slate-300">
-					{fake_logs.reverse().map((l, i) => {
+					{reversedList.map((l, i) => {
 						if (i == 0) {
 							return (
 								<div className="flex" key={i}>
