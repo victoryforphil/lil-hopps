@@ -108,10 +108,18 @@ fn main() {
         Tasks::Takeoff(11.0),
     );
 
+
+    let land_task = TimedTask::new(
+        "land".to_string(),
+        Timespan::new_secs(10.0),
+        Tasks::Land,
+    );
+
     let mission = vec![
         TaskType::Condition(arm_task),
         TaskType::Timed(mode_task),
         TaskType::Timed(takeoff_task),
+        TaskType::Timed(land_task),
     ];
 
     runner.add_system(Arc::new(Mutex::new(MissionRunner::new(mission))));
