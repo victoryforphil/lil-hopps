@@ -6,6 +6,8 @@ export const useWebSocket = (url: string) => {
 	const [isConnected, setIsConnected] = useState(false);
 	const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
+	const [reconnect, setReconnect] = useState<() => void>(() => {});
+
 	useEffect(() => {
 		let ws: WebSocket | null = null;
 		// let reconnectTimeout: any;
@@ -53,6 +55,7 @@ export const useWebSocket = (url: string) => {
 		// };
 
 		connectWebSocket();
+		setReconnect(connectWebSocket);
 
 		return () => {
 			if (ws) ws.close();
@@ -60,5 +63,5 @@ export const useWebSocket = (url: string) => {
 		};
 	}, [url, reconnectAttempts]);
 
-	return { socket, isConnected };
+	return { socket, isConnected, reconnect };
 };

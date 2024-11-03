@@ -4,13 +4,17 @@ import {
 	IconDots,
 	IconLambda,
 	IconPlugConnected,
+    IconTriangle,
 } from '@tabler/icons-react';
 import { BatteryLabel } from './battery';
 import clsx from 'clsx';
 import useControlStore from '@/state/control';
 import { notifications } from '@mantine/notifications';
+import { useConnectionStore } from '@/state/connection';
 
-export function SidebarHeader() {
+export function SidebarHeader(props: { reconnect_cb: () => void }) {
+	const connected = useConnectionStore((state) => state.connected);
+
 	return (
 		<div className="flex flex-1 justify-between items-center">
 			<div className="flex items-center">
@@ -31,13 +35,28 @@ export function SidebarHeader() {
 						v.0.0.1
 					</div>
 				</div>
-				<Badge color="green" size="xs" className="ml-4">
-					Live
+				<Badge
+					color={connected ? 'green' : 'red'}
+					size="xs"
+					className="ml-4"
+				>
+					{connected ? 'Live' : 'Disconnected'}
 				</Badge>
 			</div>
 
 			<div className="flex gap-2">
-				<ActionIcon variant="filled" aria-label="Options" color="red">
+				<ActionIcon
+					variant="filled"
+					aria-label="Options"
+					color={connected ? 'red' : 'green'}
+					onClick={() => {
+						if (connected) {
+							// TODO: Disconnect? Why
+						} else {
+							props.reconnect_cb();
+						}
+					}}
+				>
 					<IconPlugConnected
 						style={{ width: '70%', height: '70%' }}
 						stroke={1.5}
@@ -193,8 +212,7 @@ export function ArmButtons() {
 							color: 'red',
 						});
 					} else {
-                        if (flying)
-						    toggleFlying();
+						if (flying) toggleFlying();
 					}
 				}}
 			>
@@ -218,6 +236,24 @@ export function ArmButtons() {
 				}}
 			>
 				{flying ? 'Land' : 'Take Off'}
+			</Button>
+		</div>
+	);
+}
+
+export function NoDrone(props: { reconnect_cb: () => void }) {
+	return (
+		<div className="flex min-h-[50svh] items-center justify-center flex-col gap-5">
+            <IconTriangle color='red' />
+			<div className='font-bold'>No Ground Station is connected</div>
+			<Button
+				onClick={() => {
+					props.reconnect_cb();
+				}}
+				variant="default"
+			>
+                <IconPlugConnected size={20} className='mr-2'/>
+				Reconnect
 			</Button>
 		</div>
 	);
