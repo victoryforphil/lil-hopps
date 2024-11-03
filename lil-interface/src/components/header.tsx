@@ -1,4 +1,3 @@
-import React from 'react';
 import orbLogo from '@/assets/OrbLogo.svg';
 
 export default function Header() {
