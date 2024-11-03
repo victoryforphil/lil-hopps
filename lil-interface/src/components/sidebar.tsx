@@ -142,7 +142,7 @@ export function LogBox() {
 					{fake_logs.reverse().map((l, i) => {
 						if (i == 0) {
 							return (
-								<div className="flex">
+								<div className="flex" key={i}>
 									<IconLambda width={'1rem'} />
 									<div
 										key={i}
@@ -186,15 +186,16 @@ export function ArmButtons() {
 				onClick={() => {
 					toggleArm();
 
-                    if (!armed) {
-                        notifications.show({
-                            title: "Control System",
-                            message: "Arming Drone",
-                            color: "red"
-                        })
-                    } else {
-                        toggleFlying();
-                    }
+					if (!armed) {
+						notifications.show({
+							title: 'Control System',
+							message: 'Arming Drone',
+							color: 'red',
+						});
+					} else {
+                        if (flying)
+						    toggleFlying();
+					}
 				}}
 			>
 				{armed ? 'Disarm' : 'Arm'}
@@ -208,12 +209,12 @@ export function ArmButtons() {
 				onClick={() => {
 					toggleFlying();
 
-                    if (!flying) {
-                        notifications.show({
-                            title: "Control System",
-                            message: "Taking off"
-                        })
-                    }
+					if (!flying) {
+						notifications.show({
+							title: 'Control System',
+							message: 'Taking off',
+						});
+					}
 				}}
 			>
 				{flying ? 'Land' : 'Take Off'}

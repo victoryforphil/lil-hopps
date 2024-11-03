@@ -1,5 +1,11 @@
 import MapContainer from '@/components/map';
-import { DroneLabel, StatusContainer, SidebarHeader, LogBox, ArmButtons } from '@/components/sidebar';
+import {
+	DroneLabel,
+	StatusContainer,
+	SidebarHeader,
+	LogBox,
+	ArmButtons,
+} from '@/components/sidebar';
 import { useWebSocket } from '@/hooks/useWebsocket';
 import { useLogStore } from '@/state/logstore';
 
@@ -20,23 +26,23 @@ import { useLogStore } from '@/state/logstore';
 // Need a section that will tell me if WS is connected. And need a way to reconnect.
 
 const fake_status_systems = [
-    {
-        name: "GPS",
-        status: "Healthy"
-    },
-    {
-        name: "Sensor1",
-        status: "Offline"
-    },
-    {
-        name: "Sensor2",
-        status: "Healthy"
-    },
-    {
-        name: "GPS State",
-        status: "4"
-    }
-]
+	{
+		name: 'GPS',
+		status: 'Healthy',
+	},
+	{
+		name: 'Sensor1',
+		status: 'Offline',
+	},
+	{
+		name: 'Sensor2',
+		status: 'Healthy',
+	},
+	{
+		name: 'GPS State',
+		status: '4',
+	},
+];
 
 // TODO: Seperate out top and bottom sidebar. So we can have arming always be on the bottom.
 
@@ -47,24 +53,22 @@ export default function Live() {
 	return (
 		<div className="full-width-container">
 			<div className="sidebar">
-                <div className='flex flex-col justify-between h-full'>
-                    <div className='flex flex-col gap-4'> 
-                        <SidebarHeader />
-                        <DroneLabel name='lil-hopper 01' battery={40} />
-                        <ArmButtons />
-                        <StatusContainer status={fake_status_systems} />
-                    </div>
-                    <div>
-                    <LogBox />
-
-                    </div>
-                </div>
-
+				<div className="flex flex-col justify-between h-full">
+					<div className="flex flex-col gap-4">
+						<SidebarHeader />
+						<DroneLabel name="lil-hopper 01" battery={40} />
+						<ArmButtons />
+						<StatusContainer status={fake_status_systems} />
+					</div>
+					<div>
+						<LogBox />
+					</div>
+				</div>
 			</div>
-            
+
 			<div className="map-container">
-                <MapContainer/>
-            </div>
+				<MapContainer />
+			</div>
 		</div>
 	);
 }
