@@ -131,7 +131,7 @@ async fn main() {
             };
 
             if let Ok(data_out) = to_vec_named(&message) {
-                tcp_tx_clone.send(data_out).unwrap(); // Ignore if no clients are connected
+                let _ = tcp_tx_clone.send(data_out); // Ignore if no clients are connected
             } else {
                 warn!("Failed to MsgPack the DataStore Map")
             }

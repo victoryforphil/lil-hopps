@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, ScrollArea } from '@mantine/core';
+import { ActionIcon, Badge, Button, ScrollArea, Select } from '@mantine/core';
 import { IconArrowLeft, IconDots, IconLambda, IconPlugConnected, IconTriangle } from '@tabler/icons-react';
 import { BatteryLabel } from './battery';
 import clsx from 'clsx';
@@ -55,20 +55,18 @@ export function SidebarHeader() {
 
 // TODO: arm buttons here. For the cool looks.
 export function DroneLabel(props: { name: string; battery: number }) {
-
-	// status/battery
 	const [battery_remaining] = useVictoryValue('status/battery');
 	// const [voltage] = useVictoryValue('status/voltage');
 	// const [current] = useVictoryValue('status/current');
 
-	//status/voltage
-
-	//status/current
-
 	return (
 		<div className="flex flex-col rounded-lg info-container">
-			<div className="flex flex-1 justify-between">
+			<div className="flex flex-1 justify-between items-center">
 				<div className="flex items-center font-semibold">{props.name}</div>
+				<Select
+					placeholder="Mode"
+					data={['Stabalize', 'Mission', 'Co-Proccessor', 'Return', 'Break']}
+					/>
 				<div>
 					<BatteryLabel charge={battery_remaining as number ?? 0} />
 				</div>
