@@ -35,9 +35,9 @@ fn main() {
         let msgs = quadlink.recv();
         match msgs {
             Ok(msgs) => {
-                info!("Received {} messages", msgs.len());
+              
                 for msg in msgs {
-                    //  info!("Message: {:#?}", msg);
+                     info!("Message: {:#?}", msg);
                 }
             }
             Err(e) => {
