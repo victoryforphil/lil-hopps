@@ -25,8 +25,17 @@ mod webserver;
 
 pub struct TCPNodeSubscriber {
     map: BTreeMap<String, String>,
+    // update: Vec<(String, String )>
 }
 
+impl SubCallback for TCPNodeSubscriber {
+    fn on_update(&mut self, datapoints: &victory_data_store::datapoints::DatapointMap) {
+        for (topic, datapoint) in datapoints.iter() {
+            self.map
+                .insert(topic.display_name(), format!("{:?}", datapoint.value));
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct DataLine {
@@ -40,14 +49,6 @@ struct WebMessage {
     data: Vec<DataLine>,
 }
 
-impl SubCallback for TCPNodeSubscriber {
-    fn on_update(&mut self, datapoints: &victory_data_store::datapoints::DatapointMap) {
-        for (topic, datapoint) in datapoints.iter() {
-            self.map
-                .insert(topic.display_name(), format!("{:?}", datapoint.value));
-        }
-    }
-}
 
 fn get_current_timestamp() -> f64 {
     SystemTime::now()
@@ -101,7 +102,6 @@ async fn main() {
     let tcp_tx_clone = tcp_tx.clone();
 
     tokio::spawn(async move {
-
         tokio::spawn(async move {
             loop {
                 thread::sleep(Duration::from_millis(100));

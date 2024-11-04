@@ -58,18 +58,19 @@ export function DroneLabel(props: { name: string; battery: number }) {
 
 	// status/battery
 	const [battery_remaining] = useVictoryValue('status/battery');
+	// const [voltage] = useVictoryValue('status/voltage');
+	// const [current] = useVictoryValue('status/current');
 
+	//status/voltage
 
-	useEffect(() => {
-	  console.log(battery_remaining)
-	}, [battery_remaining])
+	//status/current
 
 	return (
 		<div className="flex flex-col rounded-lg info-container">
 			<div className="flex flex-1 justify-between">
 				<div className="flex items-center font-semibold">{props.name}</div>
 				<div>
-					<BatteryLabel charge={props.battery} />
+					<BatteryLabel charge={battery_remaining as number ?? 0} />
 				</div>
 			</div>
 		</div>

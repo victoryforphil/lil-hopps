@@ -11,7 +11,7 @@ pub async fn websocket_server_task(
     tcp_tx: broadcast::Sender<Vec<u8>>,
     ws_tx: mpsc::Sender<String>,
 ) {
-    let listener = TcpListener::bind("127.0.0.1:3030").await.unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3030").await.unwrap();
     println!("WebSocket server listening on ws://localhost:3030");
 
     let clients = Arc::new(Mutex::new(Vec::new()));

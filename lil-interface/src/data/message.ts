@@ -15,6 +15,7 @@ interface WebMessage {
 
 enum DataType {
 	Float = 'Float',
+	Integer = 'Integer',
 	Text = 'Text',
 	Boolean = 'Boolean',
 	StructType = 'StructType',
@@ -51,6 +52,9 @@ function parseDataFields(web_message: WebMessage, topic_store: TopicStore) {
 			switch (valueType) {
 				case DataType.Float:
 					value = parseFloat(valueStr);
+					break;
+				case DataType.Integer:
+					value = +valueStr;
 					break;
 				case DataType.Text:
 					value = valueStr;
