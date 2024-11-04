@@ -9,6 +9,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
 use tracing::info;
+use tracing::warn;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
@@ -129,11 +130,11 @@ async fn main() {
                 data,
             };
 
-            // HONESTLY - FUCK WHOEVER MADE to_vec and to_vec_nammed entirely fucking different.
-            let out = to_vec_named(&message).expect("Failed to serialize data");
-
-            info!("Sending data to webserver {}", map.map.len());
-            let _ = tcp_tx_clone.send(out);
+            if let Ok(data_out) = to_vec_named(&message) {
+                tcp_tx_clone.send(data_out).unwrap(); // Ignore if no clients are connected
+            } else {
+                warn!("Failed to MsgPack the DataStore Map")
+            }
         }
     });
 
