@@ -55,6 +55,15 @@ export function SidebarHeader() {
 
 // TODO: arm buttons here. For the cool looks.
 export function DroneLabel(props: { name: string; battery: number }) {
+
+	// status/battery
+	const [battery_remaining] = useVictoryValue('status/battery');
+
+
+	useEffect(() => {
+	  console.log(battery_remaining)
+	}, [battery_remaining])
+
 	return (
 		<div className="flex flex-col rounded-lg info-container">
 			<div className="flex flex-1 justify-between">
