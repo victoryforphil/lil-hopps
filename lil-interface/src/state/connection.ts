@@ -8,7 +8,7 @@ interface ConnectionStore {
 }
 
 export const useConnectionStore = create<ConnectionStore>((set) => ({
-    connected: true, // TODO: Set to false for prod
+    connected: true,
     connecting: false,
     setConnected: (connected: boolean) => set({ connected: connected, connecting: false }),
     setConnecting: (connecting: boolean) => set({ connecting: connecting }),
