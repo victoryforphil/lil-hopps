@@ -14,9 +14,11 @@ import { useConnectionStore } from '@/state/connection';
 import { useLogStore } from '@/state/logstore';
 import { useEffect, useState } from 'react';
 import useVictoryValue from '@/hooks/useVictoryValue';
+import { useGCSConnection } from '@/data/ws.singleton';
 
-export function SidebarHeader(props: { reconnect_cb: () => void }) {
+export function SidebarHeader() {
 	const connected = useConnectionStore((state) => state.connected);
+	const connecting = useConnectionStore((state) => state.connecting);
 
 	return (
 		<div className="flex flex-1 justify-between items-center">
@@ -52,11 +54,12 @@ export function SidebarHeader(props: { reconnect_cb: () => void }) {
 					variant="filled"
 					aria-label="Options"
 					color={connected ? 'red' : 'green'}
+                    loading={connecting}
 					onClick={() => {
 						if (connected) {
 							// TODO: Disconnect? Why
 						} else {
-							props.reconnect_cb();
+                            useGCSConnection().restart();
 						}
 					}}
 				>
@@ -97,9 +100,7 @@ export function DroneLabel(props: { name: string; battery: number }) {
 
 // TODO: It would be dope if we could specifically sorround sensor values in a data container with a name ...
 
-export function StatusContainer(props: {
-	status: { name: string; status: string }[];
-}) {
+export function StatusContainer() {
 
     // subscribe to `status/sensors/gps`
     const [gps_status] = useVictoryValue('status/sensors/gps');
@@ -114,6 +115,7 @@ export function StatusContainer(props: {
     const [safety_armed] = useVictoryValue('status/mode/safety_armed');
     const [stabilize_enabled] = useVictoryValue('status/mode/stabilize_enabled');
     const [test_enabled] = useVictoryValue('status/mode/test_enabled');
+    const [mav_state] = useVictoryValue('status/system/system');
 
     // Needs a special case.
     // status/system/system, Text("MAV_STATE_ACTIVE")
@@ -130,6 +132,7 @@ export function StatusContainer(props: {
 				Systems Status
 			</div>
             <div className='flex w-full flex-wrap justify-center'>
+                {/* <div className="flex flex-col w-[40%]">{<StatusLabel name={"MAV Status"} status={mav_state as string} />}</div> */}
                 <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"GPS"} status={gps_status as boolean} />}</div>
                 <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Sat Com"} status={satcom as boolean} />}</div>
                 <div className="flex flex-col w-[40%]">{<BoolStatusLabel name={"Terrain"} status={terrain as boolean} />}</div>
@@ -147,24 +150,19 @@ export function StatusContainer(props: {
 	);
 }
 
-// function StatusLabel(props: { name: string; status: string }) {
-// 	const getStatus = () => {
-// 		if (props.status.toLowerCase() == 'healthy') {
-// 			return <div className="text-green-400">Healthy</div>;
-// 		} else if (props.status.toLowerCase() == 'offline') {
-// 			return <div className="text-red-400">Offline</div>;
-// 		} else {
-// 			return <div>{props.status}</div>;
-// 		}
-// 	};
+function StatusLabel(props: { name: string; status: string }) {
+    // TODO: change this
+	const getStatus = () => {
+        return <div>{props.status}</div>;
+	};
 
-// 	return (
-// 		<div className="flex w-fit p-1">
-// 			<div>{props.name}:</div>
-// 			<div className="font-bold ml-2">{getStatus()}</div>
-// 		</div>
-// 	);
-// }
+	return (
+		<div className="flex w-fit p-1">
+			<div>{props.name}:</div>
+			<div className="font-bold ml-2">{getStatus()}</div>
+		</div>
+	);
+}
 
 function BoolStatusLabel(props: { name: string; status: boolean }) {
 	const getStatus = () => {
@@ -234,7 +232,6 @@ export function LogBox() {
 }
 
 export function ArmButtons() {
-	// States for arming and take off ideally.
 	const { armed, toggleArm, flying, toggleFlying } = useControlStore();
 
 	return (
@@ -253,7 +250,9 @@ export function ArmButtons() {
 							message: 'Arming Drone',
 							color: 'red',
 						});
+                        useGCSConnection().sendMessage("ARM");
 					} else {
+                        useGCSConnection().sendMessage("DISARM");
 						if (flying) toggleFlying();
 					}
 				}}
@@ -274,7 +273,11 @@ export function ArmButtons() {
 							title: 'Control System',
 							message: 'Taking off',
 						});
-					}
+
+                        useGCSConnection().sendMessage("TAKEOFF");
+					} else {
+                        useGCSConnection().sendMessage("LAND");
+                    }
 				}}
 			>
 				{flying ? 'Land' : 'Take Off'}
@@ -283,16 +286,19 @@ export function ArmButtons() {
 	);
 }
 
-export function NoDrone(props: { reconnect_cb: () => void }) {
+export function NoDrone() {
+	const connecting = useConnectionStore((state) => state.connecting);
+
 	return (
 		<div className="flex min-h-[50svh] items-center justify-center flex-col gap-5">
             <IconTriangle color='red' />
 			<div className='font-bold'>No Ground Station is connected</div>
 			<Button
 				onClick={() => {
-					props.reconnect_cb();
+                    useGCSConnection().restart();
 				}}
 				variant="default"
+                loading={connecting}
 			>
                 <IconPlugConnected size={20} className='mr-2'/>
 				Reconnect

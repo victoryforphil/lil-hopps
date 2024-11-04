@@ -5,12 +5,9 @@ import {
 	SidebarHeader,
 	LogBox,
 	ArmButtons,
-    NoDrone,
+	NoDrone,
 } from '@/components/sidebar';
-import { useWebSocket } from '@/hooks/useWebsocket';
 import { useConnectionStore } from '@/state/connection';
-import { useLogStore } from '@/state/logstore';
-import { useEffect } from 'react';
 
 /**
  * 
@@ -26,60 +23,24 @@ import { useEffect } from 'react';
 				</div>
  */
 
-// Need a section that will tell me if WS is connected. And need a way to reconnect.
-
-const fake_status_systems = [
-	{
-		name: 'GPS',
-		status: 'Healthy',
-	},
-	{
-		name: 'Sensor1',
-		status: 'Offline',
-	},
-	{
-		name: 'Sensor2',
-		status: 'Healthy',
-	},
-	{
-		name: 'GPS State',
-		status: '4',
-	},
-];
-
-// TODO: Seperate out top and bottom sidebar. So we can have arming always be on the bottom.
-
 export default function Live() {
-	const { isConnected, reconnect } = useWebSocket('ws://localhost:3030');
-    
-	const setConnected = useConnectionStore((state) => state.setConnected);
 	const connected = useConnectionStore((state) => state.connected);
 
-	// useEffect(() => {
-	// 	// Tell everyone else while we are at it.
-	// 	// setConnected(isConnected);
-	// }, [isConnected]);
-
-
-    if (connected) {
-        return (
-            <DroneConnectedView />
-        )
-    } else {
-        return (
-            <NoDroneView reconnect_cb={reconnect} />
-        )
-    } 
+	if (connected) {
+		return <DroneConnectedView />;
+	} else {
+		return <NoDroneView />;
+	}
 }
 
-function NoDroneView(props: { reconnect_cb: () => void }) {
+function NoDroneView() {
 	return (
 		<div className="full-width-container">
 			<div className="sidebar">
 				<div className="flex flex-col justify-between h-full">
 					<div className="flex flex-col gap-4">
-						<SidebarHeader reconnect_cb={props.reconnect_cb} />
-                        <NoDrone reconnect_cb={props.reconnect_cb} />
+						<SidebarHeader />
+						<NoDrone />
 					</div>
 				</div>
 			</div>
@@ -97,10 +58,10 @@ function DroneConnectedView() {
 			<div className="sidebar">
 				<div className="flex flex-col justify-between h-full">
 					<div className="flex flex-col gap-4">
-						<SidebarHeader reconnect_cb={() => {}} />
+						<SidebarHeader />
 						<DroneLabel name="lil-hopper 01" battery={40} />
 						<ArmButtons />
-						<StatusContainer status={fake_status_systems} />
+						<StatusContainer />
 					</div>
 					<div>
 						<LogBox />
