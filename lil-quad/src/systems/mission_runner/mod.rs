@@ -3,8 +3,7 @@ use std::collections::BTreeSet;
 use lil_link::common::{
     identifiers::{IDENT_BASE_STATUS, IDENT_STATUS_EKF, IDENT_STATUS_HEALTH},
     types::{
-        health_status::QuadHealthStatus, mode::QuadMode, request_arm::QuadSetModeRequest,
-        request_takeoff::QuadTakeoffRequest,
+        health_status::QuadHealthStatus, mode::QuadMode, pose_ned::QuadPoseNED, request_arm::QuadSetModeRequest, request_land::QuadLandRequest, request_takeoff::QuadTakeoffRequest
     },
 };
 use log::{info, warn};
@@ -47,6 +46,12 @@ impl MissionRunner {
             Tasks::SetMode(mode) => {
                 self.send_set_mode(mode, out);
             }
+            Tasks::Land => {
+                self.send_land(out);
+            }
+            Tasks::Waypoint(waypoint) => {
+                self.set_waypoint(waypoint, out);
+            }
             _ => {
                 warn!("Unknown task type: {:?}", task);
             }
@@ -56,6 +61,16 @@ impl MissionRunner {
         out.add_latest(&TopicKey::from_str("status/mission/current/name"), name)
             .expect("Failed to add current task");
     }
+
+    fn send_land(&mut self, out: &mut DataView) {
+        info!("Sending land command");
+        let land_msg = QuadLandRequest {
+            ack: false,
+        };
+        out.add_latest(&TopicKey::from_str("cmd/land"), land_msg)
+            .expect("Failed to add land message");
+    }
+
     fn send_takeoff(&mut self, altitude: f32, out: &mut DataView) {
         info!("Sending takeoff command with altitude {}", altitude);
         let takeoff_msg = QuadTakeoffRequest {
@@ -85,6 +100,13 @@ impl MissionRunner {
         };
         out.add_latest(&TopicKey::from_str("cmd/mode"), mode_msg)
             .expect("Failed to add mode message");
+    }
+
+    fn set_waypoint(&mut self, waypoint: QuadPoseNED, out: &mut DataView) {
+        info!("Mission / Setting waypoint to {:?}", waypoint);
+        out.add_latest(&TopicKey::from_str("cmd/waypoint"), waypoint)
+            .expect("Failed to add waypoint message");
+    
     }
 }
 

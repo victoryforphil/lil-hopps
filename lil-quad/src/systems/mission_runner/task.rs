@@ -1,4 +1,4 @@
-use lil_link::common::types::mode::QuadMode;
+use lil_link::common::types::{mode::QuadMode, pose_ned::QuadPoseNED};
 use victory_data_store::{primitives::Primitives, topics::TopicKey};
 #[derive(Clone, Debug)]
 
@@ -12,6 +12,7 @@ pub enum Tasks {
     SetMode(QuadMode),
     Takeoff(f32),
     Land,
+    Waypoint(QuadPoseNED),
 }
 #[derive(Clone, Debug)]
 pub struct TimedTask {

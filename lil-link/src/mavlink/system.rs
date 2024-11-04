@@ -3,20 +3,21 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use log::info;
+use log::{debug, info};
 use victory_commander::system::System;
 use victory_data_store::{database::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
 
 use crate::common::types::{
-    request_arm::QuadSetModeRequest, request_mode_set::QuadArmRequest,
-    request_takeoff::QuadTakeoffRequest,
+    pose_ned::QuadPoseNED, request_arm::QuadSetModeRequest, request_land::QuadLandRequest,
+    request_mode_set::QuadArmRequest, request_takeoff::QuadTakeoffRequest,
 };
 
 use super::{
     builders::{
-        cmd_arm::mavlink_build_arm_message, cmd_mode::mavlink_build_mode_message,
-        cmd_takeoff::mavlink_build_cmd_takeoff_message,
+        cmd_arm::mavlink_build_arm_message, cmd_land::mavlink_build_cmd_land_message,
+        cmd_mode::mavlink_build_mode_message, cmd_takeoff::mavlink_build_cmd_takeoff_message,
+        cmd_waypoint::mavlink_build_cmd_waypoint_message,
     },
     core::{QuadLinkCore, QuadlinkCoreHandle},
     processors::{MavlinkGenericProcessor, MavlinkMessageProcessor},
@@ -24,17 +25,23 @@ use super::{
 
 pub struct QuadlinkSystem {
     mavlink: QuadlinkCoreHandle,
+
+    last_requested_waypoint: Option<QuadPoseNED>,
 }
 
 impl QuadlinkSystem {
     pub fn new(mavlink: QuadlinkCoreHandle) -> Self {
-        Self { mavlink }
+        Self {
+            mavlink,
+            last_requested_waypoint: None,
+        }
     }
 
     pub fn new_from_connection_string(connection_string: &str) -> Result<Self, anyhow::Error> {
         let mavlink = QuadLinkCore::new(connection_string)?;
         Ok(Self {
             mavlink: Arc::new(Mutex::new(mavlink)),
+            last_requested_waypoint: None,
         })
     }
 }
@@ -47,14 +54,13 @@ impl System for QuadlinkSystem {
 
     fn get_subscribed_topics(&self) -> std::collections::BTreeSet<TopicKey> {
         let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::from_str("cmd/arm"));
-        topics.insert(TopicKey::from_str("cmd/mode"));
-        topics.insert(TopicKey::from_str("cmd/takeoff"));
+        topics.insert(TopicKey::from_str("cmd"));
         topics
     }
 
     fn execute(&mut self, inputs: &DataView, _: Timespan) -> DataView {
         let mut output = DataView::new();
+
         #[allow(unused_variables)]
         let mut msgs = vec![];
         {
@@ -126,6 +132,59 @@ impl System for QuadlinkSystem {
                 .add_latest(&new_ack.get_topic_key(), new_ack)
                 .expect("Failed to add latest takeoff ack");
         }
+
+        let land_req: Result<QuadLandRequest, _> =
+            inputs.get_latest(&TopicKey::from_str("cmd/land"));
+        if let Ok(land_req) = land_req {
+            match mavlink_build_cmd_land_message(land_req.clone()) {
+                Some(land_msg) => {
+                    let mavlink = self.mavlink.lock().unwrap();
+                    info!(
+                        "QuadLink received land request from cmd/land: {:?}",
+                        land_req.clone()
+                    );
+                    mavlink.send(&land_msg).unwrap();
+                }
+                None => {}
+            }
+            let mut new_ack = land_req;
+            new_ack.ack();
+            output
+                .add_latest(&new_ack.get_topic_key(), new_ack)
+                .expect("Failed to add latest land ack");
+        }
+
+        let waypoint_req: Result<QuadPoseNED, _> =
+            inputs.get_latest(&TopicKey::from_str("cmd/waypoint"));
+
+        match (waypoint_req, self.last_requested_waypoint.clone()) {
+            // If the waypoint has changed, send the new waypoint
+            (Ok(waypoint_req), Some(last_waypoint)) if waypoint_req.distance(&last_waypoint) > 0.1 => {
+                self.last_requested_waypoint = Some(waypoint_req.clone());
+                info!("Sending UPDATED waypoint: {:?}", waypoint_req);
+                match mavlink_build_cmd_waypoint_message(waypoint_req.clone()) {
+                    Some(waypoint_msg) => {
+                        let mavlink = self.mavlink.lock().unwrap();
+                        mavlink.send(&waypoint_msg).unwrap();
+                    }
+                    None => {}
+                }
+            }
+            // If no previous waypoint, set and send
+            (Ok(waypoint_req), None) => {
+                self.last_requested_waypoint = Some(waypoint_req.clone());
+                info!("Sending NEW waypoint: {:?}", waypoint_req);
+                match mavlink_build_cmd_waypoint_message(waypoint_req.clone()) {
+                    Some(waypoint_msg) => {
+                        let mavlink = self.mavlink.lock().unwrap();
+                        mavlink.send(&waypoint_msg).unwrap();
+                    }
+                    None => {}
+                }
+            }
+            _ => {}
+        }
+
         output
     }
 
