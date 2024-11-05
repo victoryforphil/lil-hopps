@@ -1,3 +1,6 @@
+use lil_link::common::types::request_land::QuadLandRequest;
+use lil_link::common::types::request_mode_set::QuadArmRequest;
+use lil_link::common::types::request_takeoff::QuadTakeoffRequest;
 use rmp_serde::to_vec_named;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -6,6 +9,7 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
+use victory_wtf::Timepoint;
 
 use serde::Serialize;
 use tracing::info;
@@ -20,7 +24,7 @@ use victory_broker::node::Node;
 use victory_data_store::database::Datastore;
 use victory_data_store::topics::TopicKey;
 
-use tokio::sync::{mpsc, broadcast};
+use tokio::sync::{broadcast, mpsc};
 
 mod webserver;
 
@@ -49,7 +53,6 @@ struct WebMessage {
     timestamp: f64,
     data: Vec<DataLine>,
 }
-
 
 fn get_current_timestamp() -> f64 {
     SystemTime::now()
@@ -88,7 +91,11 @@ async fn main() {
 
     let client_handle = Arc::new(Mutex::new(client));
     let datastore = Datastore::new().handle();
-    let mut node = Node::new("TCP Client".to_string(), client_handle.clone(), datastore.clone());
+    let mut node = Node::new(
+        "TCP Client".to_string(),
+        client_handle.clone(),
+        datastore.clone(),
+    );
 
     let subscriber = TCPNodeSubscriber {
         map: BTreeMap::new(),
@@ -108,6 +115,61 @@ async fn main() {
                 thread::sleep(Duration::from_millis(100));
                 if let Some(ws_msg) = ws_rx.recv().await {
                     println!("{:#?}", ws_msg);
+
+                    // Need to parse from json or something a topic and a value. It would be great if I could parse a normal victory value.
+
+                    // I thought this was a scope thing at some point.
+                    let mut datastore = datastore.lock().expect("Failed to lock mutex");
+                    match ws_msg.as_str() {
+                        "ARM" => {
+                            info!("ARM the drone!");
+                            let arm_request = QuadArmRequest::new(true);
+                            datastore
+                                .add_struct(
+                                    &TopicKey::from_str("cmd/arm"),
+                                    Timepoint::now(),
+                                    arm_request,
+                                )
+                                .unwrap();
+                        }
+                        "DISARM" => {
+                            info!("Disarm the drone");
+                            let arm_request = QuadArmRequest::new(false);
+                            datastore
+                                .add_struct(
+                                    &TopicKey::from_str("cmd/arm"),
+                                    Timepoint::now(),
+                                    arm_request,
+                                )
+                                .unwrap();
+                        }
+                        "TAKEOFF" => {
+                            info!("Takeoff requested");
+                            // Hard coded to 10.0 for now.
+                            let arm_request = QuadTakeoffRequest::new(10.0);
+                            datastore
+                                .add_struct(
+                                    &TopicKey::from_str("cmd/takeoff"),
+                                    Timepoint::now(),
+                                    arm_request,
+                                )
+                                .unwrap();
+                        }
+                        "LAND" => {
+                            info!("Land Requested");
+                            let arm_request = QuadLandRequest::new();
+                            datastore
+                                .add_struct(
+                                    &TopicKey::from_str("cmd/land"),
+                                    Timepoint::now(),
+                                    arm_request,
+                                )
+                                .unwrap();
+                        }
+                        _ => {
+                            warn!("Unknown command: {}", ws_msg);
+                        }
+                    }
                 }
             }
         });
@@ -142,5 +204,4 @@ async fn main() {
         thread::sleep(Duration::from_millis(100));
         node.tick();
     }
-
 }

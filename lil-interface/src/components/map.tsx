@@ -100,8 +100,8 @@ function DataPage() {
 						},
 					]}
 					dataKey={{ x: 'x', y: 'y' }}
-					xAxisLabel="Y Position"
-					yAxisLabel="X Position"
+					xAxisLabel="X Position"
+					yAxisLabel="Y Position"
 					yAxisProps={{ domain: [-extents, extents] }}
 					xAxisProps={{ domain: [-extents, extents] }}
 					referenceLines={[

@@ -1,11 +1,11 @@
-use tokio::net::TcpListener;
-use tokio::sync::{broadcast, mpsc};
-use tokio_tungstenite::{accept_async, tungstenite::protocol::Message};
-use futures::{StreamExt, SinkExt};
+use futures::{SinkExt, StreamExt};
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
+use tokio::net::TcpListener;
 use tokio::sync::Mutex;
+use tokio::sync::{broadcast, mpsc};
+use tokio_tungstenite::{accept_async, tungstenite::protocol::Message};
 
 pub async fn websocket_server_task(
     tcp_tx: broadcast::Sender<Vec<u8>>,
