@@ -222,13 +222,13 @@ export function LogBox() {
 		<div className="info-container flex flex-col rounded-lg">
 			<div className="w-fit text-sm font-light opacity-70">Drone Logs</div>
 			<ScrollArea h={200}>
-				<div className="flex flex-col mt-2 font-mono font-bold text-slate-300">
+				<div className="flex flex-col mt-2 font-mono font-bold text-slate-300 text-xs">
 					{reversedList.map((l, i) => {
 						if (i == 0) {
 							return (
-								<div className="flex" key={i}>
-									<IconLambda width={'1rem'} />
-									<div key={i} className={clsx('w-fit ml-2', { 'opacity-70': i != 0 })}>
+								<div className="flex items-center" key={i}>
+									<IconLambda width={'0.9rem'} />
+									<div key={i} className={clsx('w-fit ml-1', { 'opacity-70': i != 0 })}>
 										{l}
 									</div>
 								</div>
