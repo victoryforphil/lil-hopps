@@ -6,6 +6,7 @@ import {
 	LogBox,
 	ArmButtons,
 	NoDrone,
+	PositionContainer,
 } from '@/components/sidebar';
 import { useConnectionStore } from '@/state/connection';
 
@@ -62,6 +63,7 @@ function DroneConnectedView() {
 						<DroneLabel name="lil-hopper 01" battery={40} />
 						<ArmButtons />
 						<StatusContainer />
+						<PositionContainer />
 					</div>
 					<div>
 						<LogBox />

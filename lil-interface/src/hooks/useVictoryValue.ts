@@ -1,7 +1,7 @@
 import useDroneStore from '@/state/drone';
 import { useEffect, useState } from 'react';
 
-type MapValue = string | number | boolean;
+export type MapValue = string | number | boolean;
 
 /**
  * This is hook that will subscribe to a specific value in the Drone Station Store.

@@ -7,12 +7,13 @@ import { notifications } from '@mantine/notifications';
 import { useConnectionStore } from '@/state/connection';
 import { useLogStore } from '@/state/logstore';
 import { useEffect, useState } from 'react';
-import useVictoryValue from '@/hooks/useVictoryValue';
+import useVictoryValue, { MapValue } from '@/hooks/useVictoryValue';
 import { useGCSConnection } from '@/data/ws.singleton';
 
 export function SidebarHeader() {
 	const connected = useConnectionStore((state) => state.connected);
 	const connecting = useConnectionStore((state) => state.connecting);
+	const latency = useConnectionStore((state) => state.lastRecieved);
 
 	return (
 		<div className="flex flex-1 justify-between items-center">
@@ -27,6 +28,7 @@ export function SidebarHeader() {
 				<Badge color={connected ? 'green' : 'red'} size="xs" className="ml-4">
 					{connected ? 'Live' : 'Disconnected'}
 				</Badge>
+				<div className="text-xs font-light font-mono ml-2 opacity-50">{latency.toFixed(2)}ms</div>
 			</div>
 
 			<div className="flex gap-2">
@@ -64,11 +66,47 @@ export function DroneLabel(props: { name: string; battery: number }) {
 			<div className="flex flex-1 justify-between items-center">
 				<div className="flex items-center font-semibold">{props.name}</div>
 				<Select
+					variant="default"
 					placeholder="Mode"
 					data={['Stabalize', 'Mission', 'Co-Proccessor', 'Return', 'Break']}
-					/>
+				/>
 				<div>
-					<BatteryLabel charge={battery_remaining as number ?? 0} />
+					<BatteryLabel charge={(battery_remaining as number) ?? 0} />
+				</div>
+			</div>
+		</div>
+	);
+}
+
+export function PositionContainer() {
+	const [pose_x] = useVictoryValue('pose/ned/position/x');
+	const [pose_y] = useVictoryValue('pose/ned/position/y');
+	const [pose_z] = useVictoryValue('pose/ned/position/z');
+
+	const getValue = (value: MapValue | undefined) => {
+		if (value === undefined) {
+			return 'N/A';
+		} else {
+			const val = value as number;
+			return val.toFixed(1);
+		}
+	};
+
+	return (
+		<div className="info-container flex flex-col rounded-lg">
+			<div className="w-fit text-sm font-light opacity-70">Position</div>
+			<div className="flex w-full flex-wrap justify-between mt-2">
+				<div className="w-[30%] flex flex-col">
+					<div className="text-4xl font-mono font-black">{getValue(pose_x)}</div>
+					<div className="font-mono opacity-60">X</div>
+				</div>
+				<div className="w-[30%] flex flex-col">
+					<div className="text-4xl font-mono font-black">{getValue(pose_y)}</div>
+					<div className="font-mono opacity-60">Y</div>
+				</div>
+				<div className="w-[30%] flex flex-col">
+					<div className="text-4xl font-mono font-black">{getValue(pose_z)}</div>
+					<div className="font-mono opacity-60">Z</div>
 				</div>
 			</div>
 		</div>
@@ -179,7 +217,7 @@ export function LogBox() {
 		setReversedList(log_message.reverse());
 	}, [log_message]);
 
-    // TODO: undo code spaghetti from bad formatter early on.
+	// TODO: undo code spaghetti from bad formatter early on.
 	return (
 		<div className="info-container flex flex-col rounded-lg">
 			<div className="w-fit text-sm font-light opacity-70">Drone Logs</div>
@@ -190,20 +228,14 @@ export function LogBox() {
 							return (
 								<div className="flex" key={i}>
 									<IconLambda width={'1rem'} />
-									<div
-										key={i}
-										className={clsx('w-fit ml-2', {'opacity-70': i != 0})}
-					                >
+									<div key={i} className={clsx('w-fit ml-2', { 'opacity-70': i != 0 })}>
 										{l}
 									</div>
 								</div>
 							);
 						}
 						return (
-							<div
-								key={i}
-								className={clsx('w-fit', {'opacity-70': i != 0})}
-							>
+							<div key={i} className={clsx('w-fit', { 'opacity-70': i != 0 })}>
 								{l}
 							</div>
 						);

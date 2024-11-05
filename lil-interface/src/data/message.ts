@@ -1,6 +1,8 @@
 import useDroneStore from '@/state/drone';
 import { useLogStore } from '../state/logstore';
 import { decode } from '@msgpack/msgpack';
+import useControlStore from '@/state/control';
+import { useConnectionStore } from '@/state/connection';
 
 interface ParsedData {
 	// topic: string;
@@ -129,6 +131,7 @@ export function parseWebMessage(data: any) {
 	}
 
 	useDroneStore.getState().overrideMap(topicStore);
+	useConnectionStore.getState().setRecieved(latency); // This is latency but it doesn't ahve to be.
 
 	// console.log(`Latency: ${latency.toFixed(2)} ms`);
 	// console.log(`Got ${message.data.length} messages`);
