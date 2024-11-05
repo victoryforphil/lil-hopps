@@ -115,10 +115,16 @@ impl System for RerunSystem {
             .get_latest(&TopicKey::from_str("pose/ned"))
             .unwrap_or(QuadPoseNED::new_xyz(0.0, 0.0, 0.0));
 
+
         if let (Primitives::Float(roll), Primitives::Float(pitch), Primitives::Float(yaw)) =
             (roll, pitch, yaw)
         {
-            let quat = UnitQuaternion::from_euler_angles(*roll, *pitch, *yaw);
+            let (roll, pitch, yaw) = (
+                roll * 180.0 / std::f64::consts::PI,
+                pitch * 180.0 / std::f64::consts::PI,
+                yaw * 180.0 / std::f64::consts::PI,
+            );
+            let quat = UnitQuaternion::from_euler_angles(roll, pitch, yaw);
             let quat = quat.quaternion();
             rerun
                 .log(
@@ -147,9 +153,7 @@ impl System for RerunSystem {
 
     fn get_subscribed_topics(&self) -> std::collections::BTreeSet<TopicKey> {
         let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::from_str("status"));
-        topics.insert(TopicKey::from_str("log"));
-        topics.insert(TopicKey::from_str("pose"));
+        topics.insert(TopicKey::empty());
         topics
     }
 }
