@@ -55,19 +55,7 @@ export function SidebarHeader() {
 	);
 }
 
-const Modes = [
-	"Stabilize",
-    "Acro",
-    "AltHold",
-    "Auto",
-    "Guided",
-    "Loiter",
-    "Return",
-    "Land",
-    "PosHold",
-    "Brake",
-    "Follow",
-]
+const Modes = ['Stabilize', 'Acro', 'AltHold', 'Auto', 'Guided', 'Loiter', 'Return', 'Land', 'PosHold', 'Brake', 'Follow'];
 
 // TODO: arm buttons here. For the cool looks.
 export function DroneLabel(props: { name: string; battery: number }) {
@@ -79,17 +67,17 @@ export function DroneLabel(props: { name: string; battery: number }) {
 		if (mode) {
 			setModeSelect(mode as string);
 			notifications.show({
-				title: "Mode Changed",
-				message: `Updated Mode: ${mode}`
-			})
-			console.log(mode)
+				title: 'Mode Changed',
+				message: `Updated Mode: ${mode}`,
+			});
+			console.log(mode);
 		}
-	}, [mode])
+	}, [mode]);
 
 	const setMode = (newMode: string | null) => {
 		useGCSConnection().sendMessage(`MODE:${newMode}`);
 		setModeSelect(newMode);
-	}
+	};
 
 	return (
 		<div className="flex flex-col rounded-lg info-container">
@@ -98,7 +86,7 @@ export function DroneLabel(props: { name: string; battery: number }) {
 				<Select
 					variant="default"
 					placeholder="Mode"
-					value={modeSelect} 
+					value={modeSelect}
 					onChange={setMode}
 					data={Modes}
 					allowDeselect={false}
