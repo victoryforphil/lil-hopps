@@ -1,9 +1,12 @@
+use lil_link::common::types::mode::QuadMode;
+use lil_link::common::types::request_arm::QuadSetModeRequest;
 use lil_link::common::types::request_land::QuadLandRequest;
 use lil_link::common::types::request_mode_set::QuadArmRequest;
 use lil_link::common::types::request_takeoff::QuadTakeoffRequest;
 use rmp_serde::to_vec_named;
 use serde::Deserialize;
 use std::collections::BTreeMap;
+use std::str::FromStr;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
@@ -59,6 +62,16 @@ fn get_current_timestamp() -> f64 {
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards")
         .as_secs_f64()
+}
+
+fn parse_basic_message(message: &str) -> Option<(String, String)> {
+    if let Some(index) = message.find(':') {
+        let (key, value) = message.split_at(index);
+        // Remove the ':' from the start of the value
+        let value = &value[1..];
+        return Some((key.to_string(), value.to_string()));
+    }
+    None
 }
 
 #[tokio::main]
@@ -120,7 +133,18 @@ async fn main() {
 
                     // I thought this was a scope thing at some point.
                     let mut datastore = datastore.lock().expect("Failed to lock mutex");
-                    match ws_msg.as_str() {
+
+                    let msg_topic: String;
+                    let mut msg_value: Option<String> = None;
+
+                    if let Some((complex_msg, complex_value)) = parse_basic_message(&ws_msg) {
+                        msg_topic = complex_msg;
+                        msg_value = Some(complex_value);
+                    } else {
+                        msg_topic = ws_msg;
+                    }
+
+                    match msg_topic.as_str() {
                         "ARM" => {
                             info!("ARM the drone!");
                             let arm_request = QuadArmRequest::new(true);
@@ -166,8 +190,23 @@ async fn main() {
                                 )
                                 .unwrap();
                         }
+                        "MODE" => {
+                            if let Some(value) = msg_value {
+                                if let Ok(mode) = QuadMode::from_str(&value) {
+                                    println!("Setting new mode now {0}", mode);
+                                    let mode_req = QuadSetModeRequest::new(mode);
+                                    datastore
+                                        .add_struct(
+                                            &TopicKey::from_str("cmd/mode/mode"),
+                                            Timepoint::now(),
+                                            mode_req,
+                                        )
+                                        .unwrap();
+                                }
+                            }
+                        }
                         _ => {
-                            warn!("Unknown command: {}", ws_msg);
+                            warn!("Unknown command: {}", msg_topic);
                         }
                     }
                 }

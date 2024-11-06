@@ -59,7 +59,7 @@ function parseDataFields(web_message: WebMessage, topic_store: TopicStore) {
 					value = +valueStr;
 					break;
 				case DataType.Text:
-					value = valueStr;
+					value = removeFirstAndLastCharacter(valueStr);
 					break;
 				case DataType.Boolean:
 					value = valueStr === 'true';
@@ -73,31 +73,8 @@ function parseDataFields(web_message: WebMessage, topic_store: TopicStore) {
 					break;
 			}
 
-			// Okay so in an ideal world we would have an object.
-			// This object would items equal to 
-
-			// status/health/_type "QuadHealthStatus"
-			// status/health/healthy true
-			// status/health/reason "Attitude is not healthy"
-
-			// So in theory it would be like. store.QuadHealthStatus.healthy ?
-
-			// if (topic.includes("status/health")) {
-			// 	console.log(topic, value)
-			// 	// status/health/healthy is a thing apparently.
-			// 	// seems to be working okay.
-			// }
-
-			// if (topic.includes("gps")) {
-			// 	console.log(topic, value)
-			// }
-
-			// So basically `pose/ned/velocity/_type` with no _type should be an object that has params.
-
 			if (topic.includes("log/text")) {
-				// Append a timestamp. 
-				// console.log(topic, value)
-				topic_store.set(topic, `[${timeStamp}]: ${removeFirstAndLastCharacter(value as string)}`)
+				topic_store.set(topic, `[${timeStamp}]: ${value}`)
 			} else {
 				topic_store.set(topic, value)
 			}

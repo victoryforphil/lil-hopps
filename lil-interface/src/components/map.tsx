@@ -97,7 +97,7 @@ function DataPage() {
 							color: 'red.5',
 							name: 'X/Y',
 							data: [{ x: X, y: Y }],
-						},
+						}
 					]}
 					dataKey={{ x: 'x', y: 'y' }}
 					xAxisLabel="X Position"
