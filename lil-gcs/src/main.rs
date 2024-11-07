@@ -7,6 +7,7 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 
+use lil_link::common::types::request_mode_set::QuadArmRequest;
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
@@ -19,33 +20,13 @@ use victory_broker::node::sub_callback::SubCallback;
 use victory_broker::node::Node;
 use victory_data_store::database::Datastore;
 use victory_data_store::topics::TopicKey;
+use victory_wtf::Timepoint;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct SILArgs {
-    #[clap(short, long, value_parser, help = "Mavlink connection string")]
-    connection_string: String,
-
-    #[clap(long, value_parser, help = "Command Hz ", default_value = "10.0")]
-    hz: f32,
-
-    #[clap(
-        short,
-        long,
-        value_parser,
-        help = "Duration in seconds",
-        default_value = "100.0"
-    )]
-    duration: f32,
-
-    #[clap(
-        short,
-        long,
-        value_parser,
-        help = "Arm time in seconds",
-        default_value = "7.0"
-    )]
-    arm_time: f32,
+    #[clap(short, long, value_parser, help = "Publishing connection string")]
+    connection: String,
 }
 pub struct TCPNodeSubscriber {
     map: BTreeMap<String, String>,
@@ -53,6 +34,7 @@ pub struct TCPNodeSubscriber {
 
 impl SubCallback for TCPNodeSubscriber {
     fn on_update(&mut self, datapoints: &victory_data_store::datapoints::DatapointMap) {
+        //  info!("Datapoints: {:?}", datapoints.len());
         for (topic, datapoint) in datapoints.iter() {
             self.map
                 .insert(topic.display_name(), format!("{:?}", datapoint.value));
@@ -64,7 +46,7 @@ impl SubCallback for TCPNodeSubscriber {
 }
 fn main() {
     fmt()
-        .with_max_level(Level::INFO)
+        .with_max_level(Level::DEBUG)
         .with_target(true)
         .pretty()
         .compact()
@@ -73,12 +55,14 @@ fn main() {
         .without_time()
         .init();
 
-    let mut client = TCPClientAdapter::new(TCPClientOptions::from_url("0.0.0.0:7001"));
+    let args = SILArgs::parse();
+
+    let mut client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
 
     while client.is_err() {
         info!("Failed to connect to server, retrying...");
         thread::sleep(Duration::from_secs_f32(1.0));
-        client = TCPClientAdapter::new(TCPClientOptions::from_url("0.0.0.0:7001"));
+        client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
     }
     let client = client.unwrap();
 
@@ -97,11 +81,11 @@ fn main() {
 
     let mut csv = File::create(".lil/gcs/latest.csv").unwrap();
     // New loop that prints the datapoints
+
     thread::spawn(move || {
         loop {
             thread::sleep(Duration::from_secs_f32(2.0));
-            //clear the csv file
-
+            // If ticke
             let map = subscriber_handle.lock().unwrap();
 
             csv.rewind();
@@ -114,9 +98,25 @@ fn main() {
             info!("CSV updated with {} datapoints", map.map.len());
         }
     });
-
+    let mut start_time = Timepoint::now();
+    let mut fired = false;
     loop {
-        thread::sleep(Duration::from_secs_f32(0.01));
+        thread::sleep(Duration::from_secs_f32(0.02));
         node.tick();
+
+        /*
+          let elapsed = Timepoint::now() - start_time.clone();
+        if elapsed.secs() > 1.0 && !fired {
+            fired = true;
+            info!("Fired!");
+            // Send arm command
+            let arm_command = QuadArmRequest::new(true);
+            let topic = TopicKey::from_str("cmd/arm");
+            datastore
+                .lock()
+                .unwrap()
+                .add_struct(&topic, Timepoint::now(), arm_command)
+                .unwrap();
+        } */
     }
 }

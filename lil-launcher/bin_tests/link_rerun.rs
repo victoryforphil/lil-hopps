@@ -57,7 +57,7 @@ fn main() {
     ))));
 
     runner.set_real_time(true);
-    runner.run(Timepoint::new_secs(args.duration as f64));
+    runner.run();
     let mut keys = runner.data_store.lock().unwrap().get_all_keys();
     keys.sort_by(|a: &Arc<victory_data_store::topics::TopicKey>, b| {
         a.display_name().cmp(&b.display_name())

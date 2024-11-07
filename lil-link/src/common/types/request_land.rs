@@ -8,7 +8,7 @@ pub struct QuadLandRequest {
 
 impl QuadLandRequest {
     pub fn new() -> Self {
-        Self {  ack: false }
+        Self { ack: false }
     }
 
     pub fn get_topic_key(&self) -> TopicKey {

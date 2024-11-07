@@ -1,0 +1,10 @@
+   export ZSH="$HOME/.oh-my-zsh"
+
+   ZSH_THEME="agnoster"  # You can choose any theme you prefer
+
+   plugins=(git)
+
+   source $ZSH/oh-my-zsh.sh
+
+   # Add Cargo bin directory to PATH
+   export PATH="$HOME/.cargo/bin:$PATH"

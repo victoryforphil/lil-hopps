@@ -1,0 +1,3 @@
+[submodule "victory-suite"]
+	path = victory-suite
+	url = https://github.com/victoryforphil/victory-suite.git

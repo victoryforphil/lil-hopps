@@ -14,10 +14,7 @@ use lil_quad::systems::mission_runner::task::TaskType;
 use lil_quad::systems::mission_runner::task::Tasks;
 use lil_quad::systems::mission_runner::task::TimedTask;
 use lil_quad::systems::mission_runner::MissionRunner;
-use lil_quad::systems::timed_arm::TimedArm;
-use lil_quad::systems::timed_mode::TimedMode;
-use lil_quad::systems::timed_takeoff::TimedTakeoff;
-use lil_rerun::system::RerunSystem;
+
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
@@ -61,7 +58,7 @@ struct SILArgs {
 
 fn main() {
     fmt()
-        .with_max_level(Level::INFO)
+        .with_max_level(Level::DEBUG)
         .with_target(true)
         .pretty()
         .compact()
@@ -120,11 +117,7 @@ fn main() {
         Tasks::Waypoint(QuadPoseNED::new_xyz(0.0, 0.0, -10.0)),
     );
 
-    let land_task = TimedTask::new(
-        "land".to_string(),
-        Timespan::new_secs(5.0),
-        Tasks::Land,
-    );
+    let land_task = TimedTask::new("land".to_string(), Timespan::new_secs(5.0), Tasks::Land);
 
     let mission = vec![
         TaskType::Condition(arm_task),
@@ -146,5 +139,5 @@ fn main() {
     ))));
 
     runner.set_real_time(true);
-    runner.run(Timepoint::new_secs(args.duration as f64));
+    runner.run();
 }

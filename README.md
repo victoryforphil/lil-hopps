@@ -30,3 +30,30 @@ cargo run --bin quad_sil -- -c tcpout:localhost:5760 -a 5
 ```bash
 cargo run --bin lil-gcs 
 ```
+
+
+## Hardware Deploy
+### Build using dev container + corss
+
+1. Build using docker compose
+```
+docker-compose build
+```
+2. Launch using compose
+```
+docker-compose -up -d
+```
+3. Attach to rust dev container
+```
+docker-compose attach rust-dev
+```
+
+4. Build
+```
+cross build --release --bins --target arm-unknown-linux-gnueabihf
+```
+
+### Deploy to RPI
+```
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy_quad_idle.yml
+```

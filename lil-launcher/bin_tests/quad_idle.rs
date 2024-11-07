@@ -91,10 +91,11 @@ fn main() {
         check_ekf: Some(true),
     }))));
 
-    runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
-        "quad_arm".to_string(),
-    ))));
-
+    /*
+        runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
+           "quad_arm".to_string(),
+       ))));
+    */
     runner.set_real_time(true);
-    runner.run(Timepoint::new_secs(args.duration as f64));
+    runner.run();
 }

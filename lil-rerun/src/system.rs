@@ -115,7 +115,6 @@ impl System for RerunSystem {
             .get_latest(&TopicKey::from_str("pose/ned"))
             .unwrap_or(QuadPoseNED::new_xyz(0.0, 0.0, 0.0));
 
-
         if let (Primitives::Float(roll), Primitives::Float(pitch), Primitives::Float(yaw)) =
             (roll, pitch, yaw)
         {

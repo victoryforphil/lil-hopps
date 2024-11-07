@@ -1,0 +1,11 @@
+---
+- name: Deploy quad_idle binary to Raspberry Pi
+  hosts: myhosts
+  become: yes
+
+  tasks:
+    - name: Copy quad_idle binary to /lil-hopps/
+      copy:
+        src: ../../target/arm-unknown-linux-gnueabihf/release/quad_idle
+        dest: /lil-hopps/quad_idle
+        mode: '0755'
