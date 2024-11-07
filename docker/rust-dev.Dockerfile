@@ -54,8 +54,7 @@ COPY zshrc /root/.zshrc
 
 # Set the correct permissions
 RUN chown root:root /root/.zshrc
-# Set host name to lil-dev
-RUN hostnamectl set-hostname lil-dev
+
 
 # Start Zsh in interactive login mode
 CMD ["zsh", "-l"]
