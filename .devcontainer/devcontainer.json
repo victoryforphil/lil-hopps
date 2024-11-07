@@ -1,0 +1,23 @@
+{
+    "name": "Rust Development Environment",
+    "dockerComposeFile": ["../docker-compose.yml"],
+    "service": "rust-dev",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [5760],
+    "remoteUser": "root",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "rust-lang.rust-analyzer",
+                "serayuzgur.crates",
+                "tamasfe.even-better-toml"
+            ]
+        }
+    },
+    // Required for docker-in-docker setup
+    "runArgs": [
+        "--volume=/var/lib/docker",
+        "--privileged"
+    ],
+    "postCreateCommand": "rustup default stable && rustup target add arm-unknown-linux-gnueabihf && rustup target add x86_64-unknown-linux-musl"
+}

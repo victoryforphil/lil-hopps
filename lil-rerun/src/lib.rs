@@ -104,20 +104,21 @@ impl LilRerun {
     /// .lil/logs
     ///
     pub fn get_rerun_save_path(&self, group: &str) -> PathBuf {
+        // check for LIL_DIR or use CARGO_MANIFEST_DIR
+
         let path = PathBuf::new()
-            // Root workspace path
-            .join(Path::new(env!("CARGO_MANIFEST_DIR")))
+            // Root workspace path or
+            .join(Path::new(match &std::env::var("LIL_DIR").ok() {
+                Some(path) => path.as_str(),
+                None => env!("CARGO_MANIFEST_DIR"),
+            }))
             .join(Path::new(".lil/logs"))
             .join(group);
         //.join(now.to_string());
         if !path.exists() {
             std::fs::create_dir_all(&path).unwrap();
         }
-        // Empty folder
-        for entry in std::fs::read_dir(&path).unwrap() {
-            let entry = entry.unwrap();
-            std::fs::remove_file(entry.path()).unwrap();
-        }
+
         path
     }
 }

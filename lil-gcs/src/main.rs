@@ -7,6 +7,7 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 
+use lil_link::common::types::request_mode_set::QuadArmRequest;
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
@@ -19,6 +20,7 @@ use victory_broker::node::sub_callback::SubCallback;
 use victory_broker::node::Node;
 use victory_data_store::database::Datastore;
 use victory_data_store::topics::TopicKey;
+use victory_wtf::Timepoint;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -53,6 +55,7 @@ pub struct TCPNodeSubscriber {
 
 impl SubCallback for TCPNodeSubscriber {
     fn on_update(&mut self, datapoints: &victory_data_store::datapoints::DatapointMap) {
+        //  info!("Datapoints: {:?}", datapoints.len());
         for (topic, datapoint) in datapoints.iter() {
             self.map
                 .insert(topic.display_name(), format!("{:?}", datapoint.value));
@@ -97,11 +100,11 @@ fn main() {
 
     let mut csv = File::create(".lil/gcs/latest.csv").unwrap();
     // New loop that prints the datapoints
+
     thread::spawn(move || {
         loop {
             thread::sleep(Duration::from_secs_f32(2.0));
-            //clear the csv file
-
+            // If ticke
             let map = subscriber_handle.lock().unwrap();
 
             csv.rewind();
@@ -114,9 +117,24 @@ fn main() {
             info!("CSV updated with {} datapoints", map.map.len());
         }
     });
-
+    let mut start_time = Timepoint::now();
+    let mut fired = false;
     loop {
         thread::sleep(Duration::from_secs_f32(0.01));
         node.tick();
+
+        let elapsed = Timepoint::now() - start_time.clone();
+        if elapsed.secs() > 1.0 && !fired {
+            fired = true;
+            info!("Fired!");
+            // Send arm command
+            let arm_command = QuadArmRequest::new(true);
+            let topic = TopicKey::from_str("cmd/arm");
+            datastore
+                .lock()
+                .unwrap()
+                .add_struct(&topic, Timepoint::now(), arm_command)
+                .unwrap();
+        }
     }
 }

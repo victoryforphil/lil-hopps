@@ -61,7 +61,7 @@ struct SILArgs {
 
 fn main() {
     fmt()
-        .with_max_level(Level::INFO)
+        .with_max_level(Level::DEBUG)
         .with_target(true)
         .pretty()
         .compact()
@@ -120,11 +120,7 @@ fn main() {
         Tasks::Waypoint(QuadPoseNED::new_xyz(0.0, 0.0, -10.0)),
     );
 
-    let land_task = TimedTask::new(
-        "land".to_string(),
-        Timespan::new_secs(5.0),
-        Tasks::Land,
-    );
+    let land_task = TimedTask::new("land".to_string(), Timespan::new_secs(5.0), Tasks::Land);
 
     let mission = vec![
         TaskType::Condition(arm_task),
@@ -146,5 +142,5 @@ fn main() {
     ))));
 
     runner.set_real_time(true);
-    runner.run(Timepoint::new_secs(args.duration as f64));
+    runner.run();
 }

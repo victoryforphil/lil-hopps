@@ -1,10 +1,21 @@
-version: '3'
-
 services:
   ardupilot-sitl:
     image: radarku/ardupilot-sitl
-    platform: "linux/amd64" # macos AMD has the wrong architecture
+    platform: "linux/amd64"
     container_name: sitl
     ports:
       - "5760:5760"
     restart: 'always'
+  rust-dev:
+    build:
+      context: ./docker
+      dockerfile: rust-dev.Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      - ../target:/workspace/target
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /workspace
+    container_name: rust-dev
+    stdin_open: true
+    tty: true
+    command: sleep infinity

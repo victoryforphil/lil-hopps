@@ -35,24 +35,38 @@ impl MavlinkMessageProcessor for SysStatusProcessor {
         let voltage = sys_status_msg.voltage_battery;
         let current = sys_status_msg.current_battery;
         let comm_errors = sys_status_msg.errors_comm;
-        let errors_count = sys_status_msg.errors_count1 + sys_status_msg.errors_count2 + sys_status_msg.errors_count3; 
+        let errors_count = sys_status_msg.errors_count1
+            + sys_status_msg.errors_count2
+            + sys_status_msg.errors_count3;
 
-        let battery_topic_key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_BATTERY));
+        let battery_topic_key =
+            TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_BATTERY));
         data_view.add_latest(&battery_topic_key, battery_status)?;
 
-        let drop_rate_comm_topic_key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_DROP_RATE_COMM));
+        let drop_rate_comm_topic_key = TopicKey::from_str(&format!(
+            "{}/{}",
+            IDENT_BASE_STATUS, IDENT_STATUS_DROP_RATE_COMM
+        ));
         data_view.add_latest(&drop_rate_comm_topic_key, drop_rate_comm)?;
 
-        let voltage_topic_key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_VOLTAGE));
+        let voltage_topic_key =
+            TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_VOLTAGE));
         data_view.add_latest(&voltage_topic_key, voltage)?;
 
-        let current_topic_key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_CURRENT));
+        let current_topic_key =
+            TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_CURRENT));
         data_view.add_latest(&current_topic_key, current)?;
 
-        let comm_errors_topic_key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_COMM_ERRORS));
+        let comm_errors_topic_key = TopicKey::from_str(&format!(
+            "{}/{}",
+            IDENT_BASE_STATUS, IDENT_STATUS_COMM_ERRORS
+        ));
         data_view.add_latest(&comm_errors_topic_key, comm_errors)?;
 
-        let errors_count_topic_key = TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_ERRORS_COUNT));
+        let errors_count_topic_key = TopicKey::from_str(&format!(
+            "{}/{}",
+            IDENT_BASE_STATUS, IDENT_STATUS_ERRORS_COUNT
+        ));
         data_view.add_latest(&errors_count_topic_key, errors_count)?;
 
         Ok(())
