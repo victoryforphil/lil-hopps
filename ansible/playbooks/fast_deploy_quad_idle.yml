@@ -1,0 +1,31 @@
+---
+- name: Deploy quad_idle binary to Raspberry Pi
+  hosts: myhosts
+  become: yes
+
+  tasks:
+    - name: Ensure /lil-hopps directory exists
+      file:
+        path: /lil-hopps
+        state: directory
+        mode: '0755'  # Owner: read/write/execute (7), Group: read/execute (5), Others: read/execute (5)
+    - name: Set permissions for lil-hopps directory
+      file:
+        path: /lil-hopps
+        mode: '0777'
+        owner: pi
+        group: pi
+
+    - name: Create .lil directory in lil-hopps
+      file:
+        path: /lil-hopps/.lil
+        state: directory
+        mode: '0777'
+        owner: pi
+        group: pi
+
+    - name: Copy quad_idle binary to /lil-hopps/
+      copy:
+        src: ../../target/arm-unknown-linux-gnueabihf/release/quad_idle
+        dest: /lil-hopps/quad_idle
+        mode: '0755'

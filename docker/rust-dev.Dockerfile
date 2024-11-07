@@ -15,6 +15,7 @@ RUN apt-get update && \
         crossbuild-essential-armhf \
         ansible \
         sshpass \
+        valgrind \
         musl-tools \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
@@ -39,24 +40,22 @@ RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh && \
 ENV CROSS_CONTAINER_IN_CONTAINER=true
 
 # Set working directory
-WORKDIR /workspace
+WORKDIR /dev
 
 # Add Rust targets
 RUN rustup target add arm-unknown-linux-gnueabihf
 RUN rustup target add x86_64-unknown-linux-musl
 
-RUN mkdir -p ~/.cargo && \
-    echo '[target.arm-unknown-linux-gnueabihf]' >> ~/.cargo/config && \
-    echo 'linker = "arm-linux-gnueabihf-gcc"' >> ~/.cargo/config && \
-    echo 'rustflags = ["-C", "target-feature=+crt-static"]' >> ~/.cargo/config
 # Create the target directory
-RUN mkdir -p /workspace/target
+RUN mkdir -p /dev/target
 
 # Copy a preconfigured .zshrc file (optional)
 COPY zshrc /root/.zshrc
 
 # Set the correct permissions
 RUN chown root:root /root/.zshrc
+# Set host name to lil-dev
+RUN hostnamectl set-hostname lil-dev
 
 # Start Zsh in interactive login mode
 CMD ["zsh", "-l"]

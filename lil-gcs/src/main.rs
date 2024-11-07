@@ -25,29 +25,8 @@ use victory_wtf::Timepoint;
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct SILArgs {
-    #[clap(short, long, value_parser, help = "Mavlink connection string")]
-    connection_string: String,
-
-    #[clap(long, value_parser, help = "Command Hz ", default_value = "10.0")]
-    hz: f32,
-
-    #[clap(
-        short,
-        long,
-        value_parser,
-        help = "Duration in seconds",
-        default_value = "100.0"
-    )]
-    duration: f32,
-
-    #[clap(
-        short,
-        long,
-        value_parser,
-        help = "Arm time in seconds",
-        default_value = "7.0"
-    )]
-    arm_time: f32,
+    #[clap(short, long, value_parser, help = "Publishing connection string")]
+    connection: String,
 }
 pub struct TCPNodeSubscriber {
     map: BTreeMap<String, String>,
@@ -67,7 +46,7 @@ impl SubCallback for TCPNodeSubscriber {
 }
 fn main() {
     fmt()
-        .with_max_level(Level::INFO)
+        .with_max_level(Level::DEBUG)
         .with_target(true)
         .pretty()
         .compact()
@@ -76,12 +55,14 @@ fn main() {
         .without_time()
         .init();
 
-    let mut client = TCPClientAdapter::new(TCPClientOptions::from_url("0.0.0.0:7001"));
+    let args = SILArgs::parse();
+
+    let mut client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
 
     while client.is_err() {
         info!("Failed to connect to server, retrying...");
         thread::sleep(Duration::from_secs_f32(1.0));
-        client = TCPClientAdapter::new(TCPClientOptions::from_url("0.0.0.0:7001"));
+        client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
     }
     let client = client.unwrap();
 
@@ -120,10 +101,11 @@ fn main() {
     let mut start_time = Timepoint::now();
     let mut fired = false;
     loop {
-        thread::sleep(Duration::from_secs_f32(0.01));
+        thread::sleep(Duration::from_secs_f32(0.02));
         node.tick();
 
-        let elapsed = Timepoint::now() - start_time.clone();
+        /*
+          let elapsed = Timepoint::now() - start_time.clone();
         if elapsed.secs() > 1.0 && !fired {
             fired = true;
             info!("Fired!");
@@ -135,6 +117,6 @@ fn main() {
                 .unwrap()
                 .add_struct(&topic, Timepoint::now(), arm_command)
                 .unwrap();
-        }
+        } */
     }
 }
