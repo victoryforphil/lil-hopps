@@ -16,8 +16,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # bash history
       - ~/.bash_history:/root/.bash_history
-      # Optionally the zshrc
-      - ~/.zshrc:/root/.zshrc
     working_dir: /lil-dev
     container_name: rust-dev
     stdin_open: true
