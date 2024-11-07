@@ -3,3 +3,16 @@
 members = [ "lil-gcs", "lil-launcher", "lil-link","lil-quad", "lil-rerun"]
 resolver = "2"
 
+exclude = ["victory-suite"]
+
+[patch.crates-io]
+victory-commander = { path = "victory-suite/victory-commander" }
+victory-data-store = { path = "victory-suite/victory-data-store" }
+victory-wtf = { path = "victory-suite/victory-wtf" } 
+victory-broker = { path = "victory-suite/victory-broker" }
+
+[workspace.dependencies]
+victory-commander = { path = "victory-suite/victory-commander" }
+victory-data-store = { path = "victory-suite/victory-data-store" }
+victory-wtf = { path = "victory-suite/victory-wtf" } 
+victory-broker = { path = "victory-suite/victory-broker" }
