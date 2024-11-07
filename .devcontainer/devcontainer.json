@@ -2,7 +2,7 @@
     "name": "Rust Development Environment",
     "dockerComposeFile": ["../docker-compose.yml"],
     "service": "rust-dev",
-    "workspaceFolder": "/dev",
+    "workspaceFolder": "/lil-dev",
     "forwardPorts": [5760],
     "remoteUser": "root",
     "customizations": {

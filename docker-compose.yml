@@ -11,14 +11,14 @@ services:
       context: ./docker
       dockerfile: rust-dev.Dockerfile
     volumes:
-      - .:/dev:cached
-      - ./target:/dev/target
+      - .:/lil-dev:cached
+      - ./target:/lil-dev/target
       - /var/run/docker.sock:/var/run/docker.sock
       # bash history
       - ~/.bash_history:/root/.bash_history
       # Optionally the zshrc
       - ~/.zshrc:/root/.zshrc
-    working_dir: /dev
+    working_dir: /lil-dev
     container_name: rust-dev
     stdin_open: true
     # bind to host network

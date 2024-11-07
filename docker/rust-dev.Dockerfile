@@ -40,14 +40,14 @@ RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh && \
 ENV CROSS_CONTAINER_IN_CONTAINER=true
 
 # Set working directory
-WORKDIR /dev
+WORKDIR /lil-dev
 
 # Add Rust targets
 RUN rustup target add arm-unknown-linux-gnueabihf
 RUN rustup target add x86_64-unknown-linux-musl
 
 # Create the target directory
-RUN mkdir -p /dev/target
+RUN mkdir -p /lil-dev/target
 
 # Copy a preconfigured .zshrc file (optional)
 COPY zshrc /root/.zshrc
