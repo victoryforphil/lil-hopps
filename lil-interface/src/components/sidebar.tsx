@@ -10,6 +10,14 @@ import { useEffect, useState } from 'react';
 import useVictoryValue, { MapValue } from '@/hooks/useVictoryValue';
 import { useGCSConnection } from '@/data/ws.singleton';
 
+export function LOS() {
+	return (
+		<div className='tracking-[-0.1em] font-mono text-red-400 animate-pulse'>
+			L.O.S
+		</div>
+	)
+}
+
 export function SidebarHeader() {
 	const connected = useConnectionStore((state) => state.connected);
 	const connecting = useConnectionStore((state) => state.connecting);
@@ -106,7 +114,7 @@ export function PositionContainer() {
 
 	const getValue = (value: MapValue | undefined) => {
 		if (value === undefined) {
-			return 'N/A';
+			return (<LOS />);
 		} else {
 			const val = value as number;
 			return val.toFixed(1);
@@ -143,9 +151,9 @@ export function AttitudeContainer() {
 	const [pose_y] = useVictoryValue('pose/attitude/rpy_radians/y');
 	const [pose_z] = useVictoryValue('pose/attitude/rpy_radians/z');
 
-	const [x_deg, setX_deg] = useState<number | undefined>(null!);
-	const [y_deg, setY_deg] = useState<number | undefined>(null!);
-	const [z_deg, setZ_deg] = useState<number | undefined>(null!);
+	const [x_deg, setX_deg] = useState<number | undefined>();
+	const [y_deg, setY_deg] = useState<number | undefined>();
+	const [z_deg, setZ_deg] = useState<number | undefined>();
 
 	useEffect(() => {
 		if (pose_x) {
@@ -167,7 +175,7 @@ export function AttitudeContainer() {
 
 	const getValue = (value: MapValue | undefined) => {
 		if (value === undefined) {
-			return 'N/A';
+			return (<LOS />);
 		} else {
 			const val = value as number;
 			return val.toFixed(1);
@@ -253,19 +261,21 @@ export function StatusContainer() {
 					{<BoolStatusLabel name={'Stabilize'} status={stabilize_enabled as boolean} />}
 				</div>
 				<div className="flex flex-col w-[40%]">
-					{<BoolStatusLabel name={'Test Mode'} status={test_enabled as boolean} />}
+					{<BoolStatusLabel name={'Test Mode'} status={test_enabled as boolean | undefined} />}
 				</div>
 			</div>
 		</div>
 	);
 }
 
-function BoolStatusLabel(props: { name: string; status: boolean }) {
+function BoolStatusLabel(props: { name: string; status: boolean | undefined }) {
 	const getStatus = () => {
 		if (props.status) {
 			return <div className="text-green-400">Yes</div>;
-		} else {
+		} else if (props.status === false){
 			return <div className="text-red-400">No</div>;
+		} else {
+			return <LOS/>
 		}
 	};
 
