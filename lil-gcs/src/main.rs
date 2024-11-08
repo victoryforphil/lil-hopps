@@ -12,13 +12,13 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
-use victory_wtf::Timepoint;
 
 use serde::Serialize;
 use tracing::info;
 use tracing::warn;
 use tracing::Level;
 use tracing_subscriber::fmt;
+use clap::{Parser, ValueEnum};
 
 use victory_broker::adapters::tcp::TCPClientAdapter;
 use victory_broker::adapters::tcp::TCPClientOptions;
@@ -51,6 +51,13 @@ impl SubCallback for TCPNodeSubscriber {
 struct DataLine {
     topic: String,
     datapoint: String,
+}
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct SILArgs {
+    #[clap(short, long, value_parser, help = "Publishing connection string")]
+    connection: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
