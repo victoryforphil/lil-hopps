@@ -1,0 +1,64 @@
+---
+- name: Deploy quad_idle binary to Raspberry Pi and set up as a systemd service
+  hosts: myhosts
+  become: yes
+
+  tasks:
+    - name: Ensure /lil-hopps directory exists
+      file:
+        path: /lil-hopps
+        state: directory
+        mode: '0755'  # Owner: read/write/execute (7), Group: read/execute (5), Others: read/execute (5)
+    - name: Set permissions for serial device
+      file:
+        path: /dev/serial0
+        mode: '0666'
+    - name: Set permissions for lil-hopps directory
+      file:
+        path: /lil-hopps
+        mode: '0777'
+        owner: pi
+        group: pi
+
+    - name: Create .lil directory in lil-hopps
+      file:
+        path: /lil-hopps/.lil
+        state: directory
+        mode: '0777'
+        owner: pi
+        group: pi
+
+    - name: Copy quad_idle binary to /lil-hopps/
+      copy:
+        src: ../../target/arm-unknown-linux-gnueabihf/release/quad_idle
+        dest: /lil-hopps/quad_idle
+        mode: '0755'
+
+    - name: Create systemd service file for quad_idle
+      copy:
+        dest: /etc/systemd/system/quad_idle.service
+        content: |
+          [Unit]
+          Description=Quad Idle Service
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/lil-hopps/quad_idle
+          Restart=on-failure
+          User=root
+
+          [Install]
+          WantedBy=multi-user.target
+      notify:
+        - Reload systemd
+
+    - name: Enable and start quad_idle service
+      systemd:
+        name: quad_idle
+        enabled: yes
+        state: stopped
+        daemon_reload: yes
+  handlers:
+    - name: Reload systemd
+      command: systemctl daemon-reload

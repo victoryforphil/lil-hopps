@@ -159,7 +159,9 @@ impl System for QuadlinkSystem {
 
         match (waypoint_req, self.last_requested_waypoint.clone()) {
             // If the waypoint has changed, send the new waypoint
-            (Ok(waypoint_req), Some(last_waypoint)) if waypoint_req.distance(&last_waypoint) > 0.1 => {
+            (Ok(waypoint_req), Some(last_waypoint))
+                if waypoint_req.distance(&last_waypoint) > 0.1 =>
+            {
                 self.last_requested_waypoint = Some(waypoint_req.clone());
                 info!("Sending UPDATED waypoint: {:?}", waypoint_req);
                 match mavlink_build_cmd_waypoint_message(waypoint_req.clone()) {

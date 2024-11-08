@@ -26,6 +26,7 @@ use victory_broker::node::sub_callback::SubCallback;
 use victory_broker::node::Node;
 use victory_data_store::database::Datastore;
 use victory_data_store::topics::TopicKey;
+use victory_wtf::Timepoint;
 
 use tokio::sync::{broadcast, mpsc};
 
@@ -38,6 +39,7 @@ pub struct TCPNodeSubscriber {
 
 impl SubCallback for TCPNodeSubscriber {
     fn on_update(&mut self, datapoints: &victory_data_store::datapoints::DatapointMap) {
+        //  info!("Datapoints: {:?}", datapoints.len());
         for (topic, datapoint) in datapoints.iter() {
             self.map
                 .insert(topic.display_name(), format!("{:?}", datapoint.value));
@@ -83,7 +85,7 @@ async fn main() {
     tokio::spawn(webserver::websocket_server_task(tcp_tx.clone(), ws_tx));
 
     fmt()
-        .with_max_level(Level::INFO)
+        .with_max_level(Level::DEBUG)
         .with_target(true)
         .pretty()
         .compact()
@@ -92,12 +94,14 @@ async fn main() {
         .without_time()
         .init();
 
-    let mut client = TCPClientAdapter::new(TCPClientOptions::from_url("0.0.0.0:7001"));
+    let args = SILArgs::parse();
+
+    let mut client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
 
     while client.is_err() {
         info!("Failed to connect to server, retrying...");
         thread::sleep(Duration::from_secs_f32(1.0));
-        client = TCPClientAdapter::new(TCPClientOptions::from_url("0.0.0.0:7001"));
+        client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
     }
 
     let client = client.unwrap();
@@ -238,9 +242,25 @@ async fn main() {
             }
         }
     });
-
+    let mut start_time = Timepoint::now();
+    let mut fired = false;
     loop {
         thread::sleep(Duration::from_millis(100));
         node.tick();
+
+        /*
+          let elapsed = Timepoint::now() - start_time.clone();
+        if elapsed.secs() > 1.0 && !fired {
+            fired = true;
+            info!("Fired!");
+            // Send arm command
+            let arm_command = QuadArmRequest::new(true);
+            let topic = TopicKey::from_str("cmd/arm");
+            datastore
+                .lock()
+                .unwrap()
+                .add_struct(&topic, Timepoint::now(), arm_command)
+                .unwrap();
+        } */
     }
 }

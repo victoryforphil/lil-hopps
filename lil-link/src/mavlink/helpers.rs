@@ -24,7 +24,7 @@ impl MavLinkHelper {
     pub fn request_parameters() -> mavlink::ardupilotmega::MavMessage {
         mavlink::ardupilotmega::MavMessage::PARAM_REQUEST_LIST(
             mavlink::ardupilotmega::PARAM_REQUEST_LIST_DATA {
-                target_system: 0,
+                target_system: 1,
                 target_component: 0,
             },
         )
@@ -34,10 +34,10 @@ impl MavLinkHelper {
     pub fn request_stream() -> mavlink::ardupilotmega::MavMessage {
         mavlink::ardupilotmega::MavMessage::REQUEST_DATA_STREAM(
             mavlink::ardupilotmega::REQUEST_DATA_STREAM_DATA {
-                target_system: 0,
+                target_system: 1,
                 target_component: 0,
                 req_stream_id: 0,
-                req_message_rate: 20,
+                req_message_rate: 10,
                 start_stop: 1,
             },
         )

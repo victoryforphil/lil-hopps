@@ -41,10 +41,11 @@ serde = { version = "1.0.210", features = ["derive"] }
 thiserror = "1.0.64"
 tracing = { version = "0.1.40", features = ["log"] }
 tracing-subscriber = "0.3.18"
-victory-commander = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
-victory-data-store = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
-victory-wtf = { git = "https://github.com/victoryforphil/victory-suite.git", version = "0.0.1" }
-victory-broker = { git = "https://github.com/victoryforphil/victory-suite.git", version = "*" }
+victory-commander = { workspace = true }
+victory-data-store = { workspace = true }
+victory-wtf = { workspace = true }
+victory-broker = { workspace = true }
 lil-rerun = { path = "../lil-rerun" }
 lil-quad = { path = "../lil-quad" }
 lil-link = { path = "../lil-link" }
+
