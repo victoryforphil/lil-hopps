@@ -134,6 +134,67 @@ export function PositionContainer() {
 	);
 }
 
+function radToDeg(radians: number): number {
+    return radians * (180 / Math.PI);
+}
+
+export function AttitudeContainer() {
+	const [pose_x] = useVictoryValue('pose/attitude/rpy_radians/x');
+	const [pose_y] = useVictoryValue('pose/attitude/rpy_radians/y');
+	const [pose_z] = useVictoryValue('pose/attitude/rpy_radians/z');
+
+	const [x_deg, setX_deg] = useState<number | undefined>(null!);
+	const [y_deg, setY_deg] = useState<number | undefined>(null!);
+	const [z_deg, setZ_deg] = useState<number | undefined>(null!);
+
+	useEffect(() => {
+		if (pose_x) {
+			setX_deg(radToDeg(pose_x as number));
+		}
+	}, [pose_x])
+	
+	useEffect(() => {
+		if (pose_y) {
+			setY_deg(radToDeg(pose_y as number));
+		}
+	}, [pose_y])
+
+	useEffect(() => {
+		if (pose_z) {
+			setZ_deg(radToDeg(pose_z as number));
+		}
+	}, [pose_z])
+
+	const getValue = (value: MapValue | undefined) => {
+		if (value === undefined) {
+			return 'N/A';
+		} else {
+			const val = value as number;
+			return val.toFixed(1);
+		}
+	};
+
+	return (
+		<div className="info-container flex flex-col rounded-lg">
+			<div className="w-fit text-sm font-light opacity-70">Attitude</div>
+			<div className="flex w-full flex-wrap justify-between mt-2">
+				<div className="w-[30%] flex flex-col">
+					<div className="text-4xl font-mono font-black">{getValue(x_deg)}</div>
+					<div className="font-mono opacity-60">Roll</div>
+				</div>
+				<div className="w-[30%] flex flex-col">
+					<div className="text-4xl font-mono font-black">{getValue(y_deg)}</div>
+					<div className="font-mono opacity-60">Pitch</div>
+				</div>
+				<div className="w-[30%] flex flex-col">
+					<div className="text-4xl font-mono font-black">{getValue(z_deg)}</div>
+					<div className="font-mono opacity-60">Yaw</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export function StatusContainer() {
 	// subscribe to `status/sensors/gps`
 	const [gps_status] = useVictoryValue('status/sensors/gps');

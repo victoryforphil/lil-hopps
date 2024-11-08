@@ -94,6 +94,8 @@ export function parseWebMessage(data: any) {
 
 	const message = decode(new Uint8Array(data)) as WebMessage;
 
+	console.log(message);
+
 	const currentTimestamp = Date.now() / 1000;
 	const latency = (currentTimestamp - message.timestamp) * 1000;
 

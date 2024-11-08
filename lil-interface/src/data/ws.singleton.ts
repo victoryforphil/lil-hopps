@@ -44,6 +44,8 @@ export class WebSocketSingleton {
 				});
 				useConnectionStore.getState().setConnected(true);
                 useConnectionStore.getState().setConnecting(false);
+
+				this.webSocket?.send("NEW_CLIENT")
 			};
 
 			this.webSocket.onmessage = (event) => {

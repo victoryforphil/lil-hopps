@@ -1,4 +1,4 @@
-import useVictoryValue, { MapValue } from '@/hooks/useVictoryValue';
+import useVictoryValue from '@/hooks/useVictoryValue';
 import { ScatterChart } from '@mantine/charts';
 import { Center, rem, SegmentedControl } from '@mantine/core';
 import { IconHexagonalPyramid, IconMap, IconTimeline } from '@tabler/icons-react';

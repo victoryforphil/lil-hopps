@@ -56,7 +56,7 @@ struct DataLine {
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct SILArgs {
-    #[clap(short, long, value_parser, help = "Publishing connection string")]
+    #[clap(short, long, value_parser, help = "Publishing connection string",  default_value = "localhost:7001")]
     connection: String,
 }
 

@@ -7,6 +7,7 @@ import {
 	ArmButtons,
 	NoDrone,
 	PositionContainer,
+	AttitudeContainer,
 } from '@/components/sidebar';
 import { useConnectionStore } from '@/state/connection';
 
@@ -58,12 +59,13 @@ function DroneConnectedView() {
 		<div className="full-width-container">
 			<div className="sidebar">
 				<div className="flex flex-col justify-between h-full">
-					<div className="flex flex-col gap-4">
+					<div className="flex flex-col gap-2">
 						<SidebarHeader />
 						<DroneLabel name="lil-hopper 01" battery={40} />
 						<ArmButtons />
 						<StatusContainer />
 						<PositionContainer />
+						<AttitudeContainer />
 					</div>
 					<div>
 						<LogBox />
