@@ -209,7 +209,7 @@ export function StatusContainer() {
 	const [safety_armed] = useVictoryValue('status/mode/safety_armed');
 	const [stabilize_enabled] = useVictoryValue('status/mode/stabilize_enabled');
 	const [test_enabled] = useVictoryValue('status/mode/test_enabled');
-	const [mav_state] = useVictoryValue('status/system/system'); // This is making it look guly for now.
+	// const [mav_state] = useVictoryValue('status/system/system'); // This is making it look guly for now.
 
 	// Needs a special case.
 	// status/system/system, Text("MAV_STATE_ACTIVE")
@@ -256,20 +256,6 @@ export function StatusContainer() {
 					{<BoolStatusLabel name={'Test Mode'} status={test_enabled as boolean} />}
 				</div>
 			</div>
-		</div>
-	);
-}
-
-function StatusLabel(props: { name: string; status: string }) {
-	// TODO: change this
-	const getStatus = () => {
-		return <div>{props.status}</div>;
-	};
-
-	return (
-		<div className="flex w-fit p-1">
-			<div>{props.name}:</div>
-			<div className="font-bold ml-2">{getStatus()}</div>
 		</div>
 	);
 }

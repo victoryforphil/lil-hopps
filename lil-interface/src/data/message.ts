@@ -1,14 +1,8 @@
 import useDroneStore from '@/state/drone';
 import { useLogStore } from '../state/logstore';
 import { decode } from '@msgpack/msgpack';
-import useControlStore from '@/state/control';
 import { useConnectionStore } from '@/state/connection';
 
-interface ParsedData {
-	// topic: string;
-	valueType: DataType;
-	value: string | boolean | number;
-}
 
 interface WebMessage {
 	timestamp: number;

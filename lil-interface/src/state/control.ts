@@ -23,12 +23,12 @@ const useControlStore = create<ControlStore>()(
 
 // Handlers for data changing -- send message to ws.
 
-useControlStore.subscribe((state) => state.flying, (flying) => {
-    console.log("FLYING CHANGED -- SEND MESSAGE")
-})
+// useControlStore.subscribe((state) => state.flying, (flying) => {
+//     console.log("FLYING CHANGED -- SEND MESSAGE")
+// })
 
-useControlStore.subscribe((state) => state.armed, (armed) => {
-    console.log("ARMED CHANGED -- SEND MESSAGE")
-})
+// useControlStore.subscribe((state) => state.armed, (armed) => {
+//     console.log("ARMED CHANGED -- SEND MESSAGE")
+// })
 
 export default useControlStore;
