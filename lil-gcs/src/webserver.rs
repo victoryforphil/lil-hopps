@@ -1,6 +1,5 @@
 use futures::{SinkExt, StreamExt};
 use std::sync::Arc;
-use std::thread;
 use std::time::Duration;
 use tokio::net::TcpListener;
 use tokio::sync::Mutex;
@@ -45,7 +44,7 @@ pub async fn websocket_server_task(
 
                 // Handle incoming TCP messages and forward them to WebSocket clients
                 loop {
-                    thread::sleep(Duration::from_millis(500));
+                    tokio::time::sleep(Duration::from_millis(100)).await;
                     if let Ok(msg) = client_rx.recv().await {
                         let mut client_guard = clients.lock().await;
                         let mut i = 0;
@@ -53,8 +52,8 @@ pub async fn websocket_server_task(
                         while i < client_guard.len() {
                             let client = client_guard[i].clone();
                             let mut client = client.lock().await;
+                            // println!("SENDING MSG TO WS");
                             if (client.send(Message::binary(msg.clone())).await).is_err(){
-                                // Remove client if send fails (indicating closed connection)
                                 println!("Removing dead client {0}", i);
                                 client_guard.remove(i);
                             } else {

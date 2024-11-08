@@ -1,6 +1,8 @@
 import { useConnectionStore } from '@/state/connection';
 import { notifications } from '@mantine/notifications';
 import { parseWebMessage } from './message';
+import useDroneStore from '@/state/drone';
+import { useLogStore } from '@/state/logstore';
 
 const GCS_URL = 'ws://localhost:3030';
 
@@ -54,6 +56,9 @@ export class WebSocketSingleton {
 
 			this.webSocket.onerror = (error) => {
 				console.error('WebSocket error:', error);
+
+				useDroneStore.getState().reset();
+				useLogStore.getState().reset();
 			};
 
 			this.webSocket.onclose = () => {
@@ -62,6 +67,9 @@ export class WebSocketSingleton {
 					message: 'Websocket disconnected!',
 					color: 'red',
 				});
+
+				useDroneStore.getState().reset();
+				useLogStore.getState().reset();
 
 				useConnectionStore.getState().setConnected(false);
                 useConnectionStore.getState().setConnecting(false);

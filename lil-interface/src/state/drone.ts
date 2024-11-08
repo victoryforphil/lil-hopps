@@ -2,10 +2,19 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
 interface DroneStore {
-	data: Map<string, string | number | boolean>;
+	data: Map<string, string | number | boolean | undefined>;
 	setMapValue: (key: string, value: string | number | boolean) => void;
 	getMapValue: (key: string) => string | number | boolean | undefined;
 	overrideMap: (newMap: Map<string, string | number | boolean>) => void;
+	reset: () => void;
+}
+
+function copyMapWithUndefinedValues<K, V>(map: Map<K, V>): Map<K, V | undefined> {
+    const newMap = new Map<K, V | undefined>();
+    map.forEach((_, key) => {
+        newMap.set(key, undefined);
+    });
+    return newMap;
 }
 
 const useDroneStore = create(
@@ -24,6 +33,12 @@ const useDroneStore = create(
 		overrideMap: (newMap) => {
 			set({ data: newMap });
 		},
+		reset: () => {
+			set((state) => {
+				let new_map = copyMapWithUndefinedValues(state.data);
+				return { data: new_map }
+			})
+		}
 	}))
 );
 

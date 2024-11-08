@@ -250,7 +250,7 @@ async fn main() {
                                 let mode_req = QuadSetModeRequest::new(mode);
                                 datastore
                                     .add_struct(
-                                        &TopicKey::from_str("cmd/mode/mode"),
+                                        &TopicKey::from_str("cmd/mode"),
                                         Timepoint::now(),
                                         mode_req,
                                     )
@@ -268,7 +268,8 @@ async fn main() {
 
     tokio::spawn(async move {
         loop {
-            thread::sleep(Duration::from_secs_f32(2.0));
+            // thread::sleep(Duration::from_secs_f32(2.0));
+            tokio::time::sleep(Duration::from_secs_f32(0.25)).await;
             {
                 let mut map = subscriber_handle_clone.lock().unwrap();
 
@@ -302,7 +303,7 @@ async fn main() {
     });
 
     loop {
-        thread::sleep(Duration::from_millis(100));
+        tokio::time::sleep(Duration::from_millis(100)).await;
         node.tick();
     }
 }
