@@ -1,4 +1,4 @@
-import MapContainer from '@/components/map';
+import LargeContentView from '@/components/map';
 import {
 	DroneLabel,
 	StatusContainer,
@@ -48,7 +48,7 @@ function NoDroneView() {
 			</div>
 
 			<div className="map-container">
-				<MapContainer />
+				<LargeContentView />
 			</div>
 		</div>
 	);
@@ -74,7 +74,7 @@ function DroneConnectedView() {
 			</div>
 
 			<div className="map-container">
-				<MapContainer />
+				<LargeContentView />
 			</div>
 		</div>
 	);

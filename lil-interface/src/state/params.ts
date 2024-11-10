@@ -1,10 +1,9 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
-interface DroneStore {
-	data: Map<string, string | number | boolean | undefined>;
+interface ParamStore {
+	data: {params: Map<string, string | number | boolean | undefined>};
 	setMapValue: (key: string, value: string | number | boolean) => void;
-	getMapValue: (key: string) => string | number | boolean | undefined;
 	overrideMap: (newMap: Map<string, string | number | boolean>) => void;
 	reset: () => void;
 }
@@ -17,29 +16,27 @@ function copyMapWithUndefinedValues<K, V>(map: Map<K, V>): Map<K, V | undefined>
     return newMap;
 }
 
-const useDroneStore = create(
-	subscribeWithSelector<DroneStore>((set, get) => ({
-		data: new Map(),
+const useParamStore = create(
+	subscribeWithSelector<ParamStore>((set, get) => ({
+		data: {params: new Map()},
 
 		setMapValue: (key, value) => {
-			const newData = new Map(get().data);
-			newData.set(key, value);
+			const newData = {params: new Map(get().data.params)};
+			newData.params.set(key, value);
 			set({ data: newData });
 		},
 
-		getMapValue: (key) => get().data.get(key),
-
         // hopefully clones map and ignores the things we don't care about.
 		overrideMap: (newMap) => {
-			set({ data: newMap });
+			set({ data: {params: newMap} });
 		},
 		reset: () => {
 			set((state) => {
-				const new_map = copyMapWithUndefinedValues(state.data);
-				return { data: new_map }
+				const new_map = copyMapWithUndefinedValues(state.data.params);
+				return { data: {params: new_map} }
 			})
 		}
 	}))
 );
 
-export default useDroneStore;
+export default useParamStore;

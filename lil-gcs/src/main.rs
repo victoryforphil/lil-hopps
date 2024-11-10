@@ -285,8 +285,6 @@ async fn main() {
 
                     map.update.clear();
 
-                    info!("Sending data? {0}", data.len());
-
                     let message = WebMessage {
                         timestamp: get_current_timestamp(),
                         data,

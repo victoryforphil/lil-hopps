@@ -52,7 +52,6 @@ pub async fn websocket_server_task(
                         while i < client_guard.len() {
                             let client = client_guard[i].clone();
                             let mut client = client.lock().await;
-                            // println!("SENDING MSG TO WS");
                             if (client.send(Message::binary(msg.clone())).await).is_err(){
                                 println!("Removing dead client {0}", i);
                                 client_guard.remove(i);

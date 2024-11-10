@@ -1,13 +1,14 @@
 import useVictoryValue from '@/hooks/useVictoryValue';
+import useParamStore from '@/state/params';
 import { ScatterChart } from '@mantine/charts';
-import { Center, rem, SegmentedControl } from '@mantine/core';
-import { IconHexagonalPyramid, IconMap, IconTimeline } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { Autocomplete, Center, rem, ScrollArea, SegmentedControl } from '@mantine/core';
+import { IconHexagonalPyramid, IconMap, IconSearch, IconTimeline, IconVariable } from '@tabler/icons-react';
+import { useCallback, useEffect, useState } from 'react';
 
-export default function MapContainer() {
-	const [value, setValue] = useState<'Map' | 'Data' | 'Planner'>('Data');
+export default function LargeContentView() {
+	const [value, setValue] = useState<'Map' | 'Data' | 'Planner' | 'Params'>('Data');
 
-	const pageRender = (page: 'Map' | 'Data' | 'Planner') => {
+	const pageRender = (page: 'Map' | 'Data' | 'Planner' | 'Params') => {
 		switch (page) {
 			case 'Map':
 				return <MapPlaceholder />;
@@ -15,6 +16,8 @@ export default function MapContainer() {
 				return <DataPage />;
 			case 'Planner':
 				return <ThreePlaceholder />;
+			case 'Params':
+				return <ParamView />;
 			default:
 				return 'Invalid Render Page';
 		}
@@ -49,6 +52,14 @@ export default function MapContainer() {
 						label: (
 							<Center style={{ gap: 10 }}>
 								<IconHexagonalPyramid style={{ width: rem(16) }} />
+							</Center>
+						),
+					},
+					{
+						value: 'Params',
+						label: (
+							<Center style={{ gap: 10 }}>
+								<IconVariable style={{ width: rem(16) }} />
 							</Center>
 						),
 					},
@@ -97,7 +108,7 @@ function DataPage() {
 							color: 'red.5',
 							name: 'X/Y',
 							data: [{ x: X, y: Y }],
-						}
+						},
 					]}
 					dataKey={{ x: 'x', y: 'y' }}
 					xAxisLabel="X Position"
@@ -105,8 +116,8 @@ function DataPage() {
 					yAxisProps={{ domain: [-extents, extents] }}
 					xAxisProps={{ domain: [-extents, extents] }}
 					referenceLines={[
-						{ x: 0, label: 'Origin', color: "green.7" },
-						{ y: 0, label: 'Origin', color: "blue.7" },
+						{ x: 0, label: 'Origin', color: 'green.7' },
+						{ y: 0, label: 'Origin', color: 'blue.7' },
 					]}
 				/>
 			</div>
@@ -118,6 +129,49 @@ function ThreePlaceholder() {
 	return (
 		<div className="flex h-full w-full justify-center items-center">
 			<IconHexagonalPyramid color="#339af0" size={48} />
+		</div>
+	);
+}
+
+function ParamView() {
+	const [filter, setFilter] = useState('');
+
+	const paramMap = useParamStore((state) => state.data);
+
+
+	const generateLineItems = useCallback(
+	  (params: Map<string, number | string | boolean | undefined>) => {
+		let items = [];
+
+		for (const param of params.entries()) {
+			if (filter === "" || param[0].includes(filter)) {
+				items.push(
+					<div key={param[0]} className="flex justify-between">
+						<div className="text-lg font-mono">{param[0]}</div>
+						<div>{param[1]}</div>
+					</div>
+				);
+			}
+		}
+
+		return items;
+	  },
+	  [filter],
+	)
+
+	return (
+		<div className="flex w-full justify-center items-center p-4 flex-1 h-full flex-col">
+			<Autocomplete
+				placeholder="Search for param"
+				data={Array.from(paramMap.params.keys())}
+				className="w-80"
+				limit={10}
+				leftSectionPointerEvents="none"
+				leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} />}
+				value={filter}
+				onChange={setFilter}
+			/>
+			<ScrollArea className="w-full h-[75svh] flex gap-5 p-5">{generateLineItems(paramMap.params)}</ScrollArea>
 		</div>
 	);
 }

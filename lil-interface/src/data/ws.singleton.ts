@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { parseWebMessage } from './message';
 import useDroneStore from '@/state/drone';
 import { useLogStore } from '@/state/logstore';
+import useParamStore from '@/state/params';
 
 const GCS_URL = 'ws://localhost:3030';
 
@@ -29,6 +30,14 @@ export class WebSocketSingleton {
 	public sendMessage(message: string) {
 		if (this.webSocket && this.webSocket.readyState === WebSocket.OPEN) {
 			this.webSocket.send(message);
+		} else {
+			console.warn('WebSocket is not open. Message not sent.');
+		}
+	}
+
+	public updateParam(name: string, value: string | number | boolean | undefined) {
+		if (this.webSocket && this.webSocket.readyState === WebSocket.OPEN) {
+			this.webSocket.send(`PARAM:${name}:${value}`);
 		} else {
 			console.warn('WebSocket is not open. Message not sent.');
 		}
@@ -68,6 +77,8 @@ export class WebSocketSingleton {
 					color: 'red',
 				});
 
+				// Reset all drone states
+				useParamStore.getState().reset();
 				useDroneStore.getState().reset();
 				useLogStore.getState().reset();
 

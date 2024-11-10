@@ -2,6 +2,7 @@ import useDroneStore from '@/state/drone';
 import { useLogStore } from '../state/logstore';
 import { decode } from '@msgpack/msgpack';
 import { useConnectionStore } from '@/state/connection';
+import useParamStore from '@/state/params';
 
 
 interface WebMessage {
@@ -21,6 +22,7 @@ enum DataType {
 type TopicStore = Map<string, string | boolean | number>;
 
 const topicStore: TopicStore = new Map();
+let paramStore: TopicStore = new Map();
 
 function getCurrentTime(): string {
     const now = new Date();
@@ -35,7 +37,11 @@ function removeFirstAndLastCharacter(str: string): string {
     return str.slice(1, -1);
 }
 
-function parseDataFields(web_message: WebMessage, topic_store: TopicStore) {
+function removeParamPrefix(input: string): string {
+    return input.startsWith("params/") ? input.slice(7) : input;
+}
+
+function parseDataFields(web_message: WebMessage, topic_store: TopicStore, param_store: TopicStore) {
 	const timeStamp = getCurrentTime()
 	return web_message.data.map(({ topic, datapoint }) => {
 		const typeMatch = datapoint.match(/(\w+)\((.*)\)/);
@@ -69,10 +75,13 @@ function parseDataFields(web_message: WebMessage, topic_store: TopicStore) {
 
 			if (topic.includes("log/text")) {
 				topic_store.set(topic, `[${timeStamp}]: ${value}`)
+			} else if (topic.includes("params")){
+				// Special updates for params
+				topic_store.set(topic, value);
+				param_store.set(removeParamPrefix(topic), value);
 			} else {
 				topic_store.set(topic, value)
 			}
-			// return { topic, valueType, value };
 		} else {
 			topic_store.set(topic, datapoint)
 		}
@@ -89,7 +98,7 @@ export function parseWebMessage(data: any) {
 	const currentTimestamp = Date.now() / 1000;
 	const latency = (currentTimestamp - message.timestamp) * 1000;
 
-	parseDataFields(message, topicStore);
+	parseDataFields(message, topicStore, paramStore);
 
     if (topicStore.has("log/text")) {
         useLogStore.getState().addLogMessage(topicStore.get("log/text") as string);
@@ -101,6 +110,13 @@ export function parseWebMessage(data: any) {
 
 	useDroneStore.getState().overrideMap(topicStore);
 	useConnectionStore.getState().setRecieved(latency); // This is latency but it doesn't ahve to be.
+
+	if (paramStore.size > 0) {
+		// exclusive for params -- still trying to work it out.
+		useParamStore.getState().overrideMap(paramStore);
+		paramStore = new Map();
+	}
+
 
 	// console.log(`Latency: ${latency.toFixed(2)} ms`);
 	// console.log(`Got ${message.data.length} messages`);
