@@ -1,6 +1,15 @@
 # lil-hopps 
 Small rust-powered quadcopter stack. (Visualizer, Simulation, Firmware, Messaging)
 
+## CI Status
+
+[![Docker Image Build Check](https://github.com/victoryforphil/lil-hopps/actions/workflows/docker.yaml/badge.svg)](https://github.com/victoryforphil/lil-hopps/actions/workflows/docker.yaml)
+
+[![Rust](https://github.com/victoryforphil/lil-hopps/actions/workflows/rust.yaml/badge.svg)](https://github.com/victoryforphil/lil-hopps/actions/workflows/rust.yaml)
+
+[![Web Interface Build](https://github.com/victoryforphil/lil-hopps/actions/workflows/web.yaml/badge.svg)](https://github.com/victoryforphil/lil-hopps/actions/workflows/web.yaml)
+
+
 ## Project Layout   
 - lil-broker: Framework for time-series data storage and querying
 - lil-hopps: Quadcopter code
