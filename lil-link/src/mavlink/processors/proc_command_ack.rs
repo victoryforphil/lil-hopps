@@ -1,5 +1,5 @@
 use log::info;
-use victory_data_store::{database::DataView, topics::TopicKey};
+use victory_data_store::{database::view::DataView, topics::TopicKey};
 
 use crate::{
     common::identifiers::{IDENT_BASE_LOG, IDENT_COMMAND_ACK},

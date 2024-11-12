@@ -5,7 +5,7 @@ use std::{
 
 use log::{debug, info};
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, topics::TopicKey};
+use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
 
 use crate::common::types::{

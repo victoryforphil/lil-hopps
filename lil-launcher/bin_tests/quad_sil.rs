@@ -21,10 +21,11 @@ use tracing::Level;
 use tracing_subscriber::fmt;
 
 use clap::Parser;
-use victory_broker::adapters::tcp::TCPServerAdapter;
-use victory_broker::adapters::tcp::TCPServerOptions;
+
 use victory_commander::system::runner::BasherSysRunner;
 use victory_data_store::primitives::Primitives;
+use victory_data_store::sync::adapters::tcp::tcp_server::TcpSyncServer;
+use victory_data_store::sync::config::SyncConfig;
 use victory_data_store::topics::TopicKey;
 use victory_wtf::Timepoint;
 use victory_wtf::Timespan;
@@ -34,6 +35,9 @@ use victory_wtf::Timespan;
 struct SILArgs {
     #[clap(short, long, value_parser, help = "Mavlink connection string")]
     connection_string: String,
+
+    #[clap(short, long, value_parser, help = "TCP Sync Server address")]
+    sync_server_address: String,
 
     #[clap(long, value_parser, help = "Command Hz ", default_value = "25.0")]
     hz: f32,
@@ -56,10 +60,10 @@ struct SILArgs {
     )]
     arm_time: f32,
 }
-
-fn main() {
+#[tokio::main]
+async fn main() {
     fmt()
-        .with_max_level(Level::DEBUG)
+        .with_max_level(Level::INFO)
         .with_target(true)
         .pretty()
         .compact()
@@ -72,13 +76,20 @@ fn main() {
     info!("Running 'quad_sil' with args: {:#?}", args);
 
     let mut runner = BasherSysRunner::new();
-    let server = TCPServerAdapter::new(TCPServerOptions {
-        port: 7001,
-        address: "0.0.0.0".to_string(),
-        update_interval: Timespan::new_hz(100.0),
-    });
+    let server = TcpSyncServer::new(&args.sync_server_address).await;
     let server_handle = Arc::new(Mutex::new(server));
-    runner.enable_pubsub(server_handle);
+
+    let topic_filter = TopicKey::from_str("cmd");
+    
+    let sync_config = SyncConfig {
+        client_name: "TCP Sync Server".to_string(),
+        subscriptions: vec![topic_filter.display_name()],
+    };
+    runner.data_store
+        .lock()
+        .unwrap()
+        .setup_sync(sync_config, server_handle);
+
     runner.dt = Timespan::new_hz(args.hz as f64);
 
     runner.add_system(Arc::new(Mutex::new(

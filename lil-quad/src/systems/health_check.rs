@@ -7,7 +7,7 @@ use lil_link::common::{
 use log::info;
 use serde::{Deserialize, Serialize};
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, topics::TopicKey};
+use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timepoint;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -59,9 +59,9 @@ impl System for HealthCheck {
 
     fn execute(
         &mut self,
-        inputs: &victory_data_store::database::DataView,
+        inputs: &victory_data_store::database::view::DataView,
         _dt: victory_wtf::Timespan,
-    ) -> victory_data_store::database::DataView {
+    ) -> victory_data_store::database::view::DataView {
         let ekf_status: QuadEkfStatus = inputs
             .get_latest(&TopicKey::from_str(&format!(
                 "{}/{}",
