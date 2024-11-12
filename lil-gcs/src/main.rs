@@ -335,7 +335,7 @@ async fn main() {
     });
     let datastore = datastore.clone();
     loop {
-        tokio::time::sleep(Duration::from_millis(200)).await;
+        tokio::time::sleep(Duration::from_millis(100)).await;
         datastore.lock().unwrap().run_sync();
     }
 }
