@@ -5,7 +5,7 @@ use rerun::{Boxes3D, Scalar, TextDocument, Vec3D};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, primitives::Primitives, topics::TopicKey};
+use victory_data_store::{database::view::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
 
 use crate::LilRerun;

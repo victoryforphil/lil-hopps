@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use lil_link::common::types::request_takeoff::QuadTakeoffRequest;
 use log::info;
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, topics::TopicKey};
+use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timepoint;
 
 pub struct TimedTakeoff {
@@ -37,9 +37,9 @@ impl System for TimedTakeoff {
 
     fn execute(
         &mut self,
-        _inputs: &victory_data_store::database::DataView,
+        _inputs: &victory_data_store::database::view::DataView,
         dt: victory_wtf::Timespan,
-    ) -> victory_data_store::database::DataView {
+    ) -> victory_data_store::database::view::DataView {
         self.current_time = self.current_time.clone() + dt;
         let mut out = DataView::new();
 

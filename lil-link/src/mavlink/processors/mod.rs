@@ -1,4 +1,4 @@
-use victory_data_store::database::DataView;
+use victory_data_store::{database::view::DataView, topics::TopicKey};
 
 use super::core::MavlinkMessageType;
 

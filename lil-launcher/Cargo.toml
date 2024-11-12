@@ -48,4 +48,5 @@ victory-broker = { workspace = true }
 lil-rerun = { path = "../lil-rerun" }
 lil-quad = { path = "../lil-quad" }
 lil-link = { path = "../lil-link" }
+tokio = { version = "1.41.1", features = ["full"] }
 

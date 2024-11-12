@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use lil_link::common::types::{mode::QuadMode, request_arm::QuadSetModeRequest};
 use log::info;
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, topics::TopicKey};
+use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timepoint;
 
 pub struct TimedMode {
@@ -37,9 +37,9 @@ impl System for TimedMode {
 
     fn execute(
         &mut self,
-        _inputs: &victory_data_store::database::DataView,
+        _inputs: &DataView,
         dt: victory_wtf::Timespan,
-    ) -> victory_data_store::database::DataView {
+    ) ->DataView {
         self.current_time = self.current_time.clone() + dt;
         let mut out = DataView::new();
 

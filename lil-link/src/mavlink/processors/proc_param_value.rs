@@ -12,7 +12,7 @@ pub struct ParamValueProcessor;
 impl MavlinkMessageProcessor for ParamValueProcessor {
     fn on_mavlink_message(
         msg: crate::mavlink::core::MavlinkMessageType,
-        data_view: &mut victory_data_store::database::DataView,
+        data_view: &mut victory_data_store::database::view::DataView,
     ) -> Result<(), anyhow::Error> {
         let param_value_msg = match msg {
             MavlinkMessageType::PARAM_VALUE(param_value) => param_value,

@@ -1,4 +1,4 @@
-use victory_data_store::{database::DataView, topics::TopicKey};
+use victory_data_store::{database::view::DataView, topics::TopicKey};
 
 use crate::{
     common::identifiers::*,

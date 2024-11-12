@@ -13,6 +13,9 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
+use victory_data_store::database::listener::DataStoreListener;
+use victory_data_store::sync::adapters::tcp::tcp_client::TCPClient;
+use victory_data_store::sync::config::SyncConfig;
 
 use clap::Parser;
 use serde::Serialize;
@@ -21,10 +24,6 @@ use tracing::warn;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
-use victory_broker::adapters::tcp::TCPClientAdapter;
-use victory_broker::adapters::tcp::TCPClientOptions;
-use victory_broker::node::sub_callback::SubCallback;
-use victory_broker::node::Node;
 use victory_data_store::database::Datastore;
 use victory_data_store::topics::TopicKey;
 use victory_wtf::Timepoint;
@@ -38,15 +37,23 @@ pub struct TCPNodeSubscriber {
     update: BTreeMap<String, String>,
 }
 
-impl SubCallback for TCPNodeSubscriber {
-    fn on_update(&mut self, datapoints: &victory_data_store::datapoints::DatapointMap) {
-        for (topic, datapoint) in datapoints.iter() {
-            self.map
-                .insert(topic.display_name(), format!("{:?}", datapoint.value));
+impl DataStoreListener for TCPNodeSubscriber {
+    fn on_datapoint(&mut self, datapoint: &victory_data_store::datapoints::Datapoint) {
+       
+    }
 
-            self.update
-                .insert(topic.display_name(), format!("{:?}", datapoint.value));
-        }
+    fn on_raw_datapoint(&mut self, datapoint: &victory_data_store::datapoints::Datapoint) {
+        let topic = datapoint.topic.clone();
+        self.map
+            .insert(topic.display_name(), format!("{:?}", datapoint.value));
+
+        self.update
+            .insert(topic.display_name(), format!("{:?}", datapoint.value));
+    }
+    
+    
+    fn on_bucket_update(&mut self, bucket: &victory_data_store::buckets::BucketHandle) {
+        
     }
 }
 
@@ -106,7 +113,7 @@ async fn main() {
     tokio::spawn(webserver::websocket_server_task(tcp_tx.clone(), ws_tx));
 
     fmt()
-        .with_max_level(Level::INFO)
+        .with_max_level(Level::DEBUG)
         .with_target(true)
         .pretty()
         .compact()
@@ -117,41 +124,49 @@ async fn main() {
 
     let args = SILArgs::parse();
 
-    let mut client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
+    let mut client = TCPClient::new(args.connection.to_string()).await;
 
     while client.is_err() {
         info!("Failed to connect to server, retrying...");
         thread::sleep(Duration::from_secs_f32(1.0));
-        client = TCPClientAdapter::new(TCPClientOptions::from_url(&args.connection));
+        client = TCPClient::new(args.connection.to_string()).await;
     }
 
     let client = client.unwrap();
 
     let client_handle = Arc::new(Mutex::new(client));
     let datastore = Datastore::new().handle();
-    let mut node = Node::new(
-        "TCP Client".to_string(),
-        client_handle.clone(),
-        datastore.clone(),
-    );
 
-    let subscriber = TCPNodeSubscriber {
+    let topic_key = TopicKey::from_str("");
+
+    let sync_config = SyncConfig {
+        client_name: "GCS".to_string(),
+        subscriptions: vec![topic_key.display_name()],
+    };
+    datastore
+        .lock()
+        .unwrap()
+        .setup_sync(sync_config, client_handle);
+
+
+    let mut listener = TCPNodeSubscriber {
         map: BTreeMap::new(),
         update: BTreeMap::new(),
     };
 
-    let subscriber_handle = Arc::new(Mutex::new(subscriber));
+    let listener_handle = Arc::new(Mutex::new(listener));
 
-    let topic_key = TopicKey::from_str("");
-    node.add_sub_callback(topic_key, subscriber_handle.clone());
-    node.register();
+    datastore.lock().unwrap().add_listener(&topic_key, listener_handle.clone());
 
-    let subscriber_handle_clone = subscriber_handle.clone();
+    
+
+    let subscriber_handle_clone = listener_handle.clone();
     let tcp_tx_clone = tcp_tx.clone();
 
-    let subscriber_handle_clone_ws = subscriber_handle.clone();
+    let subscriber_handle_clone_ws = listener_handle.clone();
     let tcp_tx_clone_ws = tcp_tx.clone();
 
+    let datastore_clone = datastore.clone();
     tokio::spawn(async move {
         loop {
             if let Some(ws_msg) = ws_rx.recv().await {
@@ -160,7 +175,7 @@ async fn main() {
                 // Need to parse from json or something a topic and a value. It would be great if I could parse a normal victory value.
 
                 // I thought this was a scope thing at some point.
-                let mut datastore = datastore.lock().expect("Failed to lock mutex");
+                let mut datastore = datastore_clone.lock().expect("Failed to lock mutex");
 
                 let (msg_topic, params) = parse_message(&ws_msg);
 
@@ -288,7 +303,7 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             // thread::sleep(Duration::from_secs_f32(2.0));
-            tokio::time::sleep(Duration::from_secs_f32(0.25)).await;
+            tokio::time::sleep(Duration::from_millis(200)).await;
             {
                 let mut map = subscriber_handle_clone.lock().unwrap();
 
@@ -318,9 +333,9 @@ async fn main() {
             }
         }
     });
-
+    let datastore = datastore.clone();
     loop {
         tokio::time::sleep(Duration::from_millis(100)).await;
-        node.tick();
+        datastore.lock().unwrap().run_sync();
     }
 }

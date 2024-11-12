@@ -11,7 +11,7 @@ use lil_link::common::{
 use log::{info, warn};
 use task::{TaskType, Tasks};
 use victory_commander::system::System;
-use victory_data_store::{database::DataView, primitives::Primitives, topics::TopicKey};
+use victory_data_store::{database::view::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
 
 use crate::systems::timed_arm::ArmMessage;
@@ -126,9 +126,9 @@ impl System for MissionRunner {
 
     fn execute<'a>(
         &mut self,
-        inputs: &'a victory_data_store::database::DataView,
+        inputs: &'a victory_data_store::database::view::DataView,
         dt: victory_wtf::Timespan,
-    ) -> victory_data_store::database::DataView {
+    ) -> victory_data_store::database::view::DataView {
         let mut out = DataView::new();
         self.current_time = self.current_time.clone() + dt;
         // Write current task to status/mission/current_task
