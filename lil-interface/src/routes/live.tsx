@@ -1,4 +1,4 @@
-import LargeContentView from '@/components/map';
+import LargeContentView from '@/components/largeView';
 import {
 	DroneLabel,
 	StatusContainer,
@@ -10,20 +10,6 @@ import {
 	AttitudeContainer,
 } from '@/components/sidebar';
 import { useConnectionStore } from '@/state/connection';
-
-/**
- * 
-				<div className="flex flex-row gap-10 items-center w-full">
-					<div>
-						{isConnected ? (
-							<h1>Connected To Websocket</h1>
-						) : (
-							<h1>Not Connected</h1>
-						)}
-					</div>
-					<div>{log_message}</div>
-				</div>
- */
 
 export default function Live() {
 	const connected = useConnectionStore((state) => state.connected);

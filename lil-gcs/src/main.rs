@@ -1,4 +1,5 @@
 use lil_link::common::types::mode::QuadMode;
+use lil_link::common::types::parameter::QuadParameter;
 use lil_link::common::types::request_arm::QuadSetModeRequest;
 use lil_link::common::types::request_land::QuadLandRequest;
 use lil_link::common::types::request_mode_set::QuadArmRequest;
@@ -81,14 +82,19 @@ fn get_current_timestamp() -> f64 {
         .as_secs_f64()
 }
 
-fn parse_basic_message(message: &str) -> Option<(String, String)> {
-    if let Some(index) = message.find(':') {
-        let (key, value) = message.split_at(index);
-        // Remove the ':' from the start of the value
-        let value = &value[1..];
-        return Some((key.to_string(), value.to_string()));
+/**
+ * Parses Messages by Colon. The first Text portion is the command and the following X are the arguments.
+ */
+fn parse_message(message: &str) -> (String, Vec<String>) {
+    let parts: Vec<&str> = message.splitn(2, ':').collect();
+
+    let command = parts[0].to_string();
+    let mut values = Vec::new();
+
+    if parts.len() > 1 {
+        values = parts[1].split(':').map(|s| s.to_string()).collect();
     }
-    None
+    (command, values)
 }
 
 #[tokio::main]
@@ -156,15 +162,7 @@ async fn main() {
                 // I thought this was a scope thing at some point.
                 let mut datastore = datastore.lock().expect("Failed to lock mutex");
 
-                let msg_topic: String;
-                let mut msg_value: Option<String> = None;
-
-                if let Some((complex_msg, complex_value)) = parse_basic_message(&ws_msg) {
-                    msg_topic = complex_msg;
-                    msg_value = Some(complex_value);
-                } else {
-                    msg_topic = ws_msg;
-                }
+                let (msg_topic, params) = parse_message(&ws_msg);
 
                 match msg_topic.as_str() {
                     "NEW_CLIENT" => {
@@ -244,8 +242,8 @@ async fn main() {
                             .unwrap();
                     }
                     "MODE" => {
-                        if let Some(value) = msg_value {
-                            if let Ok(mode) = QuadMode::from_str(&value) {
+                        if params.len() == 1 {
+                            if let Ok(mode) = QuadMode::from_str(&params[0]) {
                                 println!("Setting new mode now {0}", mode);
                                 let mode_req = QuadSetModeRequest::new(mode);
                                 datastore
@@ -256,6 +254,27 @@ async fn main() {
                                     )
                                     .unwrap();
                             }
+                        } else {
+                            warn!("Wrong number of commands sent to the MODE command");
+                        }
+                    }
+                    "PARAM" => {
+                        if params.len() == 2 {
+                            if let Ok(set_val) = params[1].parse::<f64>() {
+                                let param_cmd = QuadParameter::new(params[0].clone(), set_val);
+                                info!("Updated param {0} to {1}", params[0], set_val);
+                                datastore
+                                    .add_struct(
+                                        &TopicKey::from_str(&params[0]),
+                                        Timepoint::now(),
+                                        param_cmd,
+                                    )
+                                    .unwrap();
+                            } else {
+                                warn!("Supplied incorrect data for Param Set -- Needs to be parsable as a float");
+                            }
+                        } else {
+                            warn!("Wrong number of commands sent to the MODE command");
                         }
                     }
                     _ => {

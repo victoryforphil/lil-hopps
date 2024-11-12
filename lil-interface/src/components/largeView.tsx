@@ -1,7 +1,9 @@
+import { useGCSConnection } from '@/data/ws.singleton';
 import useVictoryValue from '@/hooks/useVictoryValue';
 import useParamStore from '@/state/params';
 import { ScatterChart } from '@mantine/charts';
-import { Autocomplete, Center, rem, ScrollArea, SegmentedControl } from '@mantine/core';
+import { Autocomplete, Center, NumberInput, rem, ScrollArea, SegmentedControl } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { IconHexagonalPyramid, IconMap, IconSearch, IconTimeline, IconVariable } from '@tabler/icons-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -138,40 +140,59 @@ function ParamView() {
 
 	const paramMap = useParamStore((state) => state.data);
 
-
 	const generateLineItems = useCallback(
-	  (params: Map<string, number | string | boolean | undefined>) => {
-		let items = [];
+		(params: Map<string, number | string | boolean | undefined>) => {
+			let items = [];
 
-		for (const param of params.entries()) {
-			if (filter === "" || param[0].includes(filter)) {
-				items.push(
-					<div key={param[0]} className="flex justify-between">
-						<div className="text-lg font-mono">{param[0]}</div>
-						<div>{param[1]}</div>
-					</div>
-				);
+			for (const param of params.entries()) {
+				if (filter === '' || param[0].includes(filter)) {
+					items.push(<ParamField key={param[0]} name={param[0]} value={param[1]} />);
+				}
 			}
-		}
 
-		return items;
-	  },
-	  [filter],
-	)
+			return items;
+		},
+		[filter]
+	);
 
 	return (
-		<div className="flex w-full justify-center items-center p-4 flex-1 h-full flex-col">
+		<div className="flex w-[50%] p-4 h-full flex-col">
+			<div className="w-fit text-lg font-bold pb-2">Drone Param Settings</div>
 			<Autocomplete
 				placeholder="Search for param"
 				data={Array.from(paramMap.params.keys())}
-				className="w-80"
-				limit={10}
+				className="w-full"
+				limit={5}
 				leftSectionPointerEvents="none"
 				leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} />}
 				value={filter}
 				onChange={setFilter}
+				comboboxProps={{ position: 'right', middlewares: { flip: false, shift: true } }}
 			/>
-			<ScrollArea className="w-full h-[75svh] flex gap-5 p-5">{generateLineItems(paramMap.params)}</ScrollArea>
+			<ScrollArea className="w-full h-[70svh] flex gap-5 m-2 p-2 pr-5 border-y-2 rounded-lg border-zinc-500">
+				{generateLineItems(paramMap.params)}
+			</ScrollArea>
+		</div>
+	);
+}
+
+function ParamField(props: { name: string; value: string | number | boolean | undefined }) {
+	const [value, setValue] = useState<string | number>(props.value as string);
+
+	// After 1 seconds go ahead and set the real value.
+	const [debounced] = useDebouncedValue(value, 1000);
+
+	useEffect(() => {
+		if (debounced !== props.value) {
+			console.log('Sending a value back to GCS');
+			useGCSConnection().sendMessage(`PARAM:params/${props.name}:${debounced}`);
+		}
+	}, [debounced]);
+
+	return (
+		<div className="flex justify-between items-center bg-zinc-800 rounded-md p-2 m-2 px-6 font-mono hover:bg-zinc-900">
+			<div className="text-lg">{props.name}</div>
+			<NumberInput variant="unstyled" value={value} onChange={setValue} />
 		</div>
 	);
 }
