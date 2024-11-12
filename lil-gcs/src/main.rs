@@ -113,7 +113,7 @@ async fn main() {
     tokio::spawn(webserver::websocket_server_task(tcp_tx.clone(), ws_tx));
 
     fmt()
-        .with_max_level(Level::INFO)
+        .with_max_level(Level::DEBUG)
         .with_target(true)
         .pretty()
         .compact()
@@ -303,7 +303,7 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             // thread::sleep(Duration::from_secs_f32(2.0));
-            tokio::time::sleep(Duration::from_secs_f32(0.25)).await;
+            tokio::time::sleep(Duration::from_millis(200)).await;
             {
                 let mut map = subscriber_handle_clone.lock().unwrap();
 
@@ -335,7 +335,7 @@ async fn main() {
     });
     let datastore = datastore.clone();
     loop {
-        tokio::time::sleep(Duration::from_millis(5)).await;
+        tokio::time::sleep(Duration::from_millis(200)).await;
         datastore.lock().unwrap().run_sync();
     }
 }
