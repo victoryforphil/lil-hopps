@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
       - uses: taiki-e/install-action@nextest
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -25,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
       - uses: taiki-e/install-action@nextest
       - uses: actions/checkout@v4
       - name: Install Rust

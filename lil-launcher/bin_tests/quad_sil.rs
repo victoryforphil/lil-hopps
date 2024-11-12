@@ -15,6 +15,7 @@ use lil_quad::systems::mission_runner::task::Tasks;
 use lil_quad::systems::mission_runner::task::TimedTask;
 use lil_quad::systems::mission_runner::MissionRunner;
 
+// use lil_rerun::system::RerunSystem;
 use tracing::info;
 use tracing::Level;
 use tracing_subscriber::fmt;
@@ -134,9 +135,9 @@ fn main() {
         check_ekf: Some(true),
     }))));
 
-    runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
-        "quad_arm".to_string(),
-    ))));
+    // runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
+    //     "quad_arm".to_string(),
+    // ))));
 
     runner.set_real_time(true);
     runner.run();
