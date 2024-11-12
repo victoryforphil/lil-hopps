@@ -142,7 +142,7 @@ function ParamView() {
 
 	const generateLineItems = useCallback(
 		(params: Map<string, number | string | boolean | undefined>) => {
-			let items = [];
+			const items = [];
 
 			for (const param of params.entries()) {
 				if (filter === '' || param[0].includes(filter)) {

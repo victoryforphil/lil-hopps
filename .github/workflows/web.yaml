@@ -1,0 +1,31 @@
+name: Web Interface Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lil-interface/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'lil-interface/**'
+
+jobs:
+  build:
+    defaults:
+        run:
+          working-directory: lil-interface
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+      - name: Install dependencies
+        run: npm install
+      - name: Build project
+        run: npm run build

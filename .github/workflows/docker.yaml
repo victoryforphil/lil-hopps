@@ -1,0 +1,37 @@
+name: Docker Image Build Check
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/Dockerfile'
+      - '**/*.dockerignore'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/Dockerfile'
+      - '**/*.dockerignore'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker images
+        run: |
+          # Find all directories containing a Dockerfile and attempt to build each one
+          for dockerfile in $(find . -name 'Dockerfile'); do
+            image_name=$(basename $(dirname "$dockerfile"))
+            echo "Building Docker image for $image_name..."
+            docker build -t "$image_name" -f "$dockerfile" "$(dirname "$dockerfile")"
+          done
