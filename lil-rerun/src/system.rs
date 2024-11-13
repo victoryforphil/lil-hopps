@@ -118,13 +118,7 @@ impl System for RerunSystem {
         if let (Primitives::Float(roll), Primitives::Float(pitch), Primitives::Float(yaw)) =
             (roll, pitch, yaw)
         {
-            let (roll, pitch, yaw) = (
-                roll * 180.0 / std::f64::consts::PI,
-                pitch * 180.0 / std::f64::consts::PI,
-                yaw * 180.0 / std::f64::consts::PI,
-            );
-            let quat = UnitQuaternion::from_euler_angles(roll, pitch, yaw);
-            let quat = quat.quaternion();
+            let quat = UnitQuaternion::from_euler_angles(*roll, *pitch, *yaw);
             rerun
                 .log(
                     "attitude",
@@ -152,7 +146,9 @@ impl System for RerunSystem {
 
     fn get_subscribed_topics(&self) -> std::collections::BTreeSet<TopicKey> {
         let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::empty());
+        topics.insert(TopicKey::from_str("status"));
+        topics.insert(TopicKey::from_str("cmd"));
+        topics.insert(TopicKey::from_str("pose"));
         topics
     }
 }

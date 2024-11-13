@@ -106,8 +106,8 @@ fn parse_message(message: &str) -> (String, Vec<String>) {
 
 #[tokio::main]
 async fn main() {
-    let (tcp_tx, _) = broadcast::channel(4);
-    let (ws_tx, mut ws_rx) = mpsc::channel(32);
+    let (tcp_tx, _) = broadcast::channel(512);
+    let (ws_tx, mut ws_rx) = mpsc::channel(512);
 
     // Spawn WebSocket server task
     tokio::spawn(webserver::websocket_server_task(tcp_tx.clone(), ws_tx));
@@ -303,13 +303,14 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             // thread::sleep(Duration::from_secs_f32(2.0));
-            tokio::time::sleep(Duration::from_millis(200)).await;
+            tokio::time::sleep(Duration::from_millis(250)).await;
             {
                 let mut map = subscriber_handle_clone.lock().unwrap();
-
-                if !map.update.is_empty() {
-                    let data = map
-                        .update
+                let updates=  map.update.clone();
+                map.update.clear();
+                drop(map);
+                if !updates.is_empty() {
+                    let data = updates
                         .iter()
                         .map(|(topic, datapoint)| DataLine {
                             topic: topic.to_string(),
@@ -317,8 +318,7 @@ async fn main() {
                         })
                         .collect::<Vec<DataLine>>();
 
-                    map.update.clear();
-
+                    
                     let message = WebMessage {
                         timestamp: get_current_timestamp(),
                         data,
@@ -330,12 +330,14 @@ async fn main() {
                         warn!("Failed to MsgPack the DataStore Map")
                     }
                 }
+
+
             }
         }
     });
     let datastore = datastore.clone();
     loop {
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        tokio::time::sleep(Duration::from_millis(50)).await;
         datastore.lock().unwrap().run_sync();
     }
 }

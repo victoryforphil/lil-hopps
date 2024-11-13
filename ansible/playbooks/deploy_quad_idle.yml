@@ -44,8 +44,10 @@
 
           [Service]
           Type=simple
-          ExecStart=/lil-hopps/quad_idle
-          Restart=on-failure
+          Environment="LIL_DIR=."
+          WorkingDirectory=/lil-hopps
+          ExecStart=/lil-hopps/quad_idle -c serial:/dev/serial0:115200 --hz 15 -s 0.0.0.0:7777
+          Restart=always
           User=root
 
           [Install]
@@ -57,7 +59,7 @@
       systemd:
         name: quad_idle
         enabled: yes
-        state: stopped
+        state: started
         daemon_reload: yes
   handlers:
     - name: Reload systemd

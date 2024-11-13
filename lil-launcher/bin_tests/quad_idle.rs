@@ -26,6 +26,7 @@ use clap::Parser;
 use victory_broker::adapters::tcp::TCPServerAdapter;
 use victory_broker::adapters::tcp::TCPServerOptions;
 use victory_commander::system::runner::BasherSysRunner;
+use victory_data_store::database::retention::RetentionPolicy;
 use victory_data_store::primitives::Primitives;
 use victory_data_store::sync::adapters::tcp::tcp_server::TcpSyncServer;
 use victory_data_store::sync::config::SyncConfig;
@@ -51,7 +52,6 @@ struct SILArgs {
     )]
     duration: f32,
 
-
     #[clap(short, long, value_parser, help = "TCP Sync Server address")]
     sync_server_address: String,
 
@@ -75,7 +75,7 @@ async fn main() {
         .with_line_number(false)
         .without_time()
         .init();
-
+    
     let args = SILArgs::parse();
     info!("Running 'quad_sil' with args: {:#?}", args);
 
@@ -84,17 +84,26 @@ async fn main() {
     let server_handle = Arc::new(Mutex::new(server));
 
     let topic_filter = TopicKey::from_str("cmd");
-    
+
     let sync_config = SyncConfig {
         client_name: "Quad Idle".to_string(),
         subscriptions: vec![topic_filter.display_name()],
     };
-    runner.data_store
+    runner
+        .data_store
         .lock()
         .unwrap()
         .setup_sync(sync_config, server_handle);
 
+    let retention_policy = RetentionPolicy {
+        max_age: Some(Timespan::new_secs(30.0)),
+        max_rows: Some(64),
+    };
+    runner.data_store.lock().unwrap().set_retention(retention_policy);
+
     runner.dt = Timespan::new_hz(args.hz as f64);
+    runner.set_end_time(Timepoint::new_secs(60. * 15.));
+
 
     runner.add_system(Arc::new(Mutex::new(
         QuadlinkSystem::new_from_connection_string(args.connection_string.as_str()).unwrap(),
@@ -104,11 +113,10 @@ async fn main() {
         check_ekf: Some(true),
     }))));
 
-    /*
-        runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
-           "quad_arm".to_string(),
-       ))));
-    */
+    runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
+        "quad_idle".to_string(),
+    ))));
+
     runner.set_real_time(true);
     runner.run();
 }
