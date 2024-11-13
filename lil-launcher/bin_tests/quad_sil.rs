@@ -55,7 +55,6 @@ use tracing_subscriber::layer::SubscriberExt;
 #[tokio::main]
 async fn main() {
 
-
     let args = SILArgs::parse();
 
     if !args.tracing {
