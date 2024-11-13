@@ -1,0 +1,35 @@
+---
+- name: Collect and clear .lil log folders from remote hosts
+  hosts: myhosts
+  become: yes
+
+  tasks:
+    - name: Create local .lil directory if it doesn't exist
+      become: no
+      delegate_to: localhost
+      file:
+        path: "{{ lookup('env','PWD') }}/.lil"
+        state: directory
+        mode: '0755'
+
+    - name: Copy remote .lil log folder to local machine
+      become: no
+      delegate_to: localhost
+      synchronize:
+        src: /lil-hopps/.lil/
+        dest: "{{ lookup('env','PWD') }}/.lil/{{ inventory_hostname }}/"
+        mode: pull
+        recursive: yes
+
+    - name: Remove contents of remote .lil log folder
+      file:
+        path: /lil-hopps/.lil/
+        state: absent
+
+    - name: Recreate remote .lil log folder
+      file:
+        path: /lil-hopps/.lil/
+        state: directory
+        mode: '0777'
+        owner: pi
+        group: pi
