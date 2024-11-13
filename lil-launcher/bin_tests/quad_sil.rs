@@ -63,7 +63,7 @@ struct SILArgs {
 #[tokio::main]
 async fn main() {
     fmt()
-        .with_max_level(Level::DEBUG)
+        .with_max_level(Level::INFO)
         .with_target(true)
         .pretty()
         .compact()
