@@ -28,19 +28,21 @@ export default function RealtimeLine(props: { element_limit: number; title: stri
 
 					return updatedPoints;
 				});
-			} else {
-				const randomZ = Math.random() * 10;
-				setPoints((prevPoints) => {
-					const now = Date.now();
-					const updatedPoints = [...prevPoints, { z: randomZ, x: now }];
-
-					if (updatedPoints.length > props.element_limit) {
-						updatedPoints.shift();
-					}
-
-					return updatedPoints;
-				});
 			}
+			// For testing.
+			// } else {
+			// 	const randomZ = Math.random() * 10;
+			// 	setPoints((prevPoints) => {
+			// 		const now = Date.now();
+			// 		const updatedPoints = [...prevPoints, { z: randomZ, x: now }];
+
+			// 		if (updatedPoints.length > props.element_limit) {
+			// 			updatedPoints.shift();
+			// 		}
+
+			// 		return updatedPoints;
+			// 	});
+			// }
 		}, 100);
 
 		return () => {

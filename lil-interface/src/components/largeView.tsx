@@ -112,10 +112,10 @@ function DataPage() {
 	return (
 		<div className="flex h-full w-full justify-between items-center p-2 flex-wrap gap-2">
 			<div className='w-full flex gap-5 justify-center mb-2'>
-				<BigNumber val={15} victory_id={'pose/attitude/rpy_radians/x'} />
-				<BigNumber val={15} victory_id={'pose/attitude/rpy_radians/x'}/>
-				<BigNumber val={15} victory_id={'pose/attitude/rpy_radians/x'}/>
-				<BigNumber val={15} name={'Battery'} victory_id={'status/battery'}/>
+				<BigNumber victory_id={'pose/attitude/rpy_radians/x'} />
+				<BigNumber victory_id={'pose/attitude/rpy_radians/x'}/>
+				<BigNumber victory_id={'pose/attitude/rpy_radians/x'}/>
+				<BigNumber name={'Battery'} victory_id={'status/battery'}/>
 			</div>
 			<div className="w-[50%]">
 				<ScatterChart
