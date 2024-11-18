@@ -8,7 +8,7 @@ import { useConnectionStore } from '@/state/connection';
 import { useLogStore } from '@/state/logstore';
 import { useEffect, useState } from 'react';
 import useVictoryValue, { MapValue } from '@/hooks/useVictoryValue';
-import { useGCSConnection } from '@/data/ws.singleton';
+import { GCS_Connection } from '@/data/ws.singleton';
 
 export function LOS() {
 	return (
@@ -49,7 +49,7 @@ export function SidebarHeader() {
 						if (connected) {
 							// TODO: Disconnect? Why
 						} else {
-							useGCSConnection().restart();
+							GCS_Connection().restart();
 						}
 					}}
 				>
@@ -83,7 +83,7 @@ export function DroneLabel(props: { name: string; battery: number }) {
 	}, [mode]);
 
 	const setMode = (newMode: string | null) => {
-		useGCSConnection().sendMessage(`MODE:${newMode}`);
+		GCS_Connection().sendMessage(`MODE:${newMode}`);
 		setModeSelect(newMode);
 	};
 
@@ -343,9 +343,9 @@ export function ArmButtons() {
 							message: 'Arming Drone',
 							color: 'red',
 						});
-						useGCSConnection().sendMessage('ARM');
+						GCS_Connection().sendMessage('ARM');
 					} else {
-						useGCSConnection().sendMessage('DISARM');
+						GCS_Connection().sendMessage('DISARM');
 						if (flying) toggleFlying();
 					}
 				}}
@@ -366,9 +366,9 @@ export function ArmButtons() {
 							title: 'Control System',
 							message: 'Taking off',
 						});
-						useGCSConnection().sendMessage('TAKEOFF');
+						GCS_Connection().sendMessage('TAKEOFF');
 					} else {
-						useGCSConnection().sendMessage('LAND');
+						GCS_Connection().sendMessage('LAND');
 					}
 				}}
 			>
@@ -387,7 +387,7 @@ export function NoDrone() {
 			<div className="font-bold">No Ground Station is connected</div>
 			<Button
 				onClick={() => {
-					useGCSConnection().restart();
+					GCS_Connection().restart();
 				}}
 				variant="default"
 				loading={connecting}

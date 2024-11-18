@@ -7,7 +7,7 @@ import useParamStore from '@/state/params';
 
 const GCS_URL = 'ws://localhost:3030';
 
-export function useGCSConnection() {
+export function GCS_Connection() {
     return WebSocketSingleton.getInstance();
 }
 

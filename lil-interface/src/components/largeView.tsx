@@ -1,4 +1,4 @@
-import { useGCSConnection } from '@/data/ws.singleton';
+import { GCS_Connection } from '@/data/ws.singleton';
 import useVictoryValue from '@/hooks/useVictoryValue';
 import useParamStore from '@/state/params';
 import { ScatterChart } from '@mantine/charts';
@@ -6,6 +6,8 @@ import { Autocomplete, Center, NumberInput, rem, ScrollArea, SegmentedControl } 
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconHexagonalPyramid, IconMap, IconSearch, IconTimeline, IconVariable } from '@tabler/icons-react';
 import { useCallback, useEffect, useState } from 'react';
+import RealtimeLine from './charts';
+import BigNumber from './big_number';
 
 export default function LargeContentView() {
 	const [value, setValue] = useState<'Map' | 'Data' | 'Planner' | 'Params'>('Data');
@@ -68,7 +70,7 @@ export default function LargeContentView() {
 				]}
 			/>
 
-			<div className="flex-1 w-full">{pageRender(value)}</div>
+			<ScrollArea className="flex-1 w-full">{pageRender(value)}</ScrollArea>
 		</div>
 	);
 }
@@ -101,10 +103,16 @@ function DataPage() {
 	}, [pose_x, pose_y, extents]);
 
 	return (
-		<div className="flex h-full w-full justify-center items-center p-2">
+		<div className="flex h-full w-full justify-between items-center p-2 flex-wrap gap-2">
+			<div className='w-full flex gap-5 justify-center mb-2'>
+				<BigNumber val={15} name={'Altitude'} />
+				<BigNumber val={15} name={'Pose/Y'} />
+				<BigNumber val={15} name={'Pose/X'} />
+				<BigNumber val={15} name={'Battery'} />
+			</div>
 			<div className="w-[50%]">
 				<ScatterChart
-					h={350}
+					h={300}
 					data={[
 						{
 							color: 'red.5',
@@ -123,6 +131,11 @@ function DataPage() {
 					]}
 				/>
 			</div>
+			<RealtimeLine element_limit={30} />
+			<RealtimeLine element_limit={45} />
+			<RealtimeLine element_limit={29} />
+			<RealtimeLine element_limit={12} />
+			<RealtimeLine element_limit={30} />
 		</div>
 	);
 }
@@ -185,9 +198,9 @@ function ParamField(props: { name: string; value: string | number | boolean | un
 	useEffect(() => {
 		if (debounced !== props.value) {
 			console.log('Sending a value back to GCS');
-			useGCSConnection().sendMessage(`PARAM:params/${props.name}:${debounced}`);
+			GCS_Connection().sendMessage(`PARAM:params/${props.name}:${debounced}`);
 		}
-	}, [debounced]);
+	}, [debounced, props.name, props.value]);
 
 	return (
 		<div className="flex justify-between items-center bg-zinc-800 rounded-md p-2 m-2 px-6 font-mono hover:bg-zinc-900">
