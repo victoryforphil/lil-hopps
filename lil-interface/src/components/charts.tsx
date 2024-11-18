@@ -1,18 +1,26 @@
-import useVictoryValue from '@/hooks/useVictoryValue';
+import useDroneStore from '@/state/drone';
 import { LineChart } from '@mantine/charts';
 import { useEffect, useState } from 'react';
 
-export default function RealtimeLine(props: { element_limit: number }) {
-	const [pose_z] = useVictoryValue('pose/ned/position/z');
+function roundFloat(value: number, decimalPlaces: number): number {
+	const multiplier = Math.pow(10, decimalPlaces);
+	return Math.round(value * multiplier) / multiplier;
+}
 
-	const [points, setPoints] = useState<Array<{ z: number; timestamp: number }>>([]);
+export default function RealtimeLine(props: { element_limit: number; title: string; victory_id: string }) {
+	// FULL MAP -- NO REDRAW. KTHX BIY
+	const drone_store = useDroneStore.getState().data;
+
+	const [points, setPoints] = useState<Array<{ z: number; x: number }>>([]);
 
 	useEffect(() => {
 		const intervalId = setInterval(() => {
-			if (pose_z !== undefined) {
+			const drone_val = drone_store.get(props.victory_id);
+
+			if (drone_val) {
 				setPoints((prevPoints) => {
 					const now = Date.now();
-					const updatedPoints = [...prevPoints, { z: pose_z as number, timestamp: now }];
+					const updatedPoints = [...prevPoints, { z: roundFloat(drone_val as number, 3), x: now }];
 
 					if (updatedPoints.length > props.element_limit) {
 						updatedPoints.shift();
@@ -24,7 +32,7 @@ export default function RealtimeLine(props: { element_limit: number }) {
 				const randomZ = Math.random() * 10;
 				setPoints((prevPoints) => {
 					const now = Date.now();
-					const updatedPoints = [...prevPoints, { z: randomZ, timestamp: now }];
+					const updatedPoints = [...prevPoints, { z: randomZ, x: now }];
 
 					if (updatedPoints.length > props.element_limit) {
 						updatedPoints.shift();
@@ -33,21 +41,21 @@ export default function RealtimeLine(props: { element_limit: number }) {
 					return updatedPoints;
 				});
 			}
-		}, 100); // 0.5 seconds interval
+		}, 100);
 
 		return () => {
 			clearInterval(intervalId);
 		};
-	}, [pose_z, props.element_limit]);
+	}, [drone_store, props.element_limit, props.victory_id]);
 
 	return (
 		<div className="w-[48%] bg-[#1f1f1f] shadow-sm rounded-md">
-			<div className="w-fit p-4">Z index</div>
+			<div className="w-fit p-4 font-mono">{props.victory_id}</div>
 			<hr className="h-px mb-2 bg-gray-200 border-0 dark:bg-zinc-700"></hr>
 			<div>
 				<LineChart
 					h={300}
-					data={points.map((point) => ({ x: point.timestamp, z: point.z }))}
+					data={points}
 					// xAxisLabel="Time"
 					// yAxisLabel="Z Position"
 					series={[{ name: 'z', color: 'indigo.6' }]}
@@ -60,8 +68,7 @@ export default function RealtimeLine(props: { element_limit: number }) {
 					withXAxis={false}
 					withYAxis={false}
 					withDots={false}
-
-                    gridAxis="none"
+					gridAxis="none"
 				/>
 			</div>
 		</div>

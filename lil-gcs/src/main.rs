@@ -38,9 +38,7 @@ pub struct TCPNodeSubscriber {
 }
 
 impl DataStoreListener for TCPNodeSubscriber {
-    fn on_datapoint(&mut self, datapoint: &victory_data_store::datapoints::Datapoint) {
-       
-    }
+    fn on_datapoint(&mut self, datapoint: &victory_data_store::datapoints::Datapoint) {}
 
     fn on_raw_datapoint(&mut self, datapoint: &victory_data_store::datapoints::Datapoint) {
         let topic = datapoint.topic.clone();
@@ -50,11 +48,8 @@ impl DataStoreListener for TCPNodeSubscriber {
         self.update
             .insert(topic.display_name(), format!("{:?}", datapoint.value));
     }
-    
-    
-    fn on_bucket_update(&mut self, bucket: &victory_data_store::buckets::BucketHandle) {
-        
-    }
+
+    fn on_bucket_update(&mut self, bucket: &victory_data_store::buckets::BucketHandle) {}
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -148,17 +143,17 @@ async fn main() {
         .unwrap()
         .setup_sync(sync_config, client_handle);
 
-
-    let mut listener = TCPNodeSubscriber {
+    let listener = TCPNodeSubscriber {
         map: BTreeMap::new(),
         update: BTreeMap::new(),
     };
 
     let listener_handle = Arc::new(Mutex::new(listener));
 
-    datastore.lock().unwrap().add_listener(&topic_key, listener_handle.clone());
-
-    
+    let _ = datastore
+        .lock()
+        .unwrap()
+        .add_listener(&topic_key, listener_handle.clone());
 
     let subscriber_handle_clone = listener_handle.clone();
     let tcp_tx_clone = tcp_tx.clone();
@@ -234,16 +229,21 @@ async fn main() {
                             .unwrap();
                     }
                     "TAKEOFF" => {
-                        info!("Takeoff requested");
-                        // Hard coded to 10.0 for now.
-                        let arm_request = QuadTakeoffRequest::new(10.0);
-                        datastore
-                            .add_struct(
-                                &TopicKey::from_str("cmd/takeoff"),
-                                Timepoint::now(),
-                                arm_request,
-                            )
-                            .unwrap();
+                        if params.len() == 1 {
+                            if let Ok(set_val) = params[0].parse::<f32>() {
+                                let mode_req = QuadTakeoffRequest::new(set_val);
+                                datastore
+                                    .add_struct(
+                                        &TopicKey::from_str("cmd/takeoff"),
+                                        Timepoint::now(),
+                                        mode_req,
+                                    )
+                                    .unwrap();
+                                info!("Takeoff requested at {0} feet", set_val);
+                            }
+                        } else {
+                            warn!("Wrong number of commands sent to the MODE command");
+                        }
                     }
                     "LAND" => {
                         info!("Land Requested");
@@ -306,7 +306,7 @@ async fn main() {
             tokio::time::sleep(Duration::from_millis(250)).await;
             {
                 let mut map = subscriber_handle_clone.lock().unwrap();
-                let updates=  map.update.clone();
+                let updates = map.update.clone();
                 map.update.clear();
                 drop(map);
                 if !updates.is_empty() {
@@ -318,7 +318,6 @@ async fn main() {
                         })
                         .collect::<Vec<DataLine>>();
 
-                    
                     let message = WebMessage {
                         timestamp: get_current_timestamp(),
                         data,
@@ -330,8 +329,6 @@ async fn main() {
                         warn!("Failed to MsgPack the DataStore Map")
                     }
                 }
-
-
             }
         }
     });

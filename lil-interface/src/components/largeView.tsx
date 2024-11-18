@@ -102,13 +102,20 @@ function DataPage() {
 		}
 	}, [pose_x, pose_y, extents]);
 
+	/*
+
+	const [pose_x] = useVictoryValue('pose/attitude/rpy_radians/x');
+	const [pose_y] = useVictoryValue('pose/attitude/rpy_radians/y');
+	const [pose_z] = useVictoryValue('pose/attitude/rpy_radians/z');
+	*/
+
 	return (
 		<div className="flex h-full w-full justify-between items-center p-2 flex-wrap gap-2">
 			<div className='w-full flex gap-5 justify-center mb-2'>
-				<BigNumber val={15} name={'Altitude'} />
-				<BigNumber val={15} name={'Pose/Y'} />
-				<BigNumber val={15} name={'Pose/X'} />
-				<BigNumber val={15} name={'Battery'} />
+				<BigNumber val={15} victory_id={'pose/attitude/rpy_radians/x'} />
+				<BigNumber val={15} victory_id={'pose/attitude/rpy_radians/x'}/>
+				<BigNumber val={15} victory_id={'pose/attitude/rpy_radians/x'}/>
+				<BigNumber val={15} name={'Battery'} victory_id={'status/battery'}/>
 			</div>
 			<div className="w-[50%]">
 				<ScatterChart
@@ -131,11 +138,9 @@ function DataPage() {
 					]}
 				/>
 			</div>
-			<RealtimeLine element_limit={30} />
-			<RealtimeLine element_limit={45} />
-			<RealtimeLine element_limit={29} />
-			<RealtimeLine element_limit={12} />
-			<RealtimeLine element_limit={30} />
+			<RealtimeLine element_limit={45} title={'NED Z'} victory_id={'pose/ned/position/z'} />
+			<RealtimeLine element_limit={45} title={'NED X'} victory_id={'pose/ned/position/y'} />
+			<RealtimeLine element_limit={45} title={'NED Y'} victory_id={'pose/ned/position/x'} />
 		</div>
 	);
 }

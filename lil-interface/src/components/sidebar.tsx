@@ -1,5 +1,5 @@
-import { ActionIcon, Badge, Button, ScrollArea, Select } from '@mantine/core';
-import { IconArrowLeft, IconDots, IconLambda, IconPlugConnected, IconTriangle } from '@tabler/icons-react';
+import { ActionIcon, Badge, Button, NumberInput, Popover, ScrollArea, Select } from '@mantine/core';
+import { IconArrowLeft, IconDots, IconLambda, IconPlugConnected, IconRocket, IconTriangle } from '@tabler/icons-react';
 import { BatteryLabel } from './battery';
 import clsx from 'clsx';
 import useControlStore from '@/state/control';
@@ -11,11 +11,7 @@ import useVictoryValue, { MapValue } from '@/hooks/useVictoryValue';
 import { GCS_Connection } from '@/data/ws.singleton';
 
 export function LOS() {
-	return (
-		<div className='tracking-[-0.1em] font-mono text-red-400 animate-pulse'>
-			L.O.S
-		</div>
-	)
+	return <div className="tracking-[-0.1em] font-mono text-red-400 animate-pulse">L.O.S</div>;
 }
 
 export function SidebarHeader() {
@@ -114,7 +110,7 @@ export function PositionContainer() {
 
 	const getValue = (value: MapValue | undefined) => {
 		if (value === undefined) {
-			return (<LOS />);
+			return <LOS />;
 		} else {
 			const val = value as number;
 			return val.toFixed(1);
@@ -143,7 +139,7 @@ export function PositionContainer() {
 }
 
 function radToDeg(radians: number): number {
-    return radians * (180 / Math.PI);
+	return radians * (180 / Math.PI);
 }
 
 export function AttitudeContainer() {
@@ -159,23 +155,23 @@ export function AttitudeContainer() {
 		if (pose_x) {
 			setX_deg(radToDeg(pose_x as number));
 		}
-	}, [pose_x])
-	
+	}, [pose_x]);
+
 	useEffect(() => {
 		if (pose_y) {
 			setY_deg(radToDeg(pose_y as number));
 		}
-	}, [pose_y])
+	}, [pose_y]);
 
 	useEffect(() => {
 		if (pose_z) {
 			setZ_deg(radToDeg(pose_z as number));
 		}
-	}, [pose_z])
+	}, [pose_z]);
 
 	const getValue = (value: MapValue | undefined) => {
 		if (value === undefined) {
-			return (<LOS />);
+			return <LOS />;
 		} else {
 			const val = value as number;
 			return val.toFixed(1);
@@ -272,10 +268,10 @@ function BoolStatusLabel(props: { name: string; status: boolean | undefined }) {
 	const getStatus = () => {
 		if (props.status) {
 			return <div className="text-green-400">Yes</div>;
-		} else if (props.status === false){
+		} else if (props.status === false) {
 			return <div className="text-red-400">No</div>;
 		} else {
-			return <LOS/>
+			return <LOS />;
 		}
 	};
 
@@ -352,28 +348,35 @@ export function ArmButtons() {
 			>
 				{armed ? 'Disarm' : 'Arm'}
 			</Button>
-			<Button
-				color={armed ? (flying ? 'red' : 'green') : 'gray'}
-				variant="outline"
-				size="lg"
-				w={'45%'}
-				disabled={!armed}
-				onClick={() => {
-					toggleFlying();
 
-					if (!flying) {
+			{flying ? (
+				<Button
+					color={armed ? (flying ? 'red' : 'green') : 'gray'}
+					variant="outline"
+					size="lg"
+					w={'45%'}
+					disabled={!armed}
+					onClick={() => {
+						toggleFlying();
+						GCS_Connection().sendMessage('LAND');
+					}}
+				>
+					{flying ? 'Land' : 'Take Off'}
+				</Button>
+			) : (
+				<TakeOffPopover
+					armed={armed}
+					launch={(height: number) => {
+						GCS_Connection().sendMessage(`TAKEOFF:${height}`);
+						toggleFlying();
+
 						notifications.show({
 							title: 'Control System',
-							message: 'Taking off',
+							message: `Taking off to ${height}ft`,
 						});
-						GCS_Connection().sendMessage('TAKEOFF');
-					} else {
-						GCS_Connection().sendMessage('LAND');
-					}
-				}}
-			>
-				{flying ? 'Land' : 'Take Off'}
-			</Button>
+					}}
+				/>
+			)}
 		</div>
 	);
 }
@@ -396,5 +399,41 @@ export function NoDrone() {
 				Reconnect
 			</Button>
 		</div>
+	);
+}
+
+function TakeOffPopover(props: { armed: boolean; launch: (height: number) => void }) {
+	const [value, setValue] = useState<string | number>('');
+
+	return (
+		<Popover width={300} trapFocus position="bottom" withArrow shadow="md">
+			<Popover.Target>
+				<Button variant="outline" size="lg" w={'45%'} color="green" disabled={!props.armed}>
+					Launch
+				</Button>
+			</Popover.Target>
+			<Popover.Dropdown className="flex flex-col">
+				<NumberInput label="Height (ft)" size="xs" value={value} onChange={setValue} />
+				<Button
+					variant="filled"
+					mt="xs"
+					className="w-full"
+					color="green"
+					onClick={() => {
+						if (value !== '' && (value as number) > 0) {
+							props.launch(value as number);
+						} else {
+							notifications.show({
+								title: 'Control System',
+								message: `${value} is not a valid height`,
+								color: 'orange'
+							});
+						}
+					}}
+				>
+					<IconRocket /> Send it
+				</Button>
+			</Popover.Dropdown>
+		</Popover>
 	);
 }
