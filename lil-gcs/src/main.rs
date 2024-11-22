@@ -48,12 +48,9 @@ pub struct TCPNodeSubscriber {
 
 impl BrokerTask for TCPNodeSubscriber {
     fn get_config(&self) -> victory_broker::task::config::BrokerTaskConfig {
-        BrokerTaskConfig::new("tcp-node-subscriber")
-            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_ms(20.0)))
-            .with_subscription(BrokerTaskSubscription::new_latest(&TopicKey::from_str("status")))
-            .with_subscription(BrokerTaskSubscription::new_latest(&TopicKey::from_str("cmd")))
-            .with_subscription(BrokerTaskSubscription::new_latest(&TopicKey::from_str("log")))
-            .with_subscription(BrokerTaskSubscription::new_latest(&TopicKey::from_str("pose")))
+        BrokerTaskConfig::new("gcs-server")
+            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(50.0)))
+            .with_subscription(BrokerTaskSubscription::new_updates_only(&TopicKey::from_str("")))
             .with_flag(BrokerCommanderFlags::NonBlocking)
     }
 
@@ -75,6 +72,10 @@ impl BrokerTask for TCPNodeSubscriber {
         } else {
             DataView::new()
         };
+        // Reset the command queue
+        if let Ok(mut queue) = self.command_queue.lock() {
+            *queue = DataView::new();
+        }
 
         Ok(output)
     }
@@ -167,7 +168,7 @@ async fn main() {
     };
     let sub_task_handle = Arc::new(Mutex::new(sub_task));
 
-    let node_info = BrokerNodeInfo::new("tcp-node-subscriber");
+    let node_info = BrokerNodeInfo::new("lil-gcs");
     let mut node = BrokerNode::new(node_info, client_handle);
     node.add_task(sub_task_handle.clone()).unwrap();
 
@@ -300,10 +301,12 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             // thread::sleep(Duration::from_secs_f32(2.0));
-            tokio::time::sleep(Duration::from_millis(250)).await;
+            tokio::time::sleep(Duration::from_millis(20)).await;
             {
                 let mut map = sub_task_handle.lock().unwrap();
+                // Print the updates
                 let updates = map.update.clone();
+
                 map.update.clear();
                 drop(map);
                 if !updates.is_empty() {
@@ -332,7 +335,7 @@ async fn main() {
 
     node.init().unwrap();
     loop {
-        tokio::time::sleep(Duration::from_millis(50)).await;
+        tokio::time::sleep(Duration::from_millis(5)).await;
         match node.tick() {
             Ok(_) => (),
             Err(e) => {

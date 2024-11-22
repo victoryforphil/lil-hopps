@@ -58,7 +58,7 @@ impl BrokerTask for QuadlinkSystem{
     fn get_config(&self) -> BrokerTaskConfig {
         BrokerTaskConfig::new("quadlink-mavlink")
             .with_trigger(BrokerTaskTrigger::Always)
-            .with_subscription(BrokerTaskSubscription::new_latest(
+            .with_subscription(BrokerTaskSubscription::new_updates_only(
                 &TopicKey::from_str("cmd")
             ))
     }
@@ -76,24 +76,26 @@ impl BrokerTask for QuadlinkSystem{
         for msg in msgs {
             MavlinkGenericProcessor::on_mavlink_message(msg, &mut output).unwrap();
         }
-
-        let arm_req: Result<QuadArmRequest, _> = inputs.get_latest(&TopicKey::from_str("cmd/arm"));
-        let mode_req: Result<QuadSetModeRequest, _> =
-            inputs.get_latest(&TopicKey::from_str("cmd/mode"));
+        let arm_topic = TopicKey::from_str("cmd/arm");
+        let mode_topic = TopicKey::from_str("cmd/mode");
+        let arm_req: Result<QuadArmRequest, _> = inputs.get_latest(&arm_topic);
+        let mode_req: Result<QuadSetModeRequest, _> = inputs.get_latest(&mode_topic);
 
         if let Ok(arm_req) = arm_req {
-            match mavlink_build_arm_message(arm_req.clone()) {
-                Some(arm_msg) => {
-                    let mavlink = self.mavlink.lock().unwrap();
-                    info!("QuadLink received arm request from cmd/arm: {:?}", arm_req);
-                    mavlink.send(&arm_msg).unwrap();
-                    let mut new_ack = arm_req;
-                    new_ack.ack();
-                    output
-                        .add_latest(&new_ack.get_topic_key(), new_ack)
-                        .expect("Failend to add latest arm ack");
+           if !arm_req.ack {
+                match mavlink_build_arm_message(arm_req.clone()) {
+                    Some(arm_msg) => {
+                        let mavlink = self.mavlink.lock().unwrap();
+                        info!("QuadLink received arm request from cmd/arm: {:?}", arm_req);
+                        mavlink.send(&arm_msg).unwrap();
+                        let mut new_ack = arm_req;
+                        new_ack.ack();
+                        output
+                            .add_latest(&arm_topic, new_ack)
+                            .expect("Failend to add latest arm ack");
+                    }
+                    None => {}
                 }
-                None => {}
             }
         }
         if let Ok(mode_req) = mode_req {
@@ -112,7 +114,7 @@ impl BrokerTask for QuadlinkSystem{
                 let mut new_ack = mode_req;
                 new_ack.ack();
                 output
-                    .add_latest(&new_ack.get_topic_key(), new_ack)
+                    .add_latest(&mode_topic, new_ack)
                     .expect("Failed to add latest mode ack");
             }
         }
@@ -120,43 +122,47 @@ impl BrokerTask for QuadlinkSystem{
         let takeoff_req: Result<QuadTakeoffRequest, _> =
             inputs.get_latest(&TopicKey::from_str("cmd/takeoff"));
         if let Ok(takeoff_req) = takeoff_req {
-            match mavlink_build_cmd_takeoff_message(takeoff_req.clone()) {
-                Some(takeoff_msg) => {
-                    let mavlink = self.mavlink.lock().unwrap();
-                    info!(
-                        "QuadLink received takeoff request from cmd/takeoff: {:?}",
-                        takeoff_req.clone()
-                    );
-                    mavlink.send(&takeoff_msg).unwrap();
+            if !takeoff_req.ack {
+                match mavlink_build_cmd_takeoff_message(takeoff_req.clone()) {
+                    Some(takeoff_msg) => {
+                        let mavlink = self.mavlink.lock().unwrap();
+                        info!(
+                            "QuadLink received takeoff request from cmd/takeoff: {:?}",
+                            takeoff_req.clone()
+                        );
+                        mavlink.send(&takeoff_msg).unwrap();
+                    }
+                    None => {}
                 }
-                None => {}
+                let mut new_ack = takeoff_req;
+                new_ack.ack();
+                output
+                    .add_latest(&new_ack.get_topic_key(), new_ack)
+                    .expect("Failed to add latest takeoff ack");
             }
-            let mut new_ack = takeoff_req;
-            new_ack.ack();
-            output
-                .add_latest(&new_ack.get_topic_key(), new_ack)
-                .expect("Failed to add latest takeoff ack");
         }
 
         let land_req: Result<QuadLandRequest, _> =
             inputs.get_latest(&TopicKey::from_str("cmd/land"));
         if let Ok(land_req) = land_req {
-            match mavlink_build_cmd_land_message(land_req.clone()) {
-                Some(land_msg) => {
-                    let mavlink = self.mavlink.lock().unwrap();
-                    info!(
-                        "QuadLink received land request from cmd/land: {:?}",
-                        land_req.clone()
-                    );
-                    mavlink.send(&land_msg).unwrap();
+            if !land_req.ack {
+                match mavlink_build_cmd_land_message(land_req.clone()) {
+                    Some(land_msg) => {
+                        let mavlink = self.mavlink.lock().unwrap();
+                        info!(
+                            "QuadLink received land request from cmd/land: {:?}",
+                            land_req.clone()
+                        );
+                        mavlink.send(&land_msg).unwrap();
+                    }
+                    None => {}
                 }
-                None => {}
+                let mut new_ack = land_req;
+                new_ack.ack();
+                output
+                    .add_latest(&new_ack.get_topic_key(), new_ack)
+                    .expect("Failed to add latest land ack");
             }
-            let mut new_ack = land_req;
-            new_ack.ack();
-            output
-                .add_latest(&new_ack.get_topic_key(), new_ack)
-                .expect("Failed to add latest land ack");
         }
 
         let waypoint_req: Result<QuadPoseNED, _> =

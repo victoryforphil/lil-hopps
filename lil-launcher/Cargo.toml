@@ -28,7 +28,7 @@ mavlink = "0.13.1"
 serde = { version = "1.0.210", features = ["derive"] }
 thiserror = "1.0.64"
 tracing = { version = "0.1.40", features = ["log"] }
-tracing-subscriber = "0.3.18"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 victory-data-store = { workspace = true }
 victory-wtf = { workspace = true }
 victory-broker = { workspace = true }

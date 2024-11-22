@@ -15,6 +15,7 @@ use lil_quad::systems::mission_runner::task::Tasks;
 use lil_quad::systems::mission_runner::task::TimedTask;
 use lil_quad::systems::mission_runner::MissionRunner;
 
+use lil_rerun::system::RerunSystem;
 use tracing::info;
 use tracing::warn;
 use tracing::Level;
@@ -27,6 +28,7 @@ use victory_broker::commander::linear::LinearBrokerCommander;
 use victory_broker::node::info::BrokerNodeInfo;
 use victory_broker::node::BrokerNode;
 use victory_data_store::topics::TopicKey;
+use victory_wtf::Timepoint;
 use victory_wtf::Timespan;
 
 #[derive(Parser, Debug)]
@@ -47,8 +49,8 @@ struct SILArgs {
 
 #[tokio::main]
 async fn main() {
-    fmt()
-        .with_max_level(Level::INFO)
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .with_target(true)
         .pretty()
         .compact()
@@ -133,31 +135,52 @@ async fn main() {
     let mission_runner = MissionRunner::new(mission);
     node.add_task(Arc::new(Mutex::new(mission_runner))).unwrap();
 
+    let rerun_sys = RerunSystem::new("quad_sil".to_string());
+    node.add_task(Arc::new(Mutex::new(rerun_sys))).unwrap();
+
+    // Initialize node
+
     // Initialize node
     node.init().unwrap();
 
     // Spawn node thread
     let node_handle = Arc::new(Mutex::new(node));
+
     let node_thread = tokio::spawn(async move {
-        let sleep_duration = Duration::from_secs_f32(1.0 / args.hz);
         loop {
-            {
-                let mut node = node_handle.lock().unwrap();
-                if let Err(e) = node.tick() {
-                    warn!("Node // Error: {:?}", e);
-                }
+
+            // Run node tick
+            if let Err(e) = node_handle.lock().unwrap().tick() {
+                warn!("Node // Error: {:?}", e);
             }
-            tokio::time::sleep(sleep_duration).await;
+
+            // Sleep for 1ms to prevent busy loop
+            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+           
         }
     });
 
+    let mut last_tick = Timepoint::now();
+    let delay = Timespan::new_hz(args.hz as f64);
     loop {
-        match broker.tick() {
-            Ok(_) => (),
-            Err(e) => {
-                warn!("Broker // Error: {:?}", e);
-            }
+        let tick_start = Timepoint::now();
+        
+        // Run broker tick
+        if let Err(e) = broker.tick(delay.clone()) {
+            warn!("Broker // Error: {:?}", e);
         }
-        tokio::time::sleep(Duration::from_millis(1)).await;
+      
+        // Sleep for remaining time
+        let tick_duration = Timepoint::now() - tick_start.clone();
+        let sleep_duration = delay.as_duration();
+        if tick_duration.as_duration() > sleep_duration {
+            warn!(
+                "Broker thread running slower than target rate by {:.2?} ms",
+                (tick_duration.as_duration().as_millis() - sleep_duration.as_millis())
+            );
+        }
+        tokio::time::sleep(sleep_duration.saturating_sub(tick_duration.as_duration())).await;
+  
+     
     }
 }

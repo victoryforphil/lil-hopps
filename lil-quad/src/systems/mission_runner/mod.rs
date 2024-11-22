@@ -12,7 +12,7 @@ use lil_link::common::{
 use log::{info, warn};
 use task::{TaskType, Tasks};
 
-use victory_broker::task::{config::BrokerTaskConfig, trigger::BrokerTaskTrigger, BrokerTask};
+use victory_broker::task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
 
@@ -122,8 +122,19 @@ impl BrokerTask for MissionRunner {
     }
 
     fn get_config(&self) -> BrokerTaskConfig {
-        BrokerTaskConfig::new("mission_runner")
-            .with_trigger(BrokerTaskTrigger::Always)
+        let mut subbed_conditions = self.subbed_conditions.clone();
+        for task in &self.tasks {
+            if let TaskType::Condition(task) = task.clone() {
+                subbed_conditions.insert(task.topic.clone());
+            }
+        }
+        let mut config = BrokerTaskConfig::new("mission_runner")
+            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(10.0)));
+
+        for topic in &subbed_conditions {
+            config.add_subscription(BrokerTaskSubscription::new_latest(topic));
+        }
+        config.clone()
     }
 
     fn on_execute(&mut self, inputs: &DataView) -> Result<DataView, anyhow::Error> {
@@ -153,7 +164,7 @@ impl BrokerTask for MissionRunner {
                 if let Some(value) = task.value.clone() {
                     match read_value.get(&task.topic) {
                         Some(v) => {
-                            passed = *v == value;
+                            passed = v.value == value;
                         }
                         None => {
                             passed = false;
