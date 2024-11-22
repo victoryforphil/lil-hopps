@@ -1,13 +1,13 @@
-use std::collections::BTreeSet;
+use std::time::Duration;
 
 use log::info;
 use serde::{Deserialize, Serialize};
-use victory_commander::system::System;
+use victory_broker::task::{config::BrokerTaskConfig, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, topics::TopicKey};
-use victory_wtf::Timepoint;
+use victory_wtf::{Timepoint, Timespan};
 
 pub struct TimedArm {
-    pub arm_time: Timepoint,
+    arm_time: Timepoint,
     current_time: Timepoint,
     sent: bool,
 }
@@ -27,27 +27,24 @@ pub struct ArmMessage {
     pub ack: bool,
 }
 
-impl System for TimedArm {
-    fn init(&mut self) {
-        self.current_time = Timepoint::zero();
+impl BrokerTask for TimedArm {
+    fn init(&mut self) -> Result<(), anyhow::Error> {
+        self.current_time = Timepoint::now();
+        Ok(())
     }
 
-    fn get_subscribed_topics(
-        &self,
-    ) -> std::collections::BTreeSet<victory_data_store::topics::TopicKey> {
-        BTreeSet::new()
+    fn get_config(&self) -> BrokerTaskConfig {
+        BrokerTaskConfig::new("timed_arm")
+            .with_trigger(BrokerTaskTrigger::Always)
     }
 
-    fn execute(
-        &mut self,
-        _inputs: &DataView,
-        dt: victory_wtf::Timespan,
-    ) -> DataView {
+    fn on_execute(&mut self, _inputs: &DataView) -> Result<DataView, anyhow::Error> {
+        let dt = Timespan::from_duration(Duration::from_millis(100));
         self.current_time = self.current_time.clone() + dt;
         let mut out = DataView::new();
 
         if self.current_time <= self.arm_time || self.sent {
-            return out;
+            return Ok(out);
         }
         info!("Arming as time {} has elapsed", self.current_time.secs());
         let arm_msg = ArmMessage {
@@ -55,14 +52,7 @@ impl System for TimedArm {
             ack: false,
         };
         self.sent = true;
-        out.add_latest(&TopicKey::from_str("cmd/arm"), arm_msg)
-            .expect("Failed to add arm message");
-        out
-    }
-
-    fn cleanup(&mut self) {}
-
-    fn name(&self) -> String {
-        "timed_arm".to_string()
+        out.add_latest(&TopicKey::from_str("cmd/arm"), arm_msg)?;
+        Ok(out)
     }
 }

@@ -4,7 +4,7 @@ use std::{
 };
 
 use log::{debug, info};
-use victory_commander::system::System;
+use victory_broker::task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
 
@@ -46,19 +46,24 @@ impl QuadlinkSystem {
     }
 }
 
-impl System for QuadlinkSystem {
-    fn init(&mut self) {
+impl BrokerTask for QuadlinkSystem{
+
+    fn init(&mut self) -> Result<(), anyhow::Error> {
+        info!("QuadlinkSystem // Initializing");
         let mut mavlink = self.mavlink.lock().unwrap();
-        mavlink.start_thread().unwrap();
+        mavlink.start_thread()?;
+        Ok(())
     }
 
-    fn get_subscribed_topics(&self) -> std::collections::BTreeSet<TopicKey> {
-        let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::from_str("cmd"));
-        topics
+    fn get_config(&self) -> BrokerTaskConfig {
+        BrokerTaskConfig::new("quadlink-mavlink")
+            .with_trigger(BrokerTaskTrigger::Always)
+            .with_subscription(BrokerTaskSubscription::new_latest(
+                &TopicKey::from_str("cmd")
+            ))
     }
 
-    fn execute(&mut self, inputs: &DataView, _: Timespan) -> DataView {
+    fn on_execute(&mut self, inputs: &DataView) -> Result<DataView, anyhow::Error> {
         let mut output = DataView::new();
 
         #[allow(unused_variables)]
@@ -187,8 +192,7 @@ impl System for QuadlinkSystem {
             _ => {}
         }
 
-        output
+        Ok(output)
     }
-
-    fn cleanup(&mut self) {}
+    
 }

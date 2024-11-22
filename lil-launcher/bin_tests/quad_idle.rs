@@ -1,38 +1,27 @@
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::time::Duration;
 
 use lil_link::common::identifiers::IDENT_BASE_STATUS;
 use lil_link::common::identifiers::IDENT_STATUS_HEALTH;
 use lil_link::common::types::mode::QuadMode;
-
 use lil_link::common::types::pose_ned::QuadPoseNED;
 use lil_link::mavlink::system::QuadlinkSystem;
 use lil_quad::systems::health_check::HealthCheck;
 use lil_quad::systems::health_check::HealthCheckConfig;
-use lil_quad::systems::mission_runner::task::ConditionTask;
-use lil_quad::systems::mission_runner::task::TaskType;
-use lil_quad::systems::mission_runner::task::Tasks;
-use lil_quad::systems::mission_runner::task::TimedTask;
-use lil_quad::systems::mission_runner::MissionRunner;
-use lil_quad::systems::timed_arm::TimedArm;
-use lil_quad::systems::timed_mode::TimedMode;
-use lil_quad::systems::timed_takeoff::TimedTakeoff;
 use lil_rerun::system::RerunSystem;
 use tracing::info;
+use tracing::warn;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
 use clap::Parser;
-use victory_broker::adapters::tcp::TCPServerAdapter;
-use victory_broker::adapters::tcp::TCPServerOptions;
-use victory_commander::system::runner::BasherSysRunner;
-use victory_data_store::database::retention::RetentionPolicy;
-use victory_data_store::primitives::Primitives;
-use victory_data_store::sync::adapters::tcp::tcp_server::TcpSyncServer;
-use victory_data_store::sync::config::SyncConfig;
+use victory_broker::adapters::tcp::tcp_server::TcpBrokerServer;
+use victory_broker::broker::Broker;
+use victory_broker::commander::linear::LinearBrokerCommander;
+use victory_broker::node::info::BrokerNodeInfo;
+use victory_broker::node::BrokerNode;
 use victory_data_store::topics::TopicKey;
-use victory_wtf::Timepoint;
-use victory_wtf::Timespan;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -40,30 +29,13 @@ struct SILArgs {
     #[clap(short, long, value_parser, help = "Mavlink connection string")]
     connection_string: String,
 
-    #[clap(long, value_parser, help = "Command Hz ", default_value = "25.0")]
-    hz: f32,
+    #[clap(short, long, default_value = "0.0.0.0")]
+    address: String,
 
-    #[clap(
-        short,
-        long,
-        value_parser,
-        help = "Duration in seconds",
-        default_value = "100.0"
-    )]
-    duration: f32,
-
-    #[clap(short, long, value_parser, help = "TCP Sync Server address")]
-    sync_server_address: String,
-
-    #[clap(
-        short,
-        long,
-        value_parser,
-        help = "Arm time in seconds",
-        default_value = "7.0"
-    )]
-    arm_time: f32,
+    #[clap(short, long, default_value = "3000")]
+    port: u16,
 }
+
 #[tokio::main]
 async fn main() {
     fmt()
@@ -75,48 +47,63 @@ async fn main() {
         .with_line_number(false)
         .without_time()
         .init();
-    
+
     let args = SILArgs::parse();
-    info!("Running 'quad_sil' with args: {:#?}", args);
+    info!("Running 'quad_idle' with args: {:#?}", args);
 
-    let mut runner = BasherSysRunner::new();
-    let server = TcpSyncServer::new(&args.sync_server_address).await;
-    let server_handle = Arc::new(Mutex::new(server));
+    let bind_addr = format!("{}:{}", args.address, args.port);
+    info!("Broker Test TCP Server // Binding to {}", bind_addr);
 
-    let topic_filter = TopicKey::from_str("cmd");
+    // Create broker with TCP server
+    let server = TcpBrokerServer::new(&bind_addr).await.unwrap();
+    let mut broker = Broker::new(LinearBrokerCommander::new());
+    broker.add_adapter(Arc::new(Mutex::new(server)));
 
-    let sync_config = SyncConfig {
-        client_name: "Quad Idle".to_string(),
-        subscriptions: vec![topic_filter.display_name()],
-    };
-    runner
-        .data_store
-        .lock()
-        .unwrap()
-        .setup_sync(sync_config, server_handle);
+    // Create channel adapter pair for local node
+    let (adapter_a, adapter_b) = victory_broker::adapters::channel::ChannelBrokerAdapter::new_pair();
+    broker.add_adapter(adapter_a);
 
-    let retention_policy = RetentionPolicy {
-        max_age: Some(Timespan::new_secs(30.0)),
-        max_rows: Some(64),
-    };
-    runner.data_store.lock().unwrap().set_retention(retention_policy);
+    // Create local node
+    let node_info = BrokerNodeInfo::new("quad_idle_node");
+    let mut node = BrokerNode::new(node_info, adapter_b);
 
-    runner.dt = Timespan::new_hz(args.hz as f64);
-    runner.set_end_time(Timepoint::new_secs(60. * 15.));
+    // Add systems as tasks
+    let mavlink_sys = QuadlinkSystem::new_from_connection_string(args.connection_string.as_str()).unwrap();
+    node.add_task(Arc::new(Mutex::new(mavlink_sys))).unwrap();
 
-
-    runner.add_system(Arc::new(Mutex::new(
-        QuadlinkSystem::new_from_connection_string(args.connection_string.as_str()).unwrap(),
-    )));
-
-    runner.add_system(Arc::new(Mutex::new(HealthCheck::new(HealthCheckConfig {
+    let health_check = HealthCheck::new(HealthCheckConfig {
         check_ekf: Some(true),
-    }))));
+    });
+    node.add_task(Arc::new(Mutex::new(health_check))).unwrap();
 
-    runner.add_system(Arc::new(Mutex::new(RerunSystem::new(
-        "quad_idle".to_string(),
-    ))));
+    let rerun_sys = RerunSystem::new("quad_idle".to_string());
+    node.add_task(Arc::new(Mutex::new(rerun_sys))).unwrap();
 
-    runner.set_real_time(true);
-    runner.run();
+    // Initialize node
+    node.init().unwrap();
+
+    // Spawn node thread
+    let node_handle = Arc::new(Mutex::new(node));
+    let node_thread = tokio::spawn(async move {
+        loop {
+            {
+                let mut node = node_handle.lock().unwrap();
+                if let Err(e) = node.tick() {
+                    warn!("Node // Error: {:?}", e);
+                }
+            }
+            tokio::time::sleep(Duration::from_millis(1)).await;
+        }
+    });
+
+    // Main broker loop
+    loop {
+        match broker.tick() {
+            Ok(_) => (),
+            Err(e) => {
+                warn!("Broker // Error: {:?}", e);
+            }
+        }
+        tokio::time::sleep(Duration::from_millis(5)).await;
+    }
 }

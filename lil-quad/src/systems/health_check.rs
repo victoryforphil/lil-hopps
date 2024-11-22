@@ -6,9 +6,9 @@ use lil_link::common::{
 };
 use log::info;
 use serde::{Deserialize, Serialize};
-use victory_commander::system::System;
+use victory_broker::task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, topics::TopicKey};
-use victory_wtf::Timepoint;
+use victory_wtf::Timespan;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HealthCheckConfig {
@@ -39,29 +39,21 @@ impl Default for HealthCheck {
     }
 }
 
-impl System for HealthCheck {
-    fn init(&mut self) {}
-
-    fn get_subscribed_topics(
-        &self,
-    ) -> std::collections::BTreeSet<victory_data_store::topics::TopicKey> {
-        // Sub to status topics
-        let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::from_str(&format!(
-            "{}/{}",
-            IDENT_BASE_STATUS, IDENT_STATUS_EKF
-        )));
-
-        // Sub to health status topic
-        topics.insert(QuadHealthStatus::get_topic_key());
-        topics
+impl BrokerTask for HealthCheck {
+    fn init(&mut self) -> Result<(), anyhow::Error> {
+        Ok(())
     }
 
-    fn execute(
-        &mut self,
-        inputs: &victory_data_store::database::view::DataView,
-        _dt: victory_wtf::Timespan,
-    ) -> victory_data_store::database::view::DataView {
+    fn get_config(&self) -> BrokerTaskConfig {
+        BrokerTaskConfig::new("health_check")
+            .with_trigger(BrokerTaskTrigger::Always)
+            .with_subscription(BrokerTaskSubscription::new_latest(
+                &TopicKey::from_str(&format!("{}/{}", IDENT_BASE_STATUS, IDENT_STATUS_EKF)),
+            ))
+            .with_subscription(BrokerTaskSubscription::new_latest(&QuadHealthStatus::get_topic_key()))
+    }
+
+    fn on_execute(&mut self, inputs: &DataView) -> Result<DataView, anyhow::Error> {
         let ekf_status: QuadEkfStatus = inputs
             .get_latest(&TopicKey::from_str(&format!(
                 "{}/{}",
@@ -94,14 +86,7 @@ impl System for HealthCheck {
                 health_status.reason = None;
             }
         }
-        out.add_latest(&QuadHealthStatus::get_topic_key(), health_status)
-            .expect("Failed to add health status");
-        out
-    }
-
-    fn cleanup(&mut self) {}
-
-    fn name(&self) -> String {
-        "timed_arm".to_string()
+        out.add_latest(&QuadHealthStatus::get_topic_key(), health_status)?;
+        Ok(out)
     }
 }

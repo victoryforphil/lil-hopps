@@ -12,18 +12,6 @@ name = "link_smoketest"
 path = "bin_tests/link_smoketest.rs"
 
 [[bin]]
-name = "link_cmd_test"
-path = "bin_tests/link_cmd_test.rs"
-
-[[bin]]
-name = "link_rerun"
-path = "bin_tests/link_rerun.rs"
-
-[[bin]]
-name = "quad_arm"
-path = "bin_tests/quad_arm.rs"
-
-[[bin]]
 name = "quad_sil"
 path = "bin_tests/quad_sil.rs"
 
@@ -41,7 +29,6 @@ serde = { version = "1.0.210", features = ["derive"] }
 thiserror = "1.0.64"
 tracing = { version = "0.1.40", features = ["log"] }
 tracing-subscriber = "0.3.18"
-victory-commander = { workspace = true }
 victory-data-store = { workspace = true }
 victory-wtf = { workspace = true }
 victory-broker = { workspace = true }

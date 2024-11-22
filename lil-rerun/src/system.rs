@@ -4,7 +4,7 @@ use nalgebra::UnitQuaternion;
 use rerun::{Boxes3D, Scalar, TextDocument, Vec3D};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
-use victory_commander::system::System;
+use victory_broker::task::{config::{BrokerCommanderFlags, BrokerTaskConfig}, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
 
@@ -32,19 +32,27 @@ pub struct AttitudeTemp {
     yaw: f64,
 }
 
-impl System for RerunSystem {
-    fn init(&mut self) {
+impl BrokerTask for RerunSystem {
+    fn init(&mut self) -> Result<(), anyhow::Error> {
         self.lil_rerun.create_rerun();
+        Ok(())
     }
 
-    fn execute(&mut self, state: &DataView, _dt: Timespan) -> DataView {
+    fn get_config(&self) -> BrokerTaskConfig {
+        BrokerTaskConfig::new("rerun-system")
+            .with_trigger(BrokerTaskTrigger::Always)
+            .with_subscription(BrokerTaskSubscription::new_latest(&TopicKey::empty()))
+            .with_flag(BrokerCommanderFlags::NonBlocking)
+    }
+
+    fn on_execute(&mut self, state: &DataView) -> Result<DataView, anyhow::Error> {
         let rerun = &mut self.lil_rerun.rerun;
 
         let rerun = if let Some(rerun) = rerun {
             rerun
         } else {
             warn!("Rerun not found");
-            return DataView::new();
+            return Ok(DataView::new());
         };
         rerun
             .log_static(
@@ -138,17 +146,8 @@ impl System for RerunSystem {
                 .expect("Failed to log attitude");
         }
 
-        self.time = self.time.clone() + _dt;
-        DataView::new()
+        self.time = self.time.clone() + Timespan::new_secs(1.0); // Assuming a 1-second timestep.  Adjust as needed.
+        Ok(DataView::new())
     }
 
-    fn cleanup(&mut self) {}
-
-    fn get_subscribed_topics(&self) -> std::collections::BTreeSet<TopicKey> {
-        let mut topics = BTreeSet::new();
-        topics.insert(TopicKey::from_str("status"));
-        topics.insert(TopicKey::from_str("cmd"));
-        topics.insert(TopicKey::from_str("pose"));
-        topics
-    }
 }
