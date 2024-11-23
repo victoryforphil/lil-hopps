@@ -4,12 +4,12 @@ use nalgebra::UnitQuaternion;
 use rerun::{Asset3D, Boxes3D, Scalar, TextDocument, Vec3D};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeSet, path::Path};
-use victory_broker::task::{
+use victory_broker::{broker::time::BrokerTime, task::{
     config::{BrokerCommanderFlags, BrokerTaskConfig},
     subscription::BrokerTaskSubscription,
     trigger::BrokerTaskTrigger,
     BrokerTask,
-};
+}};
 use victory_data_store::{
     database::view::DataView, datapoints::Datapoint, primitives::Primitives, topics::TopicKey,
 };
@@ -59,9 +59,10 @@ impl BrokerTask for RerunSystem {
             .with_flag(BrokerCommanderFlags::NonBlocking)
     }
 
-    fn on_execute(&mut self, state: &DataView) -> Result<DataView, anyhow::Error> {
+    fn on_execute(&mut self, state: &DataView, timing: &BrokerTime) -> Result<DataView, anyhow::Error> {
+       
         let rerun = &mut self.lil_rerun.rerun;
-
+        
         let rerun = if let Some(rerun) = rerun {
             rerun
         } else {
@@ -76,8 +77,9 @@ impl BrokerTask for RerunSystem {
             .expect("Failed to log floor");
 
         let data_map = state.get_latest_map(&TopicKey::empty()).unwrap();
+        rerun.set_time_seconds("broker-time", timing.time_monotonic.secs());
         for (key, datapoint) in data_map.iter() {
-            rerun.set_time_seconds("data-time", datapoint.time.secs());
+           
             match &datapoint.value {
                 Primitives::Unset => {}
                 Primitives::Instant(_timepoint) => {}

@@ -34,10 +34,10 @@ impl MavLinkHelper {
     pub fn request_stream() -> mavlink::ardupilotmega::MavMessage {
         mavlink::ardupilotmega::MavMessage::REQUEST_DATA_STREAM(
             mavlink::ardupilotmega::REQUEST_DATA_STREAM_DATA {
-                target_system: 1,
+                target_system: 0,
                 target_component: 0,
                 req_stream_id: 0,
-                req_message_rate: 10,
+                req_message_rate: 50,
                 start_stop: 1,
             },
         )
