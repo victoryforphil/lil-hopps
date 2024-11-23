@@ -1,14 +1,14 @@
-use std::collections::BTreeSet;
+use std::time::Duration;
 
 use lil_link::common::types::{mode::QuadMode, request_arm::QuadSetModeRequest};
 use log::info;
-use victory_commander::system::System;
+use victory_broker::task::{config::BrokerTaskConfig, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, topics::TopicKey};
-use victory_wtf::Timepoint;
+use victory_wtf::{Timepoint, Timespan};
 
 pub struct TimedMode {
-    pub mode_time: Timepoint,
-    pub mode: QuadMode,
+    mode_time: Timepoint,
+    mode: QuadMode,
     current_time: Timepoint,
     sent: bool,
 }
@@ -24,27 +24,24 @@ impl TimedMode {
     }
 }
 
-impl System for TimedMode {
-    fn init(&mut self) {
-        self.current_time = Timepoint::zero();
+impl BrokerTask for TimedMode {
+    fn init(&mut self) -> Result<(), anyhow::Error> {
+        self.current_time = Timepoint::now();
+        Ok(())
     }
 
-    fn get_subscribed_topics(
-        &self,
-    ) -> std::collections::BTreeSet<victory_data_store::topics::TopicKey> {
-        BTreeSet::new()
+    fn get_config(&self) -> BrokerTaskConfig {
+        BrokerTaskConfig::new("timed_mode")
+            .with_trigger(BrokerTaskTrigger::Always)
     }
 
-    fn execute(
-        &mut self,
-        _inputs: &DataView,
-        dt: victory_wtf::Timespan,
-    ) ->DataView {
+    fn on_execute(&mut self, _inputs: &DataView) -> Result<DataView, anyhow::Error> {
+        let dt = Timespan::from_duration(Duration::from_millis(100));
         self.current_time = self.current_time.clone() + dt;
         let mut out = DataView::new();
 
         if self.current_time <= self.mode_time || self.sent {
-            return out;
+            return Ok(out);
         }
         info!(
             "Setting mode as time {} has elapsed",
@@ -55,14 +52,7 @@ impl System for TimedMode {
             ack: false,
         };
         self.sent = true;
-        out.add_latest(&TopicKey::from_str("cmd/mode"), mode_msg)
-            .expect("Failed to add mode message");
-        out
-    }
-
-    fn cleanup(&mut self) {}
-
-    fn name(&self) -> String {
-        "timed_mode".to_string()
+        out.add_latest(&TopicKey::from_str("cmd/mode"), mode_msg)?;
+        Ok(out)
     }
 }

@@ -1,14 +1,14 @@
-use std::collections::BTreeSet;
+use std::time::Duration;
 
 use lil_link::common::types::request_takeoff::QuadTakeoffRequest;
 use log::info;
-use victory_commander::system::System;
+use victory_broker::task::{config::BrokerTaskConfig, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, topics::TopicKey};
-use victory_wtf::Timepoint;
+use victory_wtf::{Timepoint, Timespan};
 
 pub struct TimedTakeoff {
-    pub takeoff_time: Timepoint,
-    pub height: f32,
+    takeoff_time: Timepoint,
+    height: f32,
     current_time: Timepoint,
     sent: bool,
 }
@@ -24,27 +24,24 @@ impl TimedTakeoff {
     }
 }
 
-impl System for TimedTakeoff {
-    fn init(&mut self) {
-        self.current_time = Timepoint::zero();
+impl BrokerTask for TimedTakeoff {
+    fn init(&mut self) -> Result<(), anyhow::Error> {
+        self.current_time = Timepoint::now();
+        Ok(())
     }
 
-    fn get_subscribed_topics(
-        &self,
-    ) -> std::collections::BTreeSet<victory_data_store::topics::TopicKey> {
-        BTreeSet::new()
+    fn get_config(&self) -> BrokerTaskConfig {
+        BrokerTaskConfig::new("timed_takeoff")
+            .with_trigger(BrokerTaskTrigger::Always)
     }
 
-    fn execute(
-        &mut self,
-        _inputs: &victory_data_store::database::view::DataView,
-        dt: victory_wtf::Timespan,
-    ) -> victory_data_store::database::view::DataView {
+    fn on_execute(&mut self, _inputs: &DataView) -> Result<DataView, anyhow::Error> {
+        let dt = Timespan::from_duration(Duration::from_millis(100)); // Assuming 100ms rate
         self.current_time = self.current_time.clone() + dt;
         let mut out = DataView::new();
 
         if self.current_time <= self.takeoff_time || self.sent {
-            return out;
+            return Ok(out);
         }
         info!(
             "Sending takeoff command as time {} has elapsed",
@@ -55,14 +52,7 @@ impl System for TimedTakeoff {
             ack: false,
         };
         self.sent = true;
-        out.add_latest(&TopicKey::from_str("cmd/takeoff"), takeoff_msg)
-            .expect("Failed to add takeoff message");
-        out
-    }
-
-    fn cleanup(&mut self) {}
-
-    fn name(&self) -> String {
-        "timed_takeoff".to_string()
+        out.add_latest(&TopicKey::from_str("cmd/takeoff"), takeoff_msg)?;
+        Ok(out)
     }
 }

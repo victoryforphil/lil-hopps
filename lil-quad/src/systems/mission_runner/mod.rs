@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+use std::time::Duration;
 
 use lil_link::common::{
     identifiers::{IDENT_BASE_STATUS, IDENT_STATUS_EKF, IDENT_STATUS_HEALTH},
@@ -10,7 +11,8 @@ use lil_link::common::{
 };
 use log::{info, warn};
 use task::{TaskType, Tasks};
-use victory_commander::system::System;
+
+use victory_broker::task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask};
 use victory_data_store::{database::view::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
 
@@ -109,32 +111,39 @@ impl MissionRunner {
     }
 }
 
-impl System for MissionRunner {
-    fn init(&mut self) {
+impl BrokerTask for MissionRunner {
+    fn init(&mut self) -> Result<(), anyhow::Error> {
         for task in &self.tasks {
             if let TaskType::Condition(task) = task.clone() {
                 self.subbed_conditions.insert(task.topic.clone());
             }
         }
+        Ok(())
     }
 
-    fn get_subscribed_topics(
-        &self,
-    ) -> std::collections::BTreeSet<victory_data_store::topics::TopicKey> {
-        self.subbed_conditions.clone()
+    fn get_config(&self) -> BrokerTaskConfig {
+        let mut subbed_conditions = self.subbed_conditions.clone();
+        for task in &self.tasks {
+            if let TaskType::Condition(task) = task.clone() {
+                subbed_conditions.insert(task.topic.clone());
+            }
+        }
+        let mut config = BrokerTaskConfig::new("mission_runner")
+            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(10.0)));
+
+        for topic in &subbed_conditions {
+            config.add_subscription(BrokerTaskSubscription::new_latest(topic));
+        }
+        config.clone()
     }
 
-    fn execute<'a>(
-        &mut self,
-        inputs: &'a victory_data_store::database::view::DataView,
-        dt: victory_wtf::Timespan,
-    ) -> victory_data_store::database::view::DataView {
+    fn on_execute(&mut self, inputs: &DataView) -> Result<DataView, anyhow::Error> {
         let mut out = DataView::new();
+        let dt = Timespan::from_duration(Duration::from_millis(100));
         self.current_time = self.current_time.clone() + dt;
-        // Write current task to status/mission/current_task
 
         if self.current_idx >= self.tasks.len() {
-            return out;
+            return Ok(out);
         }
 
         let current_task = &self.tasks[self.current_idx];
@@ -155,7 +164,7 @@ impl System for MissionRunner {
                 if let Some(value) = task.value.clone() {
                     match read_value.get(&task.topic) {
                         Some(v) => {
-                            passed = *v == value;
+                            passed = v.value == value;
                         }
                         None => {
                             passed = false;
@@ -170,8 +179,6 @@ impl System for MissionRunner {
             }
         }
 
-        out
+        Ok(out)
     }
-
-    fn cleanup(&mut self) {}
 }

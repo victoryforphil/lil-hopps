@@ -12,7 +12,8 @@ serde = { version = "1.0.210", features = ["derive"] }
 thiserror = "1.0.64"
 tracing = { version = "0.1.40", features = ["log"] }
 tracing-subscriber = "0.3.18"
-victory-commander = { workspace = true }
+victory-broker = { workspace = true }
 victory-data-store = { workspace = true }
 victory-wtf = { workspace = true }
 lil-link = { path = "../lil-link" }
+anyhow = "1.0.93"

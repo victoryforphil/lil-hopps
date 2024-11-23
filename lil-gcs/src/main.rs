@@ -13,9 +13,18 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
+use victory_broker::adapters::tcp::tcp_client::TcpBrokerClient;
+use victory_broker::node::info::BrokerNodeInfo;
+use victory_broker::node::BrokerNode;
+use victory_broker::task::config::BrokerCommanderFlags;
+use victory_broker::task::config::BrokerTaskConfig;
+use victory_broker::task::subscription::BrokerTaskSubscription;
+use victory_broker::task::trigger::BrokerTaskTrigger;
+use victory_broker::task::BrokerTask;
 use victory_data_store::database::listener::DataStoreListener;
-use victory_data_store::sync::adapters::tcp::tcp_client::TCPClient;
-use victory_data_store::sync::config::SyncConfig;
+use victory_data_store::database::view::DataView;
+
+use victory_wtf::Timespan;
 
 use clap::Parser;
 use serde::Serialize;
@@ -24,32 +33,52 @@ use tracing::warn;
 use tracing::Level;
 use tracing_subscriber::fmt;
 
-use victory_data_store::database::Datastore;
 use victory_data_store::topics::TopicKey;
-use victory_wtf::Timepoint;
 
 use tokio::sync::{broadcast, mpsc};
 
 mod webserver;
 
+#[derive(Clone)]
 pub struct TCPNodeSubscriber {
     map: BTreeMap<String, String>,
     update: BTreeMap<String, String>,
+    command_queue: Arc<Mutex<DataView>>,
 }
 
-impl DataStoreListener for TCPNodeSubscriber {
-    fn on_datapoint(&mut self, datapoint: &victory_data_store::datapoints::Datapoint) {}
-
-    fn on_raw_datapoint(&mut self, datapoint: &victory_data_store::datapoints::Datapoint) {
-        let topic = datapoint.topic.clone();
-        self.map
-            .insert(topic.display_name(), format!("{:?}", datapoint.value));
-
-        self.update
-            .insert(topic.display_name(), format!("{:?}", datapoint.value));
+impl BrokerTask for TCPNodeSubscriber {
+    fn get_config(&self) -> victory_broker::task::config::BrokerTaskConfig {
+        BrokerTaskConfig::new("gcs-server")
+            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(50.0)))
+            .with_subscription(BrokerTaskSubscription::new_updates_only(&TopicKey::from_str("")))
+            .with_flag(BrokerCommanderFlags::NonBlocking)
     }
 
-    fn on_bucket_update(&mut self, bucket: &victory_data_store::buckets::BucketHandle) {}
+    fn on_execute(
+        &mut self,
+        inputs: &victory_data_store::database::view::DataView,
+    ) -> Result<victory_data_store::database::view::DataView, anyhow::Error> {
+        let data_map = inputs.maps.clone();
+        for (topic, value) in data_map.iter() {
+            self.map
+                .insert(topic.display_name(), format!("{:?}", value));
+
+            self.update
+                .insert(topic.display_name(), format!("{:?}", value));
+        }
+
+        let output = if let Ok(queue) = self.command_queue.lock() {
+            queue.clone()
+        } else {
+            DataView::new()
+        };
+        // Reset the command queue
+        if let Ok(mut queue) = self.command_queue.lock() {
+            *queue = DataView::new();
+        }
+
+        Ok(output)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -119,65 +148,46 @@ async fn main() {
 
     let args = SILArgs::parse();
 
-    let mut client = TCPClient::new(args.connection.to_string()).await;
+    let mut client = TcpBrokerClient::new(&args.connection).await;
 
     while client.is_err() {
         info!("Failed to connect to server, retrying...");
         thread::sleep(Duration::from_secs_f32(1.0));
-        client = TCPClient::new(args.connection.to_string()).await;
+        client = TcpBrokerClient::new(&args.connection).await;
     }
 
     let client = client.unwrap();
 
     let client_handle = Arc::new(Mutex::new(client));
-    let datastore = Datastore::new().handle();
 
-    let topic_key = TopicKey::from_str("");
-
-    let sync_config = SyncConfig {
-        client_name: "GCS".to_string(),
-        subscriptions: vec![topic_key.display_name()],
-    };
-    datastore
-        .lock()
-        .unwrap()
-        .setup_sync(sync_config, client_handle);
-
-    let listener = TCPNodeSubscriber {
+    let command_queue = Arc::new(Mutex::new(DataView::new()));
+    let sub_task = TCPNodeSubscriber {
         map: BTreeMap::new(),
         update: BTreeMap::new(),
+        command_queue: command_queue.clone(),
     };
+    let sub_task_handle = Arc::new(Mutex::new(sub_task));
 
-    let listener_handle = Arc::new(Mutex::new(listener));
+    let node_info = BrokerNodeInfo::new("lil-gcs");
+    let mut node = BrokerNode::new(node_info, client_handle);
+    node.add_task(sub_task_handle.clone()).unwrap();
 
-    let _ = datastore
-        .lock()
-        .unwrap()
-        .add_listener(&topic_key, listener_handle.clone());
-
-    let subscriber_handle_clone = listener_handle.clone();
+    let sub_task_handle_clone = sub_task_handle.clone();
     let tcp_tx_clone = tcp_tx.clone();
 
-    let subscriber_handle_clone_ws = listener_handle.clone();
+    let subscriber_handle_clone_ws = sub_task_handle_clone.clone();
     let tcp_tx_clone_ws = tcp_tx.clone();
 
-    let datastore_clone = datastore.clone();
+    // Sending commands to the drone
     tokio::spawn(async move {
         loop {
             if let Some(ws_msg) = ws_rx.recv().await {
                 info!("WS MESSAGE -> {:#?}", ws_msg);
 
-                // Need to parse from json or something a topic and a value. It would be great if I could parse a normal victory value.
-
-                // I thought this was a scope thing at some point.
-                let mut datastore = datastore_clone.lock().expect("Failed to lock mutex");
-
                 let (msg_topic, params) = parse_message(&ws_msg);
 
                 match msg_topic.as_str() {
                     "NEW_CLIENT" => {
-                        // info!("GOT A NEW CLIENT YALL");
-
                         {
                             let mut map = subscriber_handle_clone_ws.lock().unwrap();
 
@@ -209,36 +219,30 @@ async fn main() {
                     "ARM" => {
                         info!("ARM the drone!");
                         let arm_request = QuadArmRequest::new(true);
-                        datastore
-                            .add_struct(
-                                &TopicKey::from_str("cmd/arm"),
-                                Timepoint::now(),
-                                arm_request,
-                            )
-                            .unwrap();
+                        if let Ok(mut queue) = command_queue.lock() {
+                            queue
+                                .add_latest(&TopicKey::from_str("cmd/arm"), arm_request)
+                                .expect("Failed to add datapoint to queue");
+                        }
                     }
                     "DISARM" => {
                         info!("Disarm the drone");
                         let arm_request = QuadArmRequest::new(false);
-                        datastore
-                            .add_struct(
-                                &TopicKey::from_str("cmd/arm"),
-                                Timepoint::now(),
-                                arm_request,
-                            )
-                            .unwrap();
+                        if let Ok(mut queue) = command_queue.lock() {
+                            queue
+                                .add_latest(&TopicKey::from_str("cmd/arm"), arm_request)
+                                .expect("Failed to add datapoint to queue");
+                        }
                     }
                     "TAKEOFF" => {
                         if params.len() == 1 {
                             if let Ok(set_val) = params[0].parse::<f32>() {
                                 let mode_req = QuadTakeoffRequest::new(set_val);
-                                datastore
-                                    .add_struct(
-                                        &TopicKey::from_str("cmd/takeoff"),
-                                        Timepoint::now(),
-                                        mode_req,
-                                    )
-                                    .unwrap();
+                                if let Ok(mut queue) = command_queue.lock() {
+                                    queue
+                                        .add_latest(&TopicKey::from_str("cmd/takeoff"), mode_req)
+                                        .expect("Failed to add datapoint to queue");
+                                }
                                 info!("Takeoff requested at {0} feet", set_val);
                             }
                         } else {
@@ -248,26 +252,22 @@ async fn main() {
                     "LAND" => {
                         info!("Land Requested");
                         let arm_request = QuadLandRequest::new();
-                        datastore
-                            .add_struct(
-                                &TopicKey::from_str("cmd/land"),
-                                Timepoint::now(),
-                                arm_request,
-                            )
-                            .unwrap();
+                        if let Ok(mut queue) = command_queue.lock() {
+                            queue
+                                .add_latest(&TopicKey::from_str("cmd/land"), arm_request)
+                                .expect("Failed to add datapoint to queue");
+                        }
                     }
                     "MODE" => {
                         if params.len() == 1 {
                             if let Ok(mode) = QuadMode::from_str(&params[0]) {
                                 println!("Setting new mode now {0}", mode);
                                 let mode_req = QuadSetModeRequest::new(mode);
-                                datastore
-                                    .add_struct(
-                                        &TopicKey::from_str("cmd/mode"),
-                                        Timepoint::now(),
-                                        mode_req,
-                                    )
-                                    .unwrap();
+                                if let Ok(mut queue) = command_queue.lock() {
+                                    queue
+                                        .add_latest(&TopicKey::from_str("cmd/mode"), mode_req)
+                                        .expect("Failed to add datapoint to queue");
+                                }
                             }
                         } else {
                             warn!("Wrong number of commands sent to the MODE command");
@@ -278,13 +278,11 @@ async fn main() {
                             if let Ok(set_val) = params[1].parse::<f64>() {
                                 let param_cmd = QuadParameter::new(params[0].clone(), set_val);
                                 info!("Updated param {0} to {1}", params[0], set_val);
-                                datastore
-                                    .add_struct(
-                                        &TopicKey::from_str(&params[0]),
-                                        Timepoint::now(),
-                                        param_cmd,
-                                    )
-                                    .unwrap();
+                                if let Ok(mut queue) = command_queue.lock() {
+                                    queue
+                                        .add_latest(&TopicKey::from_str(&params[0]), param_cmd)
+                                        .expect("Failed to add datapoint to queue");
+                                }
                             } else {
                                 warn!("Supplied incorrect data for Param Set -- Needs to be parsable as a float");
                             }
@@ -303,10 +301,12 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             // thread::sleep(Duration::from_secs_f32(2.0));
-            tokio::time::sleep(Duration::from_millis(250)).await;
+            tokio::time::sleep(Duration::from_millis(20)).await;
             {
-                let mut map = subscriber_handle_clone.lock().unwrap();
+                let mut map = sub_task_handle.lock().unwrap();
+                // Print the updates
                 let updates = map.update.clone();
+
                 map.update.clear();
                 drop(map);
                 if !updates.is_empty() {
@@ -332,9 +332,15 @@ async fn main() {
             }
         }
     });
-    let datastore = datastore.clone();
+
+    node.init().unwrap();
     loop {
-        tokio::time::sleep(Duration::from_millis(50)).await;
-        datastore.lock().unwrap().run_sync();
+        tokio::time::sleep(Duration::from_millis(5)).await;
+        match node.tick() {
+            Ok(_) => (),
+            Err(e) => {
+                warn!("Error in node tick: {e}");
+            }
+        }
     }
 }
