@@ -4,7 +4,7 @@ use std::{
 };
 
 use log::{debug, info};
-use victory_broker::task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask};
+use victory_broker::{broker::time::BrokerTime, task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask}};
 use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
 
@@ -61,10 +61,14 @@ impl BrokerTask for QuadlinkSystem{
             .with_subscription(BrokerTaskSubscription::new_updates_only(
                 &TopicKey::from_str("cmd")
             ))
+            // cmd/waypoint is new_latest
+            .with_subscription(BrokerTaskSubscription::new_latest(
+                &TopicKey::from_str("cmd/waypoint")
+            ))
     }
 
-    fn on_execute(&mut self, inputs: &DataView) -> Result<DataView, anyhow::Error> {
-        let mut output = DataView::new();
+    fn on_execute(&mut self, inputs: &DataView, timing: &BrokerTime) -> Result<DataView, anyhow::Error> {
+        let mut output = DataView::new_timed(timing.time_monotonic.clone());
 
         #[allow(unused_variables)]
         let mut msgs = vec![];
@@ -195,7 +199,9 @@ impl BrokerTask for QuadlinkSystem{
                     None => {}
                 }
             }
-            _ => {}
+            _ => {
+         
+            }
         }
 
         Ok(output)

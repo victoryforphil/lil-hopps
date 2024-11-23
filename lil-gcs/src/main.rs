@@ -6,6 +6,7 @@ use lil_link::common::types::request_mode_set::QuadArmRequest;
 use lil_link::common::types::request_takeoff::QuadTakeoffRequest;
 use rmp_serde::to_vec_named;
 use serde::Deserialize;
+use victory_broker::broker::time::BrokerTime;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -49,7 +50,7 @@ pub struct TCPNodeSubscriber {
 impl BrokerTask for TCPNodeSubscriber {
     fn get_config(&self) -> victory_broker::task::config::BrokerTaskConfig {
         BrokerTaskConfig::new("gcs-server")
-            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(50.0)))
+            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(10.0)))
             .with_subscription(BrokerTaskSubscription::new_updates_only(&TopicKey::from_str("")))
             .with_flag(BrokerCommanderFlags::NonBlocking)
     }
@@ -57,6 +58,7 @@ impl BrokerTask for TCPNodeSubscriber {
     fn on_execute(
         &mut self,
         inputs: &victory_data_store::database::view::DataView,
+        _: &BrokerTime,
     ) -> Result<victory_data_store::database::view::DataView, anyhow::Error> {
         let data_map = inputs.maps.clone();
         for (topic, value) in data_map.iter() {
@@ -137,7 +139,7 @@ async fn main() {
     tokio::spawn(webserver::websocket_server_task(tcp_tx.clone(), ws_tx));
 
     fmt()
-        .with_max_level(Level::DEBUG)
+        .with_max_level(Level::INFO)
         .with_target(true)
         .pretty()
         .compact()
@@ -158,7 +160,7 @@ async fn main() {
 
     let client = client.unwrap();
 
-    let client_handle = Arc::new(Mutex::new(client));
+    let client_handle = Arc::new(tokio::sync::Mutex::new(client));
 
     let command_queue = Arc::new(Mutex::new(DataView::new()));
     let sub_task = TCPNodeSubscriber {
@@ -301,7 +303,7 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             // thread::sleep(Duration::from_secs_f32(2.0));
-            tokio::time::sleep(Duration::from_millis(20)).await;
+            tokio::time::sleep(Duration::from_millis(1)).await;
             {
                 let mut map = sub_task_handle.lock().unwrap();
                 // Print the updates
@@ -335,7 +337,7 @@ async fn main() {
 
     node.init().unwrap();
     loop {
-        tokio::time::sleep(Duration::from_millis(5)).await;
+        tokio::time::sleep(Duration::from_millis(1)).await;
         match node.tick() {
             Ok(_) => (),
             Err(e) => {

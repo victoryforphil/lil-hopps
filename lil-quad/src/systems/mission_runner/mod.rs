@@ -12,7 +12,7 @@ use lil_link::common::{
 use log::{info, warn};
 use task::{TaskType, Tasks};
 
-use victory_broker::task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask};
+use victory_broker::{broker::time::BrokerTime, task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask}};
 use victory_data_store::{database::view::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
 
@@ -129,7 +129,7 @@ impl BrokerTask for MissionRunner {
             }
         }
         let mut config = BrokerTaskConfig::new("mission_runner")
-            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(10.0)));
+            .with_trigger(BrokerTaskTrigger::Always);
 
         for topic in &subbed_conditions {
             config.add_subscription(BrokerTaskSubscription::new_latest(topic));
@@ -137,10 +137,10 @@ impl BrokerTask for MissionRunner {
         config.clone()
     }
 
-    fn on_execute(&mut self, inputs: &DataView) -> Result<DataView, anyhow::Error> {
-        let mut out = DataView::new();
-        let dt = Timespan::from_duration(Duration::from_millis(100));
-        self.current_time = self.current_time.clone() + dt;
+    fn on_execute(&mut self, inputs: &DataView, timing: &BrokerTime) -> Result<DataView, anyhow::Error> {
+        let mut out = DataView::new_timed(timing.time_monotonic.clone());
+
+        self.current_time = timing.time_monotonic.clone();
 
         if self.current_idx >= self.tasks.len() {
             return Ok(out);
@@ -150,7 +150,7 @@ impl BrokerTask for MissionRunner {
 
         match current_task {
             TaskType::Timed(task) => {
-                let time_since = self.current_time.clone()
+                let time_since = timing.time_monotonic.clone()
                     - self.last_executed.clone().unwrap_or(Timepoint::zero());
                 if time_since.secs() >= task.duration.secs() {
                     info!("Running timed task {}", task.name);
@@ -174,6 +174,7 @@ impl BrokerTask for MissionRunner {
                     passed = inputs.get_latest::<_, Primitives>(&task.topic).is_ok();
                 }
                 if passed {
+                    info!("Running condition task {}", task.name);
                     self.run_task(task.name.clone(), task.task.clone(), &mut out);
                 }
             }
