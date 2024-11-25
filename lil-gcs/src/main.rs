@@ -50,7 +50,7 @@ pub struct TCPNodeSubscriber {
 impl BrokerTask for TCPNodeSubscriber {
     fn get_config(&self) -> victory_broker::task::config::BrokerTaskConfig {
         BrokerTaskConfig::new("gcs-server")
-            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(10.0)))
+            .with_trigger(BrokerTaskTrigger::Rate(Timespan::new_hz(5.0)))
             .with_subscription(BrokerTaskSubscription::new_updates_only(&TopicKey::from_str("")))
             .with_flag(BrokerCommanderFlags::NonBlocking)
     }
