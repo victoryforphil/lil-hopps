@@ -4,9 +4,7 @@ use std::time::Duration;
 use lil_link::common::{
     identifiers::{IDENT_BASE_STATUS, IDENT_STATUS_EKF, IDENT_STATUS_HEALTH},
     types::{
-        health_status::QuadHealthStatus, mode::QuadMode, pose_ned::QuadPoseNED,
-        request_arm::QuadSetModeRequest, request_land::QuadLandRequest,
-        request_takeoff::QuadTakeoffRequest,
+        health_status::QuadHealthStatus, mode::QuadMode, pose_ned::QuadPoseNED, request_arm::QuadSetModeRequest, request_land::QuadLandRequest, request_led::QuadLedRequest, request_takeoff::QuadTakeoffRequest
     },
 };
 use log::{info, warn};
@@ -55,6 +53,9 @@ impl MissionRunner {
             }
             Tasks::Waypoint(waypoint) => {
                 self.set_waypoint(waypoint, out);
+            }
+            Tasks::Led(led_req) => {
+                self.send_led(led_req, out);
             }
             _ => {
                 warn!("Unknown task type: {:?}", task);
@@ -108,6 +109,12 @@ impl MissionRunner {
         info!("Mission / Setting waypoint to {:?}", waypoint);
         out.add_latest(&TopicKey::from_str("cmd/waypoint"), waypoint)
             .expect("Failed to add waypoint message");
+    }
+
+    fn send_led(&mut self, led_req: QuadLedRequest, out: &mut DataView) {
+        info!("Sending LED control: {:?}", led_req);
+        out.add_latest(&TopicKey::from_str("cmd/led"), led_req)
+            .expect("Failed to add led message");
     }
 }
 

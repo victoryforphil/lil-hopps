@@ -9,15 +9,12 @@ use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
 
 use crate::common::types::{
-    pose_ned::QuadPoseNED, request_arm::QuadSetModeRequest, request_land::QuadLandRequest,
-    request_mode_set::QuadArmRequest, request_takeoff::QuadTakeoffRequest,
+    pose_ned::QuadPoseNED, request_arm::QuadSetModeRequest, request_land::QuadLandRequest, request_led::QuadLedRequest, request_mode_set::QuadArmRequest, request_takeoff::QuadTakeoffRequest
 };
 
 use super::{
     builders::{
-        cmd_arm::mavlink_build_arm_message, cmd_land::mavlink_build_cmd_land_message,
-        cmd_mode::mavlink_build_mode_message, cmd_takeoff::mavlink_build_cmd_takeoff_message,
-        cmd_waypoint::mavlink_build_cmd_waypoint_message,
+        cmd_arm::mavlink_build_arm_message, cmd_land::mavlink_build_cmd_land_message, cmd_led::mavlink_build_cmd_led_message, cmd_mode::mavlink_build_mode_message, cmd_takeoff::mavlink_build_cmd_takeoff_message, cmd_waypoint::mavlink_build_cmd_waypoint_message
     },
     core::{QuadLinkCore, QuadlinkCoreHandle},
     processors::{MavlinkGenericProcessor, MavlinkMessageProcessor},
@@ -201,6 +198,28 @@ impl BrokerTask for QuadlinkSystem{
             }
             _ => {
          
+            }
+        }
+
+        let led_topic = TopicKey::from_str("cmd/led");
+        // Add LED control
+        let led_req: Result<QuadLedRequest, _> =
+            inputs.get_latest(&led_topic);
+        if let Ok(led_req) = led_req {
+            if !led_req.ack {
+                match mavlink_build_cmd_led_message(led_req.red, led_req.green, led_req.blue) {
+                    Some(led_msg) => {
+                        info!("Sending LED control: {:?}", led_req);
+                        let mavlink = self.mavlink.lock().unwrap();
+                        mavlink.send(&led_msg).unwrap();
+                    }
+                    None => {}
+                }
+                let mut new_ack = led_req;
+                new_ack.ack();
+                output
+                    .add_latest(&led_topic, new_ack)
+                    .expect("Failed to add latest led ack");
             }
         }
 
