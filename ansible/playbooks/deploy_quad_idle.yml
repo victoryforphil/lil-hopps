@@ -33,7 +33,11 @@
         src: ../../target/arm-unknown-linux-gnueabihf/release/quad_idle
         dest: /lil-hopps/quad_idle
         mode: '0755'
-
+    - name: Copy lil-rerun/assets to /lil-hopps/assets
+      copy:
+        src: ../../lil-rerun/assets
+        dest: /lil-hopps
+        mode: '0755'
     - name: Create systemd service file for quad_idle
       copy:
         dest: /etc/systemd/system/quad_idle.service
@@ -46,7 +50,7 @@
           Type=simple
           Environment="LIL_DIR=."
           WorkingDirectory=/lil-hopps
-          ExecStart=/lil-hopps/quad_idle -c serial:/dev/serial0:115200 --hz 15 -s 0.0.0.0:7777
+          ExecStart=/lil-hopps/quad_idle -c serial:/dev/serial0:115200 --hz 30 --port 7777
           Restart=always
           User=root
 

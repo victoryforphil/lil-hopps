@@ -37,7 +37,7 @@ impl MavLinkHelper {
                 target_system: 0,
                 target_component: 0,
                 req_stream_id: 0,
-                req_message_rate: 50,
+                req_message_rate: 30,
                 start_stop: 1,
             },
         )
