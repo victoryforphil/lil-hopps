@@ -130,7 +130,7 @@ impl QuadLinkCore {
                     Err(MessageReadError::Io(e)) => {
                         if e.kind() == std::io::ErrorKind::WouldBlock {
                             //no messages currently available to receive -- wait a while
-                            thread::sleep(Duration::from_secs(1));
+                            thread::sleep(Duration::from_millis(1));
                         } else {
                             println!("recv error: {e:?}");
                         }

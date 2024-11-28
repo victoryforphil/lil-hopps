@@ -62,6 +62,9 @@ impl BrokerTask for QuadlinkSystem{
             .with_subscription(BrokerTaskSubscription::new_latest(
                 &TopicKey::from_str("cmd/waypoint")
             ))
+            .with_subscription(BrokerTaskSubscription::new_latest(
+                &TopicKey::from_str("cmd/led")
+            ))
     }
 
     fn on_execute(&mut self, inputs: &DataView, timing: &BrokerTime) -> Result<DataView, anyhow::Error> {
@@ -175,7 +178,7 @@ impl BrokerTask for QuadlinkSystem{
                 if waypoint_req.distance(&last_waypoint) > 0.1 =>
             {
                 self.last_requested_waypoint = Some(waypoint_req.clone());
-                info!("Sending UPDATED waypoint: {:?}", waypoint_req);
+                info!("Quadlink // System // Sending UPDATED waypoint: {:?}", waypoint_req);
                 match mavlink_build_cmd_waypoint_message(waypoint_req.clone()) {
                     Some(waypoint_msg) => {
                         let mavlink = self.mavlink.lock().unwrap();
@@ -187,7 +190,7 @@ impl BrokerTask for QuadlinkSystem{
             // If no previous waypoint, set and send
             (Ok(waypoint_req), None) => {
                 self.last_requested_waypoint = Some(waypoint_req.clone());
-                info!("Sending NEW waypoint: {:?}", waypoint_req);
+                info!("Quadlink // System // Sending NEW waypoint: {:?}", waypoint_req);
                 match mavlink_build_cmd_waypoint_message(waypoint_req.clone()) {
                     Some(waypoint_msg) => {
                         let mavlink = self.mavlink.lock().unwrap();
@@ -209,7 +212,7 @@ impl BrokerTask for QuadlinkSystem{
             if !led_req.ack {
                 match mavlink_build_cmd_led_message(led_req.red, led_req.green, led_req.blue) {
                     Some(led_msg) => {
-                        info!("Sending LED control: {:?}", led_req);
+                        info!("Quadlink // System // Sending LED control: {:?}", led_req);
                         let mavlink = self.mavlink.lock().unwrap();
                         mavlink.send(&led_msg).unwrap();
                     }

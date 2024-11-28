@@ -9,3 +9,9 @@
         src: ../../target/arm-unknown-linux-gnueabihf/release/quad_idle
         dest: /lil-hopps/quad_idle
         mode: '0755'
+    - name: Enable and start quad_idle service
+      systemd:
+        name: quad_idle
+        enabled: yes
+        state: started
+        daemon_reload: yes

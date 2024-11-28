@@ -6,6 +6,7 @@ use lil_link::common::{
 };
 use log::info;
 use serde::{Deserialize, Serialize};
+use tracing::instrument;
 use victory_broker::{broker::time::BrokerTime, task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask}};
 use victory_data_store::{database::view::DataView, topics::TopicKey};
 use victory_wtf::Timespan;
@@ -43,7 +44,7 @@ impl BrokerTask for HealthCheck {
     fn init(&mut self) -> Result<(), anyhow::Error> {
         Ok(())
     }
-
+    #[instrument(skip_all, name = "health_check_get_config")]
     fn get_config(&self) -> BrokerTaskConfig {
         BrokerTaskConfig::new("health_check")
             .with_trigger(BrokerTaskTrigger::Always)
@@ -52,7 +53,7 @@ impl BrokerTask for HealthCheck {
             ))
             .with_subscription(BrokerTaskSubscription::new_latest(&QuadHealthStatus::get_topic_key()))
     }
-
+    #[instrument(skip_all, name = "health_check_on_execute")]
     fn on_execute(&mut self, inputs: &DataView, timing: &BrokerTime) -> Result<DataView, anyhow::Error> {
         let ekf_status: QuadEkfStatus = inputs
             .get_latest(&TopicKey::from_str(&format!(
@@ -83,7 +84,7 @@ impl BrokerTask for HealthCheck {
                     info!("EKF is changed to healthy");
                 }
                 health_status.healthy = true;
-                health_status.reason = None;
+                health_status.reason = Some("EKF is healthy".to_string());
             }
         }
         out.add_latest(&QuadHealthStatus::get_topic_key(), health_status)?;

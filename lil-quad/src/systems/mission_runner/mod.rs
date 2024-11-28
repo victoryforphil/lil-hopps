@@ -10,6 +10,7 @@ use lil_link::common::{
 use log::{info, warn};
 use task::{TaskType, Tasks};
 
+use tracing::instrument;
 use victory_broker::{broker::time::BrokerTime, task::{config::BrokerTaskConfig, subscription::BrokerTaskSubscription, trigger::BrokerTaskTrigger, BrokerTask}};
 use victory_data_store::{database::view::DataView, primitives::Primitives, topics::TopicKey};
 use victory_wtf::{Timepoint, Timespan};
@@ -37,6 +38,7 @@ impl MissionRunner {
         }
     }
 
+    #[instrument(skip_all, name = "mission_runner_run_task")]
     fn run_task(&mut self, name: String, task: Tasks, out: &mut DataView) {
         match task {
             Tasks::Takeoff(altitude) => {
@@ -66,14 +68,14 @@ impl MissionRunner {
         out.add_latest(&TopicKey::from_str("status/mission/current/name"), name)
             .expect("Failed to add current task");
     }
-
+    #[instrument(skip_all, name = "mission_runner_send_land")]
     fn send_land(&mut self, out: &mut DataView) {
         info!("Sending land command");
         let land_msg = QuadLandRequest { ack: false };
         out.add_latest(&TopicKey::from_str("cmd/land"), land_msg)
             .expect("Failed to add land message");
     }
-
+    #[instrument(skip_all, name = "mission_runner_send_takeoff")]
     fn send_takeoff(&mut self, altitude: f32, out: &mut DataView) {
         info!("Sending takeoff command with altitude {}", altitude);
         let takeoff_msg = QuadTakeoffRequest {
@@ -85,6 +87,7 @@ impl MissionRunner {
             .expect("Failed to add takeoff message");
     }
 
+    #[instrument(skip_all, name = "mission_runner_send_arm")]
     fn send_arm(&mut self, out: &mut DataView) {
         info!("Sending arm command");
         let arm_msg = ArmMessage {
@@ -94,7 +97,7 @@ impl MissionRunner {
         out.add_latest(&TopicKey::from_str("cmd/arm"), arm_msg)
             .expect("Failed to add arm message");
     }
-
+    #[instrument(skip_all, name = "mission_runner_send_set_mode")]
     fn send_set_mode(&mut self, mode: QuadMode, out: &mut DataView) {
         info!("Sending set mode command with mode {}", mode);
         let mode_msg = QuadSetModeRequest {
@@ -104,13 +107,14 @@ impl MissionRunner {
         out.add_latest(&TopicKey::from_str("cmd/mode"), mode_msg)
             .expect("Failed to add mode message");
     }
-
+    #[instrument(skip_all, name = "mission_runner_set_waypoint")]
     fn set_waypoint(&mut self, waypoint: QuadPoseNED, out: &mut DataView) {
         info!("Mission / Setting waypoint to {:?}", waypoint);
         out.add_latest(&TopicKey::from_str("cmd/waypoint"), waypoint)
             .expect("Failed to add waypoint message");
-    }
+    }   
 
+    #[instrument(skip_all, name = "mission_runner_send_led")]
     fn send_led(&mut self, led_req: QuadLedRequest, out: &mut DataView) {
         info!("Sending LED control: {:?}", led_req);
         out.add_latest(&TopicKey::from_str("cmd/led"), led_req)
@@ -119,6 +123,7 @@ impl MissionRunner {
 }
 
 impl BrokerTask for MissionRunner {
+    #[instrument(skip_all, name = "mission_runner_init")]
     fn init(&mut self) -> Result<(), anyhow::Error> {
         for task in &self.tasks {
             if let TaskType::Condition(task) = task.clone() {
@@ -127,7 +132,7 @@ impl BrokerTask for MissionRunner {
         }
         Ok(())
     }
-
+    #[instrument(skip_all, name = "mission_runner_get_config")]
     fn get_config(&self) -> BrokerTaskConfig {
         let mut subbed_conditions = self.subbed_conditions.clone();
         for task in &self.tasks {
@@ -141,9 +146,10 @@ impl BrokerTask for MissionRunner {
         for topic in &subbed_conditions {
             config.add_subscription(BrokerTaskSubscription::new_latest(topic));
         }
+        info!("MissionRunner // Subscribed to {:?}", subbed_conditions);
         config.clone()
     }
-
+    #[instrument(skip_all, name = "mission_runner_on_execute")]
     fn on_execute(&mut self, inputs: &DataView, timing: &BrokerTime) -> Result<DataView, anyhow::Error> {
         let mut out = DataView::new_timed(timing.time_monotonic.clone());
 
@@ -157,6 +163,8 @@ impl BrokerTask for MissionRunner {
 
         match current_task {
             TaskType::Timed(task) => {
+                let _timed_span = tracing::span!(tracing::Level::TRACE, "timed_check");
+                let _timed_enter = _timed_span.enter();
                 let time_since = timing.time_monotonic.clone()
                     - self.last_executed.clone().unwrap_or(Timepoint::zero());
                 if time_since.secs() >= task.duration.secs() {
@@ -165,6 +173,8 @@ impl BrokerTask for MissionRunner {
                 }
             }
             TaskType::Condition(task) => {
+                let _cond_span = tracing::span!(tracing::Level::TRACE, "condition_check");
+                let _cond_enter = _cond_span.enter();
                 let read_value = inputs.get_latest_map(&task.topic).unwrap();
                 let mut passed = false;
 

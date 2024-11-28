@@ -21,6 +21,7 @@ use tracing::info;
 use tracing::warn;
 use tracing::Level;
 use tracing_subscriber::fmt;
+use tracing_subscriber::layer::SubscriberExt;
 
 use clap::Parser;
 use victory_broker::adapters::tcp::tcp_server::TcpBrokerServer;
@@ -47,21 +48,33 @@ struct SILArgs {
 
     #[clap(short, long, default_value = "3000")]
     port: u16,
+
+    #[clap(long, help = "Enable tracing output")]
+    tracing: bool,
 }
 
 #[tokio::main]
 async fn main() {
-    fmt()
-        .with_max_level(Level::INFO)
-        .with_target(true)
-        .pretty()
-        .compact()
-        .with_file(false)
-        .with_line_number(false)
-        .without_time()
-        .init();
-
     let args = SILArgs::parse();
+
+    if !args.tracing {
+        tracing_subscriber::fmt()
+            .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+            .with_target(true)
+            .pretty()
+            .compact()
+            .with_file(false)
+            .with_line_number(false)
+            .without_time()
+            .init();
+    } else {
+      /*
+        tracing::subscriber::set_global_default(
+            tracing_subscriber::registry().with(tracing_tracy::TracyLayer::default())
+        ).expect("setup tracy layer");
+     */
+    }
+
     info!("Running 'quad_idle' with args: {:#?}", args);
 
     let bind_addr = format!("{}:{}", args.address, args.port);
@@ -85,7 +98,7 @@ async fn main() {
             TimedTask::new(
                 "Initial Red".to_string(),
                 Timespan::new_secs(0.),
-                Tasks::Led(QuadLedRequest::new(255, 0, 0))
+                Tasks::Led(QuadLedRequest::new(255, 0, 255))
             )
         );
     
@@ -113,8 +126,6 @@ async fn main() {
             )
         );
     
-    let mission_runner = MissionRunner::new(vec![initial_red, white_when_healthy, red_when_flying]);
-    node.add_task(Arc::new(Mutex::new(mission_runner))).unwrap();
 
     // Add systems as tasks
     let mavlink_sys = QuadlinkSystem::new_from_connection_string(args.connection_string.as_str()).unwrap();
@@ -126,9 +137,12 @@ async fn main() {
     node.add_task(Arc::new(Mutex::new(health_check))).unwrap();
 
     let rerun_sys = RerunSystem::new("quad_idle".to_string());
-    node.add_task(Arc::new(Mutex::new(rerun_sys))).unwrap();
+    if !args.tracing {
+        //node.add_task(Arc::new(Mutex::new(rerun_sys))).unwrap();
+    }
 
-
+    let mission_runner = MissionRunner::new(vec![initial_red, white_when_healthy, red_when_flying]);
+    node.add_task(Arc::new(Mutex::new(mission_runner))).unwrap();
 
     // Initialize node
     node.init().unwrap();
@@ -143,7 +157,7 @@ async fn main() {
                     warn!("Node // Error: {:?}", e);
                 }
             }
-            tokio::time::sleep(Duration::from_millis(5)).await;
+            tokio::time::sleep(Duration::from_millis(1)).await;
         }
     });
 
@@ -170,6 +184,7 @@ async fn main() {
                 (tick_duration.as_duration().as_millis() - sleep_duration.as_millis())
             );
         }
+        
         tokio::time::sleep(sleep_duration.saturating_sub(tick_duration.as_duration())).await;
     }
 }

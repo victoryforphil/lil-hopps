@@ -12,7 +12,7 @@ pub fn mavlink_build_cmd_led_message(
     let led_cmd = mavlink::ardupilotmega::MavMessage::LED_CONTROL(
         LED_CONTROL_DATA {
             instance: 0,
-            pattern: 0,
+            pattern: 255,
             custom_len: 3,
             custom_bytes: bytes.try_into().unwrap(),
             target_system: 0,
